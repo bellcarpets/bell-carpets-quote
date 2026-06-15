@@ -22,6 +22,7 @@ import {
   upsertUser, getUserByOpenId,
 } from "./db";
 import { ENV } from "./_core/env";
+import { sendEmail, isEmailConfigured } from "./email";
 
 const ADMIN_SESSION_COOKIE = "bc_admin_session";
 const SESSION_DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
@@ -388,6 +389,38 @@ export const appRouter = router({
         await createNotification({ quoteId: input.id, type: "email_sent", title: `Quote link emailed for ${quote?.quoteNumber}` });
         return { success: true };
       }),
+
+    sendEmail: publicProcedure
+      .input(z.object({
+        id: z.number(),
+        to: z.string().email(),
+        subject: z.string(),
+        body: z.string(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        await requireAdminSession(ctx);
+        const quote = await getQuoteById(input.id);
+        if (!quote) throw new TRPCError({ code: "NOT_FOUND" });
+
+        const result = await sendEmail({
+          to: input.to,
+          subject: input.subject,
+          text: input.body,
+          html: input.body.replace(/\n/g, "<br>"),
+        });
+
+        if (result.success) {
+          await updateQuote(input.id, { emailedAt: new Date() });
+          await createNotification({ quoteId: input.id, type: "email_sent", title: `Quote emailed to ${input.to} for ${quote.quoteNumber}` });
+        }
+
+        return { success: result.success, error: result.error, smtpConfigured: isEmailConfigured() };
+      }),
+
+    checkEmailConfig: publicProcedure.query(async ({ ctx }) => {
+      await requireAdminSession(ctx);
+      return { configured: isEmailConfigured() };
+    }),
   }),
 
   // ─── Agencies ────────────────────────────────────────────────────────────────

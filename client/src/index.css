@@ -763,3 +763,37 @@
 .animate-fade-in {
   animation: fade-in 180ms cubic-bezier(0.23, 1, 0.32, 1) both;
 }
+
+/* ─── Print / PDF Styles ─────────────────────────────────────────────────── */
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body {
+    background: #000 !important;
+    color: #fff !important;
+  }
+
+  .no-print,
+  .top-nav,
+  .sticky-save-footer,
+  nav,
+  header {
+    display: none !important;
+  }
+
+  .print-page-break {
+    page-break-before: always;
+  }
+
+  .quote-view-tier-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  a {
+    text-decoration: none !important;
+  }
+}

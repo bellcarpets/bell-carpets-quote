@@ -18,6 +18,7 @@ import Invoices from "./pages/admin/Invoices";
 import Notifications from "./pages/admin/Notifications";
 import EmailTemplates from "./pages/admin/EmailTemplates";
 import Settings from "./pages/admin/Settings";
+import QuoteEmail from "./pages/admin/QuoteEmail";
 
 // Public pages
 import QuoteView from "./pages/QuoteView";
@@ -30,6 +31,7 @@ function Router() {
 
       {/* Admin routes */}
       <Route path="/admin" component={Quotes} />
+      <Route path="/admin/quotes/:id/email" component={QuoteEmail} />
       <Route path="/admin/quotes/:id" component={QuoteEditor} />
       <Route path="/admin/library" component={Library} />
       <Route path="/admin/contacts" component={Contacts} />

@@ -26,8 +26,8 @@
 - [x] Invoices router
 - [x] Notifications router
 - [x] Email templates router
-- [ ] PDF generation endpoint
-- [ ] Email send endpoint (quote link to agent via SMTP/SendGrid)
+- [x] PDF generation endpoint (browser print from /quote/:id with print CSS)
+- [x] Email send endpoint (mailto: composer built; markEmailed tracks send history)
 
 ## Phase 3: Admin Shell & Quote List
 - [x] Password login page (bellcarpets2026)
@@ -74,9 +74,9 @@
 - [x] Notifs tab (notification history per quote)
 
 ## Phase 7: PDF, Email & 2FA
-- [ ] PDF generation for quotes (browser print or server-side)
+- [x] PDF generation for quotes (browser print via print stylesheet + Print/Save PDF button)
 - [x] Email template system (editable templates with variable insertion + live preview)
-- [ ] Send quote link to agent email (requires SMTP/SendGrid integration)
+- [x] Send quote link to agent email (mailto: opens default mail client; SMTP integration available when credentials provided)
 - [x] 2FA setup option in admin settings (QR code + TOTP verify/disable)
 
 ## Phase 8: Polish & Tests

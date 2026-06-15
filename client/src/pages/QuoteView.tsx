@@ -1,6 +1,6 @@
 import { useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { UNDERLAY_LABELS, TIER_LABELS, formatCurrency, getDaysLeft } from "@/lib/quoteHelpers";
 import { Phone, Mail, MapPin, Clock, CheckCircle, Star, AlertTriangle } from "lucide-react";
 
@@ -10,11 +10,21 @@ export default function QuoteView() {
   const { id } = useParams<{ id: string }>();
   const quoteId = parseInt(id!);
   const [selectedTier, setSelectedTier] = useState<string | null>(null);
+  const searchParams = new URLSearchParams(window.location.search);
+  const printMode = searchParams.get("print") === "1";
 
   const quoteQuery = trpc.quotes.getPublic.useQuery({ id: quoteId }, {
     enabled: !!quoteId && !isNaN(quoteId),
     retry: false,
   });
+
+  // Auto-trigger print dialog when ?print=1 is in the URL
+  useEffect(() => {
+    if (printMode && !quoteQuery.isLoading && quoteQuery.data) {
+      const timer = setTimeout(() => window.print(), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [printMode, quoteQuery.isLoading, quoteQuery.data]);
 
   const q = quoteQuery.data;
 
