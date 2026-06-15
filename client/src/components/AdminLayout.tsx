@@ -39,7 +39,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         <div className="top-nav-inner">
           {/* Logo */}
           <div className="top-nav-logo mr-3">
-            BELL<span>CARPETS</span>
+            <img src="/manus-storage/bell-carpets-logo-white_e8bda457.svg" alt="Bell Carpets" className="h-7 w-auto" />
           </div>
 
           {/* Scope pills */}
