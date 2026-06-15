@@ -4,66 +4,36 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import { AdminAuthProvider } from "./contexts/AdminAuthContext";
-
-// Admin pages
-import Login from "./pages/Login";
-import Quotes from "./pages/admin/Quotes";
-import QuoteEditor from "./pages/admin/QuoteEditor";
-import Library from "./pages/admin/Library";
-import Contacts from "./pages/admin/Contacts";
-import Agencies from "./pages/admin/Agencies";
-import CalendarPage from "./pages/admin/Calendar";
-import Invoices from "./pages/admin/Invoices";
-import Notifications from "./pages/admin/Notifications";
-import EmailTemplates from "./pages/admin/EmailTemplates";
-import Settings from "./pages/admin/Settings";
-import QuoteEmail from "./pages/admin/QuoteEmail";
-
-// Public pages
-import QuoteView from "./pages/QuoteView";
+import Home from "./pages/Home";
+import Admin from "./pages/Admin";
+import QuotePage from "./pages/QuotePage";
+import InvoicePage from "./pages/InvoicePage";
+import ReviewPage from "./pages/ReviewPage";
+import { usePwaForceUpdate } from "./hooks/usePwaForceUpdate";
 
 function Router() {
   return (
     <Switch>
-      {/* Public customer-facing quote view */}
-      <Route path="/quote/:id" component={QuoteView} />
-
-      {/* Admin routes */}
-      <Route path="/admin" component={Quotes} />
-      <Route path="/admin/quotes/:id/email" component={QuoteEmail} />
-      <Route path="/admin/quotes/:id" component={QuoteEditor} />
-      <Route path="/admin/library" component={Library} />
-      <Route path="/admin/contacts" component={Contacts} />
-      <Route path="/admin/agencies" component={Agencies} />
-      <Route path="/admin/calendar" component={CalendarPage} />
-      <Route path="/admin/invoices" component={Invoices} />
-      <Route path="/admin/notifications" component={Notifications} />
-      <Route path="/admin/email-templates" component={EmailTemplates} />
-      <Route path="/admin/settings" component={Settings} />
-
-      {/* Login */}
-      <Route path="/login" component={Login} />
-
-      {/* Root redirect to admin */}
-      <Route path="/" component={Quotes} />
-
-      <Route path="/404" component={NotFound} />
+      <Route path={"/quote/:slug"} component={({ params }) => <QuotePage slug={params.slug} />} />
+      <Route path={"/invoice/:slug"} component={({ params }) => <InvoicePage slug={params.slug} />} />
+      <Route path={"/review/:slug"} component={({ params }) => <ReviewPage slug={params.slug} />} />
+      <Route path={"/admin"} component={Admin} />
+      <Route path={"/"} component={Home} />
+      <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>
   );
 }
 
 function App() {
+  usePwaForceUpdate();
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="dark">
-        <AdminAuthProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Router />
-          </TooltipProvider>
-        </AdminAuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Router />
+        </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );

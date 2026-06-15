@@ -94,3 +94,15 @@
 - [x] Quote editor rebuilt with accordion sections
 - [x] Library, Contacts, Agencies, Calendar, Invoices, Notifs, Email Templates, Settings all rebuilt
 - [x] Customer-facing quote view rebuilt to match original design language
+
+## Phase 10: Original Code Restore & Live Data Migration
+- [x] Original source code restored from tar.gz export (Admin.tsx, QuotePage.tsx, InvoicePage.tsx, ReviewPage.tsx, all server routers)
+- [x] All original shared files restored (quoteConfigTypes.ts, aestUtils.ts)
+- [x] App.tsx updated with original routes (/quote/:slug, /invoice/:slug, /review/:slug, /admin)
+- [x] Required npm packages installed (@dnd-kit, pdfkit, xero-node, resend)
+- [x] Zero TypeScript structural errors
+- [x] Original schema applied to database (quotes, invoices, contacts, quote_acceptances, scopeLibrary, quote_views, notification_log, xero_tokens)
+- [x] Live data migrated from quote.bellcarpets.com.au (42 quotes, 14 contacts, 12 invoices, 7 scope items)
+- [ ] Resend API key configured (email sending)
+- [ ] Twilio credentials configured (SMS sending)
+- [ ] GitHub backup (bellcarpets/bell-carpets repo)
