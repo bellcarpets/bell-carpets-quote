@@ -103,6 +103,6 @@
 - [x] Zero TypeScript structural errors
 - [x] Original schema applied to database (quotes, invoices, contacts, quote_acceptances, scopeLibrary, quote_views, notification_log, xero_tokens)
 - [x] Live data migrated from quote.bellcarpets.com.au (42 quotes, 14 contacts, 12 invoices, 7 scope items)
-- [ ] Resend API key configured (email sending)
-- [ ] Twilio credentials configured (SMS sending)
-- [ ] GitHub backup (bellcarpets/bell-carpets repo)
+- [x] Resend API key configured (email sending)
+- [x] Twilio credentials configured (SMS sending — +61468009879)
+- [x] GitHub backup (bellcarpets/bell-carpets-quote — private repo)
