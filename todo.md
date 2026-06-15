@@ -85,3 +85,12 @@
 - [x] Empty states for all tabs
 - [x] Error handling throughout
 - [x] Final checkpoint
+
+## Phase 9: UI Redesign to Match Original
+- [x] CSS theme rebuilt with Cormorant Garamond + Outfit fonts
+- [x] OKLCH colour tokens matching original dark theme
+- [x] Admin layout nav rebuilt to match original
+- [x] Quotes list rebuilt to match original
+- [x] Quote editor rebuilt with accordion sections
+- [x] Library, Contacts, Agencies, Calendar, Invoices, Notifs, Email Templates, Settings all rebuilt
+- [x] Customer-facing quote view rebuilt to match original design language

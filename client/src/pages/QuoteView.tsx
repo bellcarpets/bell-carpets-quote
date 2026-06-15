@@ -1,32 +1,10 @@
 import { useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
 import { UNDERLAY_LABELS, TIER_LABELS, formatCurrency, getDaysLeft } from "@/lib/quoteHelpers";
-import { Phone, Mail, MapPin, Clock, CheckCircle, Star } from "lucide-react";
+import { Phone, Mail, MapPin, Clock, CheckCircle, Star, AlertTriangle } from "lucide-react";
 
 const TIER_ORDER = ["good", "better", "best"] as const;
-
-const TIER_STYLES = {
-  good: {
-    border: "border-zinc-600",
-    badge: "bg-zinc-700 text-zinc-100",
-    header: "bg-zinc-800",
-    accent: "#9ca3af",
-  },
-  better: {
-    border: "border-amber-600/60",
-    badge: "bg-amber-700/80 text-amber-100",
-    header: "bg-amber-900/30",
-    accent: "#d97706",
-  },
-  best: {
-    border: "border-amber-400",
-    badge: "bg-amber-500 text-black",
-    header: "bg-amber-900/50",
-    accent: "#f59e0b",
-  },
-};
 
 export default function QuoteView() {
   const { id } = useParams<{ id: string }>();
@@ -42,18 +20,22 @@ export default function QuoteView() {
 
   if (quoteQuery.isLoading) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-        <div className="text-zinc-400 text-sm">Loading your quote...</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-foreground/20 border-t-foreground rounded-full animate-spin mx-auto mb-3" />
+          <div className="text-muted-foreground text-sm">Loading your quote...</div>
+        </div>
       </div>
     );
   }
 
   if (quoteQuery.isError || !q) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="text-zinc-300 font-semibold mb-2">Quote not found</div>
-          <div className="text-zinc-500 text-sm">This quote may have expired or the link is incorrect.</div>
+          <AlertTriangle className="w-10 h-10 text-muted-foreground mx-auto mb-3 opacity-40" />
+          <div className="font-display text-xl font-semibold text-foreground mb-2">Quote not found</div>
+          <div className="text-muted-foreground text-sm">This quote may have expired or the link is incorrect.</div>
         </div>
       </div>
     );
@@ -63,90 +45,98 @@ export default function QuoteView() {
   const services = q.services ?? [];
   const daysLeft = getDaysLeft(q.expiryDate);
   const isExpired = daysLeft !== null && daysLeft <= 0;
-
   const activeTier: string | undefined = selectedTier ?? (q.selectedTier ?? undefined);
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Header */}
-      <header className="bg-zinc-900 border-b border-zinc-800">
+      <header className="border-b border-border bg-card">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="font-bold text-white tracking-widest text-sm uppercase">Bell</span>
-              <span className="font-bold text-amber-400 tracking-widest text-sm uppercase">Carpets</span>
-            </div>
-            <div className="text-xs text-zinc-500">Gold Coast Flooring Specialists</div>
+            <div className="font-display text-xl font-semibold tracking-tight text-foreground">Bell Carpets</div>
+            <div className="text-xs text-muted-foreground mt-0.5">Gold Coast Flooring Specialists</div>
           </div>
           <div className="text-right">
-            <div className="text-sm font-semibold text-white">{q.quoteNumber}</div>
-            <div className="text-xs text-zinc-500">
+            <div className="text-sm font-semibold text-foreground">{q.quoteNumber}</div>
+            <div className="text-xs text-muted-foreground">
               {new Date(q.issueDate).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })}
             </div>
           </div>
         </div>
       </header>
 
-      <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+      <div className="max-w-4xl mx-auto px-4 py-6 space-y-5">
         {/* Expiry notice */}
         {isExpired ? (
-          <div className="bg-red-950/50 border border-red-800 rounded-xl p-4 text-center">
-            <div className="text-red-400 font-semibold">This quote has expired</div>
-            <div className="text-red-500 text-sm mt-1">Please contact Bell Carpets for an updated quote.</div>
+          <div className="border border-[oklch(35%_0.15_25)] bg-[oklch(8%_0.04_25)] rounded-xl p-4 text-center">
+            <div className="font-semibold" style={{ color: "oklch(65% 0.18 25)" }}>This quote has expired</div>
+            <div className="text-sm mt-1 text-muted-foreground">Please contact Bell Carpets for an updated quote.</div>
           </div>
         ) : daysLeft !== null && daysLeft <= 7 ? (
-          <div className="bg-amber-950/50 border border-amber-800 rounded-xl p-3 flex items-center gap-2">
-            <Clock className="w-4 h-4 text-amber-400 shrink-0" />
-            <span className="text-amber-300 text-sm font-medium">
+          <div className="border border-[oklch(40%_0.12_75)] bg-[oklch(8%_0.03_75)] rounded-xl p-3 flex items-center gap-2">
+            <Clock className="w-4 h-4 shrink-0" style={{ color: "oklch(72% 0.15 75)" }} />
+            <span className="text-sm" style={{ color: "oklch(80% 0.1 75)" }}>
               This quote expires in {daysLeft} day{daysLeft !== 1 ? "s" : ""} — {q.expiryDate ? new Date(q.expiryDate).toLocaleDateString("en-AU") : ""}
             </span>
           </div>
         ) : null}
 
         {/* Property & Client */}
-        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-          <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Quote Prepared For</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {q.clientName && (
-              <div>
-                <div className="text-xs text-zinc-500">Client</div>
-                <div className="font-semibold text-white">{q.clientName}</div>
-              </div>
-            )}
-            {q.propertyAddress && (
-              <div>
-                <div className="text-xs text-zinc-500 flex items-center gap-1"><MapPin className="w-3 h-3" /> Property</div>
-                <div className="font-medium text-zinc-200">{q.propertyAddress}</div>
-              </div>
-            )}
+        <div className="section-accordion">
+          <div className="section-accordion-header">Quote Prepared For</div>
+          <div className="section-accordion-body">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {q.clientName && (
+                <div>
+                  <div className="text-xs text-muted-foreground mb-0.5">Client</div>
+                  <div className="font-semibold text-foreground">{q.clientName}</div>
+                </div>
+              )}
+              {q.propertyAddress && (
+                <div>
+                  <div className="text-xs text-muted-foreground mb-0.5 flex items-center gap-1"><MapPin className="w-3 h-3" /> Property</div>
+                  <div className="font-medium text-foreground">{q.propertyAddress}</div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
         {/* 3-Tier Pricing */}
         {tiers.length > 0 && (
           <div>
-            <h2 className="text-lg font-bold text-white mb-3">Your Flooring Options</h2>
+            <h2 className="font-display text-xl font-semibold text-foreground mb-3">Your Flooring Options</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {TIER_ORDER.filter(t => tiers.find((x: any) => x.tier === t)).map(tierKey => {
                 const tier = tiers.find((x: any) => x.tier === tierKey);
                 if (!tier) return null;
-                const style = TIER_STYLES[tierKey];
                 const isSelected = activeTier === tierKey;
                 const isBest = tierKey === "best";
+
+                const tierBorderClass = tierKey === "best"
+                  ? "border-[oklch(75%_0.15_75)]"
+                  : tierKey === "better"
+                  ? "border-[oklch(45%_0.08_75)]"
+                  : "border-border";
+
+                const tierBadgeStyle = tierKey === "best"
+                  ? { background: "oklch(72% 0.15 75)", color: "oklch(10% 0 0)" }
+                  : tierKey === "better"
+                  ? { background: "oklch(25% 0.05 75)", color: "oklch(75% 0.1 75)", border: "1px solid oklch(40% 0.08 75)" }
+                  : { background: "oklch(14% 0 0)", color: "oklch(60% 0 0)", border: "1px solid oklch(25% 0 0)" };
 
                 return (
                   <div
                     key={tierKey}
                     onClick={() => setSelectedTier(tierKey)}
-                    className={cn(
-                      "relative border-2 rounded-xl overflow-hidden cursor-pointer transition-all",
-                      style.border,
-                      isSelected ? "ring-2 ring-amber-400 ring-offset-2 ring-offset-zinc-950 scale-[1.02]" : "hover:scale-[1.01]"
-                    )}
+                    className={`relative border-2 rounded-xl overflow-hidden cursor-pointer transition-all ${tierBorderClass} ${
+                      isSelected ? "ring-2 ring-offset-2 ring-offset-background scale-[1.02]" : "hover:scale-[1.01]"
+                    }`}
+                    style={isSelected ? { "--tw-ring-color": "oklch(75% 0.15 75)" } as React.CSSProperties : {}}
                   >
                     {isBest && (
                       <div className="absolute top-2 right-2 z-10">
-                        <span className="bg-amber-400 text-black text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1" style={{ background: "oklch(72% 0.15 75)", color: "oklch(10% 0 0)" }}>
                           <Star className="w-3 h-3 fill-current" /> Recommended
                         </span>
                       </div>
@@ -158,41 +148,41 @@ export default function QuoteView() {
                         <img src={tier.heroImageUrl} alt={tier.productName ?? ""} className="w-full h-full object-cover" />
                       </div>
                     ) : (
-                      <div className={cn("h-32 flex items-center justify-center", style.header)}>
-                        <div className="text-2xl font-black tracking-widest" style={{ color: style.accent }}>
+                      <div className="h-32 flex items-center justify-center bg-[oklch(8%_0_0)]">
+                        <div className="font-display text-3xl font-black tracking-widest text-muted-foreground opacity-40">
                           {TIER_LABELS[tierKey]}
                         </div>
                       </div>
                     )}
 
-                    <div className="p-4 bg-zinc-900">
+                    <div className="p-4 bg-card">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className={cn("text-xs font-bold px-2 py-0.5 rounded", style.badge)}>
+                        <span className="text-xs font-bold px-2 py-0.5 rounded" style={tierBadgeStyle}>
                           {tier.label || TIER_LABELS[tierKey]}
                         </span>
-                        {isSelected && <CheckCircle className="w-4 h-4 text-amber-400 ml-auto" />}
+                        {isSelected && <CheckCircle className="w-4 h-4 ml-auto" style={{ color: "oklch(72% 0.15 75)" }} />}
                       </div>
 
-                      <div className="font-semibold text-white text-sm mb-1">{tier.productName}</div>
-                      {tier.manufacturer && <div className="text-xs text-zinc-400 mb-2">{tier.manufacturer}</div>}
+                      <div className="font-semibold text-foreground text-sm mb-1">{tier.productName}</div>
+                      {tier.manufacturer && <div className="text-xs text-muted-foreground mb-2">{tier.manufacturer}</div>}
 
                       {(tier.fibre || tier.pileType) && (
                         <div className="flex gap-2 mb-2 flex-wrap">
-                          {tier.fibre && <span className="text-xs bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded">{tier.fibre}</span>}
-                          {tier.pileType && <span className="text-xs bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded">{tier.pileType}</span>}
+                          {tier.fibre && <span className="text-xs bg-[oklch(12%_0_0)] border border-border text-muted-foreground px-2 py-0.5 rounded">{tier.fibre}</span>}
+                          {tier.pileType && <span className="text-xs bg-[oklch(12%_0_0)] border border-border text-muted-foreground px-2 py-0.5 rounded">{tier.pileType}</span>}
                         </div>
                       )}
 
                       {tier.carpetColours && (
-                        <div className="text-xs text-zinc-400 mb-2">
-                          <span className="text-zinc-500">Colours: </span>{tier.carpetColours}
+                        <div className="text-xs text-muted-foreground mb-2">
+                          <span className="opacity-60">Colours: </span>{tier.carpetColours}
                         </div>
                       )}
 
                       {tier.badges && (
                         <div className="flex flex-wrap gap-1 mb-2">
                           {tier.badges.split(",").map((b: string) => (
-                            <span key={b} className="text-xs bg-green-900/50 text-green-300 border border-green-800 px-1.5 py-0.5 rounded">
+                            <span key={b} className="text-xs border px-1.5 py-0.5 rounded" style={{ background: "oklch(10%_0.03_145)", color: "oklch(65%_0.15_145)", borderColor: "oklch(25%_0.06_145)" }}>
                               {b.trim()}
                             </span>
                           ))}
@@ -200,9 +190,9 @@ export default function QuoteView() {
                       )}
 
                       {tier.price && (
-                        <div className="mt-3 pt-3 border-t border-zinc-800">
-                          <div className="text-xs text-zinc-500">Supply & Install</div>
-                          <div className="text-xl font-bold text-white">{formatCurrency(tier.price)}</div>
+                        <div className="mt-3 pt-3 border-t border-border">
+                          <div className="text-xs text-muted-foreground">Supply & Install</div>
+                          <div className="text-xl font-bold text-foreground">{formatCurrency(tier.price)}</div>
                         </div>
                       )}
 
@@ -212,7 +202,8 @@ export default function QuoteView() {
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={e => e.stopPropagation()}
-                          className="text-xs text-amber-400 hover:text-amber-300 mt-2 block"
+                          className="text-xs mt-2 block hover:underline"
+                          style={{ color: "oklch(72% 0.15 75)" }}
                         >
                           View product details →
                         </a>
@@ -223,20 +214,22 @@ export default function QuoteView() {
               })}
             </div>
             {tiers.length > 1 && (
-              <p className="text-xs text-zinc-500 mt-2 text-center">Click a tier to select your preference</p>
+              <p className="text-xs text-muted-foreground mt-2 text-center">Click a tier to select your preference</p>
             )}
           </div>
         )}
 
         {/* Underlay */}
         {q.underlayOption && (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-            <h2 className="text-sm font-semibold text-zinc-300 mb-2">Underlay Included</h2>
-            <div className="flex items-center gap-3">
-              <CheckCircle className="w-5 h-5 text-green-400 shrink-0" />
-              <div>
-                <div className="font-medium text-white">{UNDERLAY_LABELS[q.underlayOption as keyof typeof UNDERLAY_LABELS]}</div>
-                <div className="text-xs text-zinc-500">Premium carpet underlay — included in your quote</div>
+          <div className="section-accordion">
+            <div className="section-accordion-header">Underlay Included</div>
+            <div className="section-accordion-body">
+              <div className="flex items-center gap-3">
+                <CheckCircle className="w-5 h-5 shrink-0" style={{ color: "oklch(65% 0.15 145)" }} />
+                <div>
+                  <div className="font-medium text-foreground">{UNDERLAY_LABELS[q.underlayOption as keyof typeof UNDERLAY_LABELS]}</div>
+                  <div className="text-xs text-muted-foreground">Premium carpet underlay — included in your quote</div>
+                </div>
               </div>
             </div>
           </div>
@@ -244,83 +237,93 @@ export default function QuoteView() {
 
         {/* Scope of Works */}
         {q.scopeDescription && (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-            <h2 className="text-sm font-semibold text-zinc-300 mb-3">Scope of Works</h2>
-            <div className="text-sm text-zinc-300 whitespace-pre-line leading-relaxed">{q.scopeDescription}</div>
+          <div className="section-accordion">
+            <div className="section-accordion-header">Scope of Works</div>
+            <div className="section-accordion-body">
+              <div className="text-sm text-foreground whitespace-pre-line leading-relaxed">{q.scopeDescription}</div>
+            </div>
           </div>
         )}
 
         {/* Additional Services */}
         {services.length > 0 && (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-            <h2 className="text-sm font-semibold text-zinc-300 mb-3">Additional Services</h2>
-            <div className="space-y-2">
-              {services.map((s: any, i: number) => (
-                <div key={i} className="flex items-start justify-between gap-4 py-2 border-b border-zinc-800 last:border-0">
-                  <div>
-                    <div className="text-sm font-medium text-white">{s.title}</div>
-                    {s.description && <div className="text-xs text-zinc-400 mt-0.5">{s.description}</div>}
+          <div className="section-accordion">
+            <div className="section-accordion-header">Additional Services</div>
+            <div className="section-accordion-body">
+              <div className="space-y-0">
+                {services.map((s: any, i: number) => (
+                  <div key={i} className="flex items-start justify-between gap-4 py-2.5 border-b border-border last:border-0">
+                    <div>
+                      <div className="text-sm font-medium text-foreground">{s.title}</div>
+                      {s.description && <div className="text-xs text-muted-foreground mt-0.5">{s.description}</div>}
+                    </div>
+                    {s.price && s.price !== "0" && (
+                      <div className="text-sm font-semibold text-foreground shrink-0">{formatCurrency(s.price)}</div>
+                    )}
                   </div>
-                  {s.price && s.price !== "0" && (
-                    <div className="text-sm font-semibold text-white shrink-0">{formatCurrency(s.price)}</div>
-                  )}
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         )}
 
         {/* Customer Notes */}
         {q.customerNotes && (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-            <h2 className="text-sm font-semibold text-zinc-300 mb-2">Notes</h2>
-            <div className="text-sm text-zinc-300 whitespace-pre-line">{q.customerNotes}</div>
+          <div className="section-accordion">
+            <div className="section-accordion-header">Notes</div>
+            <div className="section-accordion-body">
+              <div className="text-sm text-foreground whitespace-pre-line">{q.customerNotes}</div>
+            </div>
           </div>
         )}
 
         {/* Payment Terms */}
-        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-          <h2 className="text-sm font-semibold text-zinc-300 mb-3">Payment Terms</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-            <div>
-              <div className="text-xs text-zinc-500">Quote Valid Until</div>
-              <div className="font-medium text-white">
-                {q.expiryDate ? new Date(q.expiryDate).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" }) : `${q.validDays} days from issue`}
-              </div>
-            </div>
-            <div>
-              <div className="text-xs text-zinc-500">Payment Due</div>
-              <div className="font-medium text-white">{q.paymentTermsDays} days from invoice</div>
-            </div>
-            {(q.discount && parseFloat(q.discount) > 0) && (
+        <div className="section-accordion">
+          <div className="section-accordion-header">Payment Terms</div>
+          <div className="section-accordion-body">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
               <div>
-                <div className="text-xs text-zinc-500">Discount Applied</div>
-                <div className="font-medium text-green-400">{formatCurrency(q.discount)}</div>
+                <div className="text-xs text-muted-foreground mb-0.5">Quote Valid Until</div>
+                <div className="font-medium text-foreground">
+                  {q.expiryDate ? new Date(q.expiryDate).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" }) : `${q.validDays} days from issue`}
+                </div>
               </div>
-            )}
+              <div>
+                <div className="text-xs text-muted-foreground mb-0.5">Payment Due</div>
+                <div className="font-medium text-foreground">{q.paymentTermsDays} days from invoice</div>
+              </div>
+              {(q.discount && parseFloat(q.discount) > 0) && (
+                <div>
+                  <div className="text-xs text-muted-foreground mb-0.5">Discount Applied</div>
+                  <div className="font-medium" style={{ color: "oklch(65% 0.15 145)" }}>{formatCurrency(q.discount)}</div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Contact */}
-        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
-          <h2 className="text-sm font-semibold text-zinc-300 mb-3">Questions? Get in Touch</h2>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <a href="tel:0412345678" className="flex items-center gap-2 text-sm text-zinc-300 hover:text-white transition-colors">
-              <Phone className="w-4 h-4 text-amber-400" />
-              0412 345 678
-            </a>
-            <a href="mailto:info@bellcarpets.com.au" className="flex items-center gap-2 text-sm text-zinc-300 hover:text-white transition-colors">
-              <Mail className="w-4 h-4 text-amber-400" />
-              info@bellcarpets.com.au
-            </a>
+        <div className="section-accordion">
+          <div className="section-accordion-header">Questions? Get in Touch</div>
+          <div className="section-accordion-body">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <a href="tel:0412345678" className="flex items-center gap-2 text-sm text-foreground hover:text-muted-foreground transition-colors">
+                <Phone className="w-4 h-4 text-muted-foreground" />
+                0412 345 678
+              </a>
+              <a href="mailto:info@bellcarpets.com.au" className="flex items-center gap-2 text-sm text-foreground hover:text-muted-foreground transition-colors">
+                <Mail className="w-4 h-4 text-muted-foreground" />
+                info@bellcarpets.com.au
+              </a>
+            </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="text-center text-xs text-zinc-600 pb-8">
-          <div className="font-semibold text-zinc-500 mb-1">Bell Carpets — Gold Coast Flooring Specialists</div>
-          <div>Nearly 40 years in the trade · ABN XX XXX XXX XXX</div>
-          <div className="mt-1">Prices include GST. Quote valid for {q.validDays} days from issue date.</div>
+        <div className="text-center text-xs text-muted-foreground pb-8 border-t border-border pt-6">
+          <div className="font-display text-sm font-semibold text-foreground mb-1">Bell Carpets</div>
+          <div>Gold Coast Flooring Specialists · Nearly 40 years in the trade</div>
+          <div className="mt-1 opacity-60">Prices include GST. Quote valid for {q.validDays} days from issue date.</div>
         </div>
       </div>
     </div>

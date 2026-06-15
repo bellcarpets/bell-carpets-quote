@@ -3,6 +3,10 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ─── Google Fonts ─────────────────────────────────────────────────────── */
+/* Loaded via index.html: Cormorant Garamond + Outfit */
+
+/* ─── Design Tokens — exact match to quote.bellcarpets.com.au ──────────── */
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -39,96 +43,723 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Cormorant Garamond", Georgia, serif;
 }
 
+/* ─── Root — Dark theme matching original exactly ───────────────────────── */
 :root {
-  --radius: 0.5rem;
-  /* Dark theme by default — professional trade/flooring admin */
-  --background: oklch(0.12 0.005 240);
-  --foreground: oklch(0.95 0.005 240);
-  --card: oklch(0.16 0.005 240);
-  --card-foreground: oklch(0.95 0.005 240);
-  --popover: oklch(0.18 0.005 240);
-  --popover-foreground: oklch(0.95 0.005 240);
-  --primary: oklch(0.75 0.12 50);
-  --primary-foreground: oklch(0.1 0.005 240);
-  --secondary: oklch(0.22 0.005 240);
-  --secondary-foreground: oklch(0.85 0.005 240);
-  --muted: oklch(0.20 0.005 240);
-  --muted-foreground: oklch(0.55 0.005 240);
-  --accent: oklch(0.22 0.005 240);
-  --accent-foreground: oklch(0.95 0.005 240);
-  --destructive: oklch(0.55 0.22 25);
-  --border: oklch(0.25 0.005 240);
-  --input: oklch(0.22 0.005 240);
-  --ring: oklch(0.75 0.12 50);
-  --chart-1: oklch(0.75 0.12 50);
-  --chart-2: oklch(0.65 0.15 160);
-  --chart-3: oklch(0.6 0.18 250);
-  --chart-4: oklch(0.7 0.14 320);
-  --chart-5: oklch(0.65 0.18 30);
-  --sidebar: oklch(0.10 0.005 240);
-  --sidebar-foreground: oklch(0.85 0.005 240);
-  --sidebar-primary: oklch(0.75 0.12 50);
-  --sidebar-primary-foreground: oklch(0.1 0.005 240);
-  --sidebar-accent: oklch(0.18 0.005 240);
-  --sidebar-accent-foreground: oklch(0.85 0.005 240);
-  --sidebar-border: oklch(0.20 0.005 240);
-  --sidebar-ring: oklch(0.75 0.12 50);
+  --radius: 0.625rem;
+  --background: oklch(5% 0 0);
+  --foreground: oklch(93% 0 0);
+  --card: oklch(9% 0 0);
+  --card-foreground: oklch(93% 0 0);
+  --popover: oklch(9% 0 0);
+  --popover-foreground: oklch(93% 0 0);
+  --primary: oklch(100% 0 0);
+  --primary-foreground: oklch(5% 0 0);
+  --secondary: oklch(14% 0 0);
+  --secondary-foreground: oklch(88% 0 0);
+  --muted: oklch(16% 0 0);
+  --muted-foreground: oklch(68% 0 0);
+  --accent: oklch(14% 0 0);
+  --accent-foreground: oklch(93% 0 0);
+  --destructive: oklch(57.7% 0.245 27.325);
+  --destructive-foreground: oklch(98% 0 0);
+  --border: oklch(100% 0 0 / 0.1);
+  --input: oklch(100% 0 0 / 0.12);
+  --ring: oklch(100% 0 0);
+  --chart-1: oklch(100% 0 0);
+  --chart-2: oklch(80% 0 0);
+  --chart-3: oklch(60% 0 0);
+  --chart-4: oklch(40% 0 0);
+  --chart-5: oklch(25% 0 0);
+  --sidebar: oklch(7% 0 0);
+  --sidebar-foreground: oklch(93% 0 0);
+  --sidebar-accent: oklch(14% 0 0);
+  --sidebar-accent-foreground: oklch(93% 0 0);
+  --sidebar-border: oklch(100% 0 0 / 0.08);
+  --sidebar-ring: oklch(100% 0 0);
+  --sidebar-primary: oklch(100% 0 0);
+  --sidebar-primary-foreground: oklch(5% 0 0);
 }
 
+/* ─── Base ───────────────────────────────────────────────────────────────── */
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: "Outfit", ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: "Cormorant Garamond", Georgia, serif;
+  }
+  .font-display {
+    font-family: "Cormorant Garamond", Georgia, serif;
+  }
+  .font-body {
+    font-family: "Outfit", ui-sans-serif, system-ui, sans-serif;
   }
 }
 
-/* Temperature badge colours */
+/* ─── Container ──────────────────────────────────────────────────────────── */
+@layer utilities {
+  .container {
+    @apply mx-auto px-4;
+    max-width: 1280px;
+  }
+  .flex {
+    min-width: 0;
+    min-height: 0;
+  }
+}
+
+/* ─── Temperature Badge Colours ─────────────────────────────────────────── */
 .badge-hot {
-  background: oklch(0.55 0.22 25);
-  color: white;
+  background-color: #ef4444;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
 }
 .badge-warm {
-  background: oklch(0.65 0.18 60);
-  color: oklch(0.1 0.005 240);
+  background-color: #f97316;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
 }
 .badge-cold {
-  background: oklch(0.45 0.15 240);
-  color: white;
+  background-color: oklch(40% 0.05 220);
+  color: oklch(80% 0 0);
+  font-weight: 600;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
 }
 
-/* Status badge colours */
-.status-draft { background: oklch(0.30 0.005 240); color: oklch(0.75 0.005 240); }
-.status-quote_sent { background: oklch(0.35 0.12 240); color: oklch(0.85 0.08 240); }
-.status-accepted { background: oklch(0.35 0.12 150); color: oklch(0.85 0.08 150); }
-.status-deposit_paid { background: oklch(0.40 0.14 150); color: oklch(0.9 0.08 150); }
-.status-scheduled { background: oklch(0.35 0.12 280); color: oklch(0.85 0.08 280); }
-.status-completed { background: oklch(0.40 0.14 150); color: oklch(0.9 0.08 150); }
-.status-invoice_paid { background: oklch(0.45 0.16 150); color: white; }
-.status-expired { background: oklch(0.30 0.10 25); color: oklch(0.75 0.08 25); }
-.status-archived { background: oklch(0.25 0.005 240); color: oklch(0.55 0.005 240); }
+/* ─── Quote Type Badge ───────────────────────────────────────────────────── */
+.badge-agent {
+  background-color: oklch(25% 0.06 250);
+  color: oklch(75% 0.08 250);
+  font-size: 0.65rem;
+  font-weight: 500;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid oklch(40% 0.06 250 / 0.4);
+}
+.badge-agency-single {
+  background-color: oklch(25% 0.06 280);
+  color: oklch(75% 0.08 280);
+  font-size: 0.65rem;
+  font-weight: 500;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid oklch(40% 0.06 280 / 0.4);
+}
+.badge-homeowner {
+  background-color: oklch(25% 0.06 160);
+  color: oklch(75% 0.08 160);
+  font-size: 0.65rem;
+  font-weight: 500;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid oklch(40% 0.06 160 / 0.4);
+}
 
-/* Scrollbar */
+/* ─── Status Badge Colours ───────────────────────────────────────────────── */
+.status-draft        { color: oklch(68% 0 0); }
+.status-quote-sent   { color: oklch(75% 0.12 220); }
+.status-accepted     { color: oklch(75% 0.15 145); }
+.status-deposit-paid { color: oklch(75% 0.15 160); }
+.status-scheduled    { color: oklch(75% 0.12 280); }
+.status-completed    { color: oklch(80% 0.15 145); }
+.status-invoice-paid { color: oklch(80% 0.12 145); }
+.status-expired      { color: oklch(65% 0.18 30); }
+.status-archived     { color: oklch(55% 0 0); }
+
+/* ─── Quote Card ─────────────────────────────────────────────────────────── */
+.quote-card {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color 150ms ease;
+}
+.quote-card:hover {
+  border-color: oklch(100% 0 0 / 0.18);
+}
+.quote-card-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 0.625rem 0.875rem;
+  border-top: 1px solid var(--border);
+}
+
+/* ─── Action Buttons (Email Template / Mark as / Copy Link) ─────────────── */
+.action-btn-email {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  background-color: oklch(18% 0.04 250);
+  border: 1px solid oklch(35% 0.06 250 / 0.5);
+  color: oklch(78% 0.08 250);
+  border-radius: calc(var(--radius) - 2px);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+.action-btn-email:hover {
+  background-color: oklch(22% 0.04 250);
+}
+.action-btn-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.4rem 1rem;
+  background-color: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted-foreground);
+  border-radius: calc(var(--radius) - 2px);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+.action-btn-mark:hover {
+  background-color: oklch(14% 0 0);
+  color: var(--foreground);
+}
+.action-btn-copy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  background-color: oklch(18% 0.04 45);
+  border: 1px solid oklch(35% 0.08 45 / 0.5);
+  color: oklch(78% 0.1 45);
+  border-radius: calc(var(--radius) - 2px);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+.action-btn-copy:hover {
+  background-color: oklch(22% 0.04 45);
+}
+
+/* ─── Quote Card Bottom Row ──────────────────────────────────────────────── */
+.quote-card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.875rem;
+  border-top: 1px solid var(--border);
+  gap: 0.5rem;
+}
+.quote-card-bottom-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: calc(var(--radius) - 4px);
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+.quote-card-bottom-btn:hover {
+  background-color: var(--muted);
+  color: var(--foreground);
+  border-color: var(--border);
+}
+.quote-card-bottom-btn.danger:hover {
+  background-color: oklch(15% 0.05 27);
+  color: oklch(70% 0.15 27);
+  border-color: oklch(30% 0.08 27 / 0.4);
+}
+
+/* ─── Status Pipeline ────────────────────────────────────────────────────── */
+.pipeline-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: pointer;
+  opacity: 0.45;
+  transition: opacity 150ms ease;
+}
+.pipeline-step.active {
+  opacity: 1;
+}
+.pipeline-step.completed {
+  opacity: 0.7;
+}
+.pipeline-step-dot {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  border: 2px solid oklch(100% 0 0 / 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  background: transparent;
+  transition: all 150ms ease;
+}
+.pipeline-step.active .pipeline-step-dot {
+  border-color: oklch(100% 0 0 / 0.6);
+  background-color: oklch(100% 0 0 / 0.08);
+}
+.pipeline-step.completed .pipeline-step-dot {
+  border-color: oklch(75% 0.15 145 / 0.6);
+  background-color: oklch(75% 0.15 145 / 0.1);
+}
+
+/* ─── Accordion Section ──────────────────────────────────────────────────── */
+.section-accordion {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.section-accordion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--foreground);
+  transition: background-color 120ms ease;
+  user-select: none;
+}
+.section-accordion-header:hover {
+  background-color: oklch(100% 0 0 / 0.03);
+}
+.section-accordion-body {
+  padding: 0.75rem 1rem 1rem;
+  border-top: 1px solid var(--border);
+}
+
+/* ─── Sticky Save Footer ─────────────────────────────────────────────────── */
+.sticky-save-footer {
+  position: sticky;
+  bottom: 0;
+  background-color: oklch(8% 0 0 / 0.95);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid var(--border);
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+/* ─── Top Nav ────────────────────────────────────────────────────────────── */
+.top-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background-color: oklch(7% 0 0);
+  border-bottom: 1px solid var(--border);
+}
+.top-nav-inner {
+  display: flex;
+  align-items: center;
+  height: 3rem;
+  padding: 0 1rem;
+  gap: 0;
+}
+.top-nav-logo {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--foreground);
+  white-space: nowrap;
+  margin-right: 1rem;
+}
+.top-nav-logo span {
+  color: oklch(68% 0 0);
+  font-weight: 300;
+}
+.top-nav-links {
+  display: flex;
+  align-items: center;
+  font-size: 0.65rem;
+  color: oklch(55% 0 0);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  gap: 0.25rem;
+  margin-right: auto;
+}
+.top-nav-links span {
+  color: oklch(30% 0 0);
+}
+.top-nav-tabs {
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+  gap: 0;
+}
+.top-nav-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  padding: 0 0.875rem;
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: oklch(55% 0 0);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 120ms ease;
+  background: transparent;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  white-space: nowrap;
+}
+.top-nav-tab:hover {
+  color: oklch(80% 0 0);
+}
+.top-nav-tab.active {
+  color: var(--foreground);
+  border-bottom-color: var(--foreground);
+}
+.top-nav-tab svg {
+  width: 1rem;
+  height: 1rem;
+}
+.top-nav-lock {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.7rem;
+  color: oklch(55% 0 0);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: calc(var(--radius) - 2px);
+  cursor: pointer;
+  transition: all 120ms ease;
+  margin-left: 0.5rem;
+}
+.top-nav-lock:hover {
+  color: var(--foreground);
+  border-color: var(--border);
+}
+
+/* ─── Status Filter Tabs ─────────────────────────────────────────────────── */
+.status-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+.status-filter-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0.625rem 0.875rem;
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 120ms ease;
+  text-align: left;
+}
+.status-filter-btn:hover {
+  border-color: oklch(100% 0 0 / 0.2);
+}
+.status-filter-btn.active {
+  border-color: oklch(100% 0 0 / 0.35);
+  background-color: oklch(12% 0 0);
+}
+.status-filter-btn .count {
+  font-size: 1.25rem;
+  font-weight: 600;
+  font-family: "Outfit", sans-serif;
+  color: var(--foreground);
+  line-height: 1;
+}
+.status-filter-btn .label {
+  font-size: 0.7rem;
+  color: var(--muted-foreground);
+  margin-top: 0.2rem;
+  font-weight: 400;
+}
+.status-filter-btn .icon {
+  margin-bottom: 0.25rem;
+  color: var(--muted-foreground);
+}
+.status-filter-btn.active .icon,
+.status-filter-btn.active .label {
+  color: var(--foreground);
+}
+
+/* ─── Search / Filter Bar ────────────────────────────────────────────────── */
+.filter-bar {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+.filter-search {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.875rem;
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+}
+.filter-search input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--foreground);
+  font-size: 0.8125rem;
+  font-family: "Outfit", sans-serif;
+}
+.filter-search input::placeholder {
+  color: var(--muted-foreground);
+}
+
+/* ─── Form Fields ────────────────────────────────────────────────────────── */
+.field-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 0.375rem;
+  display: block;
+}
+.field-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background-color: oklch(100% 0 0 / 0.04);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 2px);
+  color: var(--foreground);
+  font-size: 0.875rem;
+  font-family: "Outfit", sans-serif;
+  outline: none;
+  transition: border-color 120ms ease;
+}
+.field-input:focus {
+  border-color: oklch(100% 0 0 / 0.3);
+  background-color: oklch(100% 0 0 / 0.06);
+}
+.field-input::placeholder {
+  color: var(--muted-foreground);
+}
+.field-textarea {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background-color: oklch(100% 0 0 / 0.04);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 2px);
+  color: var(--foreground);
+  font-size: 0.875rem;
+  font-family: "Outfit", sans-serif;
+  outline: none;
+  resize: vertical;
+  min-height: 4rem;
+  transition: border-color 120ms ease;
+}
+.field-textarea:focus {
+  border-color: oklch(100% 0 0 / 0.3);
+}
+.field-select {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background-color: oklch(100% 0 0 / 0.04);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 2px);
+  color: var(--foreground);
+  font-size: 0.875rem;
+  font-family: "Outfit", sans-serif;
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+  transition: border-color 120ms ease;
+}
+.field-select:focus {
+  border-color: oklch(100% 0 0 / 0.3);
+}
+.field-select option {
+  background-color: oklch(12% 0 0);
+  color: var(--foreground);
+}
+
+/* ─── Buttons ────────────────────────────────────────────────────────────── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1.25rem;
+  background-color: var(--foreground);
+  color: var(--background);
+  border: none;
+  border-radius: calc(var(--radius) - 2px);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: "Outfit", sans-serif;
+  cursor: pointer;
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+.btn-primary:hover { opacity: 0.9; }
+.btn-primary:active { transform: scale(0.97); }
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1.25rem;
+  background-color: transparent;
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 2px);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  font-family: "Outfit", sans-serif;
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+.btn-secondary:hover {
+  background-color: oklch(100% 0 0 / 0.05);
+  border-color: oklch(100% 0 0 / 0.2);
+}
+.btn-secondary:active { transform: scale(0.97); }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.4rem 0.875rem;
+  background-color: transparent;
+  color: var(--muted-foreground);
+  border: none;
+  border-radius: calc(var(--radius) - 2px);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  font-family: "Outfit", sans-serif;
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+.btn-ghost:hover {
+  background-color: oklch(100% 0 0 / 0.05);
+  color: var(--foreground);
+}
+
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1.25rem;
+  background-color: oklch(15% 0.05 27);
+  color: oklch(70% 0.15 27);
+  border: 1px solid oklch(30% 0.08 27 / 0.5);
+  border-radius: calc(var(--radius) - 2px);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  font-family: "Outfit", sans-serif;
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+.btn-danger:hover {
+  background-color: oklch(20% 0.06 27);
+}
+
+/* ─── New Quote Button ───────────────────────────────────────────────────── */
+.btn-new-quote {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1.125rem;
+  background-color: var(--foreground);
+  color: var(--background);
+  border: none;
+  border-radius: var(--radius);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: "Outfit", sans-serif;
+  cursor: pointer;
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+.btn-new-quote:hover { opacity: 0.9; }
+.btn-new-quote:active { transform: scale(0.97); }
+
+/* ─── Archived Quotes Button ─────────────────────────────────────────────── */
+.archived-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: all 120ms ease;
+  margin-bottom: 0.5rem;
+}
+.archived-btn:hover {
+  color: var(--foreground);
+  border-color: oklch(100% 0 0 / 0.2);
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: oklch(0.30 0.005 240); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: oklch(0.40 0.005 240); }
+::-webkit-scrollbar-thumb { background: oklch(100% 0 0 / 0.12); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: oklch(100% 0 0 / 0.2); }
 
-/* Tier card colours */
-.tier-good { border-color: oklch(0.55 0.005 240); }
-.tier-better { border-color: oklch(0.65 0.12 50); }
-.tier-best { border-color: oklch(0.75 0.18 50); }
-
-.flex { min-width: 0; min-height: 0; }
-
-.container {
-  width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 1rem;
-  padding-right: 1rem;
+/* ─── Animations ─────────────────────────────────────────────────────────── */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fade-in 180ms cubic-bezier(0.23, 1, 0.32, 1) both;
 }

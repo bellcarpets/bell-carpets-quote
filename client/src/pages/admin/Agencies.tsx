@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import AdminLayout from "@/components/AdminLayout";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, X, Check, Building2, Phone, Mail, MapPin } from "lucide-react";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Plus, Pencil, Trash2, Building2, Search, Check, X, Phone, Mail, MapPin } from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle
+} from "@/components/ui/alert-dialog";
 
 interface AgencyForm { name: string; email: string; phone: string; address: string; notes: string; }
 const emptyForm = (): AgencyForm => ({ name: "", email: "", phone: "", address: "", notes: "" });
@@ -30,7 +30,7 @@ export default function AgenciesPage() {
     onError: e => toast.error(e.message),
   });
   const deleteMutation = trpc.agencies.delete.useMutation({
-    onSuccess: () => { utils.agencies.list.invalidate(); toast.success("Agency deleted"); },
+    onSuccess: () => { utils.agencies.list.invalidate(); setDeleteId(null); toast.success("Agency deleted"); },
     onError: e => toast.error(e.message),
   });
 
@@ -52,59 +52,96 @@ export default function AgenciesPage() {
 
   return (
     <AdminLayout>
-      <div className="max-w-4xl mx-auto p-4">
+      <div className="max-w-3xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-xl font-semibold text-foreground flex items-center gap-2"><Building2 className="w-5 h-5 text-primary" /> Agencies</h1>
-            <p className="text-sm text-muted-foreground">{agencies.length} agenc{agencies.length !== 1 ? "ies" : "y"}</p>
+            <h1 className="font-display text-2xl font-semibold text-foreground">Agencies</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">{agencies.length} agenc{agencies.length !== 1 ? "ies" : "y"}</p>
           </div>
-          <Button onClick={() => { setEditId(null); setForm(emptyForm()); setShowForm(true); }}>
-            <Plus className="w-4 h-4 mr-2" /> Add Agency
-          </Button>
+          <button className="btn-primary flex items-center gap-2" onClick={() => { setEditId(null); setForm(emptyForm()); setShowForm(true); }}>
+            <Plus className="w-3.5 h-3.5" /> Add Agency
+          </button>
         </div>
 
-        <Input placeholder="Search agencies..." value={search} onChange={e => setSearch(e.target.value)} className="mb-4 bg-input border-border" />
+        <div className="filter-bar mb-3">
+          <div className="filter-search">
+            <Search className="w-3.5 h-3.5 shrink-0" />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search agencies..." />
+          </div>
+        </div>
 
         {showForm && (
-          <div className="bg-card border border-primary/30 rounded-xl p-4 mb-4">
-            <h3 className="text-sm font-semibold mb-3">{editId ? "Edit Agency" : "New Agency"}</h3>
-            <div className="grid grid-cols-2 gap-3 mb-3">
-              <div className="col-span-2"><Label className="text-xs text-muted-foreground">Agency Name *</Label><Input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} className="mt-1 bg-input border-border" autoFocus /></div>
-              <div><Label className="text-xs text-muted-foreground">Email</Label><Input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} className="mt-1 bg-input border-border" /></div>
-              <div><Label className="text-xs text-muted-foreground">Phone</Label><Input value={form.phone} onChange={e => setForm(p => ({ ...p, phone: e.target.value }))} className="mt-1 bg-input border-border" /></div>
-              <div className="col-span-2"><Label className="text-xs text-muted-foreground">Address</Label><Input value={form.address} onChange={e => setForm(p => ({ ...p, address: e.target.value }))} className="mt-1 bg-input border-border" /></div>
-              <div className="col-span-2"><Label className="text-xs text-muted-foreground">Notes</Label><Textarea value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} className="mt-1 bg-input border-border min-h-16 text-sm" /></div>
-            </div>
-            <div className="flex gap-2">
-              <Button size="sm" onClick={handleSubmit} disabled={!form.name || createMutation.isPending || updateMutation.isPending}><Check className="w-4 h-4 mr-1" /> Save</Button>
-              <Button size="sm" variant="outline" onClick={() => { setShowForm(false); setEditId(null); }}><X className="w-4 h-4 mr-1" /> Cancel</Button>
+          <div className="section-accordion mb-3 animate-fade-in">
+            <div className="section-accordion-body">
+              <h3 className="text-sm font-semibold mb-3 text-foreground">{editId ? "Edit Agency" : "New Agency"}</h3>
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <div className="col-span-2">
+                  <label className="field-label">Agency Name *</label>
+                  <input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} className="field-input" autoFocus />
+                </div>
+                <div>
+                  <label className="field-label">Email</label>
+                  <input type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} className="field-input" />
+                </div>
+                <div>
+                  <label className="field-label">Phone</label>
+                  <input value={form.phone} onChange={e => setForm(p => ({ ...p, phone: e.target.value }))} className="field-input" />
+                </div>
+                <div className="col-span-2">
+                  <label className="field-label">Address</label>
+                  <input value={form.address} onChange={e => setForm(p => ({ ...p, address: e.target.value }))} className="field-input" />
+                </div>
+                <div className="col-span-2">
+                  <label className="field-label">Notes</label>
+                  <textarea value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} className="field-textarea" />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button className="btn-primary flex items-center gap-1.5" onClick={handleSubmit} disabled={!form.name || createMutation.isPending || updateMutation.isPending}>
+                  <Check className="w-3.5 h-3.5" /> Save
+                </button>
+                <button className="btn-secondary flex items-center gap-1.5" onClick={() => { setShowForm(false); setEditId(null); }}>
+                  <X className="w-3.5 h-3.5" /> Cancel
+                </button>
+              </div>
             </div>
           </div>
         )}
 
         {agenciesQuery.isLoading ? (
-          <div className="space-y-2">{[1,2,3].map(i => <div key={i} className="h-16 bg-card rounded-xl animate-pulse" />)}</div>
+          <div className="space-y-2">{[1,2,3].map(i => <div key={i} className="h-16 bg-card rounded-lg animate-pulse border border-border" />)}</div>
         ) : agencies.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground"><Building2 className="w-10 h-10 mx-auto mb-3 opacity-30" /><p>No agencies yet</p></div>
+          <div className="text-center py-16 text-muted-foreground">
+            <Building2 className="w-10 h-10 mx-auto mb-3 opacity-20" />
+            <p className="text-sm font-medium">{search ? "No agencies match your search" : "No agencies yet"}</p>
+          </div>
         ) : (
           <div className="space-y-2">
             {agencies.map(a => (
-              <div key={a.id} className="bg-card border border-border rounded-xl p-4 flex items-start gap-3">
-                <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm shrink-0">
-                  {a.name.charAt(0).toUpperCase()}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium text-foreground">{a.name}</div>
-                  <div className="flex items-center gap-3 mt-1 flex-wrap">
-                    {a.email && <span className="text-xs text-muted-foreground flex items-center gap-1"><Mail className="w-3 h-3" />{a.email}</span>}
-                    {a.phone && <span className="text-xs text-muted-foreground flex items-center gap-1"><Phone className="w-3 h-3" />{a.phone}</span>}
-                    {a.address && <span className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="w-3 h-3" />{a.address}</span>}
+              <div key={a.id} className="quote-card animate-fade-in">
+                <div className="px-4 py-3 flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-3 min-w-0">
+                    <div className="w-8 h-8 rounded-full bg-[oklch(14%_0_0)] border border-border flex items-center justify-center text-xs font-semibold text-muted-foreground shrink-0 mt-0.5">
+                      {a.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-sm font-medium text-foreground">{a.name}</div>
+                      <div className="flex items-center gap-3 mt-0.5 flex-wrap">
+                        {a.email && <span className="text-xs text-muted-foreground flex items-center gap-1"><Mail className="w-3 h-3" />{a.email}</span>}
+                        {a.phone && <span className="text-xs text-muted-foreground flex items-center gap-1"><Phone className="w-3 h-3" />{a.phone}</span>}
+                        {a.address && <span className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="w-3 h-3" />{a.address}</span>}
+                      </div>
+                      {a.notes && <div className="text-xs text-muted-foreground mt-0.5 italic opacity-70">{a.notes}</div>}
+                    </div>
                   </div>
-                  {a.notes && <div className="text-xs text-muted-foreground mt-1 italic">{a.notes}</div>}
-                </div>
-                <div className="flex gap-1 shrink-0">
-                  <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => startEdit(a)}><Pencil className="w-3.5 h-3.5" /></Button>
-                  <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => setDeleteId(a.id)}><Trash2 className="w-3.5 h-3.5" /></Button>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button className="quote-card-bottom-btn" onClick={() => startEdit(a)}>
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                    <button className="quote-card-bottom-btn danger" onClick={() => setDeleteId(a.id)}>
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -113,11 +150,14 @@ export default function AgenciesPage() {
       </div>
 
       <AlertDialog open={deleteId !== null} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader><AlertDialogTitle>Delete Agency</AlertDialogTitle><AlertDialogDescription>This will permanently delete this agency.</AlertDialogDescription></AlertDialogHeader>
+        <AlertDialogContent className="bg-card border-border">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Agency</AlertDialogTitle>
+            <AlertDialogDescription>This will permanently delete this agency.</AlertDialogDescription>
+          </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction className="bg-destructive text-white" onClick={() => { if (deleteId) deleteMutation.mutate({ id: deleteId }); setDeleteId(null); }}>Delete</AlertDialogAction>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => { if (deleteId) deleteMutation.mutate({ id: deleteId }); }}>Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

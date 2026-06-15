@@ -1,14 +1,8 @@
 import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import AdminLayout from "@/components/AdminLayout";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, X, Check, ChevronLeft, ChevronRight, CalendarDays, Clock } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Plus, X, Check, ChevronLeft, ChevronRight, CalendarDays, Trash2 } from "lucide-react";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -30,7 +24,7 @@ export default function CalendarPage() {
   const monthStart = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).toISOString().split("T")[0];
   const monthEnd = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0).toISOString().split("T")[0];
   const eventsQuery = trpc.calendar.list.useQuery({ from: monthStart, to: monthEnd });
-  const quotesQuery = trpc.quotes.list.useQuery({});
+  const quotesQuery = trpc.quotes.list.useQuery();
 
   const createMutation = trpc.calendar.create.useMutation({
     onSuccess: () => { utils.calendar.list.invalidate(); setShowForm(false); setForm(emptyForm()); toast.success("Event added"); },
@@ -56,152 +50,173 @@ export default function CalendarPage() {
   }, [viewDate]);
 
   const eventsByDate = useMemo(() => {
-    const map: Record<string, typeof eventsQuery.data> = {};
+    const map: Record<string, any[]> = {};
     (eventsQuery.data ?? []).forEach(e => {
       const key = new Date(e.startDate).toISOString().split("T")[0];
       if (!map[key]) map[key] = [];
-      map[key]!.push(e);
+      map[key].push(e);
     });
     return map;
   }, [eventsQuery.data]);
 
-  const selectedDayEvents = selectedDay
-    ? (eventsByDate[selectedDay.toISOString().split("T")[0]] ?? [])
-    : [];
+  const selectedDayKey = selectedDay?.toISOString().split("T")[0];
+  const selectedEvents = selectedDayKey ? (eventsByDate[selectedDayKey] ?? []) : [];
+  const todayKey = today.toISOString().split("T")[0];
 
-  const handleDayClick = (day: Date) => {
-    setSelectedDay(day);
-    setForm(prev => ({ ...prev, startDate: day.toISOString().split("T")[0], endDate: day.toISOString().split("T")[0] }));
+  const getQuoteLabel = (quoteId: number | null) => {
+    if (!quoteId) return null;
+    const q = quotesQuery.data?.find((q: any) => q.id === quoteId);
+    return q ? `${q.quoteNumber} — ${q.propertyAddress ?? q.clientName ?? ""}` : null;
   };
-
-  const isToday = (d: Date) => d.toDateString() === today.toDateString();
 
   return (
     <AdminLayout>
-      <div className="max-w-5xl mx-auto p-4">
+      <div className="max-w-4xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-semibold text-foreground flex items-center gap-2">
-            <CalendarDays className="w-5 h-5 text-primary" /> Calendar
-          </h1>
-          <Button onClick={() => { setShowForm(true); }}>
-            <Plus className="w-4 h-4 mr-2" /> Add Job
-          </Button>
+          <div>
+            <h1 className="font-display text-2xl font-semibold text-foreground">Calendar</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">Job scheduling and appointments</p>
+          </div>
+          <button className="btn-primary flex items-center gap-2" onClick={() => { setForm(emptyForm()); setShowForm(true); }}>
+            <Plus className="w-3.5 h-3.5" /> Add Event
+          </button>
         </div>
 
+        {/* Add Event Form */}
+        {showForm && (
+          <div className="section-accordion mb-4 animate-fade-in">
+            <div className="section-accordion-body">
+              <h3 className="text-sm font-semibold mb-3 text-foreground">New Event</h3>
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <div className="col-span-2">
+                  <label className="field-label">Title *</label>
+                  <input value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} className="field-input" placeholder="e.g. Install — 123 Main St" autoFocus />
+                </div>
+                <div>
+                  <label className="field-label">Start Date</label>
+                  <input type="date" value={form.startDate} onChange={e => setForm(p => ({ ...p, startDate: e.target.value }))} className="field-input" />
+                </div>
+                <div>
+                  <label className="field-label">End Date</label>
+                  <input type="date" value={form.endDate} onChange={e => setForm(p => ({ ...p, endDate: e.target.value }))} className="field-input" />
+                </div>
+                <div>
+                  <label className="field-label">Linked Quote</label>
+                  <select value={form.quoteId || "none"} onChange={e => setForm(p => ({ ...p, quoteId: e.target.value === "none" ? "" : e.target.value }))} className="field-select">
+                    <option value="none">No quote linked</option>
+                    {quotesQuery.data?.map((q: any) => (
+                      <option key={q.id} value={String(q.id)}>{q.quoteNumber} — {q.propertyAddress ?? q.clientName ?? ""}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="field-label">Notes</label>
+                  <input value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} className="field-input" placeholder="Optional notes" />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  className="btn-primary flex items-center gap-1.5"
+                  onClick={() => createMutation.mutate({ title: form.title, quoteId: form.quoteId ? parseInt(form.quoteId) : undefined, startDate: form.startDate, endDate: form.endDate || form.startDate, allDay: true, description: form.notes || undefined })}
+                  disabled={!form.title.trim() || createMutation.isPending}
+                >
+                  <Check className="w-3.5 h-3.5" /> Save
+                </button>
+                <button className="btn-secondary flex items-center gap-1.5" onClick={() => setShowForm(false)}>
+                  <X className="w-3.5 h-3.5" /> Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* Calendar grid */}
-          <div className="lg:col-span-2 bg-card border border-border rounded-xl p-4">
-            <div className="flex items-center justify-between mb-4">
-              <Button variant="ghost" size="sm" onClick={prevMonth}><ChevronLeft className="w-4 h-4" /></Button>
-              <h2 className="font-semibold text-foreground">{MONTHS[viewDate.getMonth()]} {viewDate.getFullYear()}</h2>
-              <Button variant="ghost" size="sm" onClick={nextMonth}><ChevronRight className="w-4 h-4" /></Button>
-            </div>
+          {/* Calendar Grid */}
+          <div className="lg:col-span-2">
+            <div className="section-accordion">
+              {/* Month nav */}
+              <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+                <button className="quote-card-bottom-btn" onClick={prevMonth}><ChevronLeft className="w-4 h-4" /></button>
+                <span className="font-display text-base font-semibold">{MONTHS[viewDate.getMonth()]} {viewDate.getFullYear()}</span>
+                <button className="quote-card-bottom-btn" onClick={nextMonth}><ChevronRight className="w-4 h-4" /></button>
+              </div>
 
-            <div className="grid grid-cols-7 gap-1 mb-1">
-              {DAYS.map(d => <div key={d} className="text-center text-xs font-medium text-muted-foreground py-1">{d}</div>)}
-            </div>
+              {/* Day headers */}
+              <div className="grid grid-cols-7 border-b border-border">
+                {DAYS.map(d => (
+                  <div key={d} className="py-2 text-center text-[0.65rem] font-medium text-muted-foreground uppercase tracking-wide">
+                    {d}
+                  </div>
+                ))}
+              </div>
 
-            <div className="grid grid-cols-7 gap-1">
-              {calendarDays.map((day, i) => {
-                if (!day) return <div key={i} />;
-                const dateKey = day.toISOString().split("T")[0];
-                const dayEvents = eventsByDate[dateKey] ?? [];
-                const isSelected = selectedDay?.toDateString() === day.toDateString();
-                return (
-                  <button
-                    key={i}
-                    onClick={() => handleDayClick(day)}
-                    className={cn(
-                      "min-h-[52px] p-1 rounded-lg text-left transition-all border",
-                      isSelected ? "border-primary bg-primary/10" : "border-transparent hover:border-border hover:bg-accent",
-                      isToday(day) && !isSelected ? "border-primary/40" : ""
-                    )}
-                  >
-                    <div className={cn("text-xs font-medium mb-1 w-5 h-5 flex items-center justify-center rounded-full", isToday(day) ? "bg-primary text-primary-foreground" : "text-foreground")}>
-                      {day.getDate()}
-                    </div>
-                    <div className="space-y-0.5">
-                      {dayEvents.slice(0, 2).map((e, ei) => (
-                        <div key={ei} className="text-xs bg-primary/20 text-primary px-1 rounded truncate">{e.title}</div>
+              {/* Days */}
+              <div className="grid grid-cols-7">
+                {calendarDays.map((day, i) => {
+                  if (!day) return <div key={`empty-${i}`} className="min-h-[3.5rem] border-b border-r border-border/40" />;
+                  const key = day.toISOString().split("T")[0];
+                  const events = eventsByDate[key] ?? [];
+                  const isToday = key === todayKey;
+                  const isSelected = key === selectedDayKey;
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => setSelectedDay(day)}
+                      className={`min-h-[3.5rem] p-1.5 border-b border-r border-border/40 text-left transition-colors ${
+                        isSelected ? "bg-[oklch(12%_0_0)]" : "hover:bg-[oklch(8%_0_0)]"
+                      }`}
+                    >
+                      <div className={`text-xs font-medium w-6 h-6 flex items-center justify-center rounded-full mb-1 ${
+                        isToday ? "bg-foreground text-background" : "text-foreground"
+                      }`}>
+                        {day.getDate()}
+                      </div>
+                      {events.slice(0, 2).map((e: any) => (
+                        <div key={e.id} className="text-[0.6rem] px-1 py-0.5 rounded bg-[oklch(18%_0.04_250)] text-[oklch(78%_0.08_250)] truncate mb-0.5">
+                          {e.title}
+                        </div>
                       ))}
-                      {dayEvents.length > 2 && <div className="text-xs text-muted-foreground">+{dayEvents.length - 2}</div>}
-                    </div>
-                  </button>
-                );
-              })}
+                      {events.length > 2 && <div className="text-[0.6rem] text-muted-foreground">+{events.length - 2}</div>}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
-          {/* Side panel */}
-          <div className="space-y-4">
-            {/* Add event form */}
-            {showForm && (
-              <div className="bg-card border border-primary/30 rounded-xl p-4">
-                <h3 className="text-sm font-semibold mb-3">Schedule Job</h3>
-                <div className="space-y-3">
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Title *</Label>
-                    <Input value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} placeholder="e.g. Install — 12 Main St" className="mt-1 bg-input border-border" autoFocus />
-                  </div>
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Quote (optional)</Label>
-                    <Select value={form.quoteId || "none"} onValueChange={v => setForm(p => ({ ...p, quoteId: v === "none" ? "" : v }))}>
-                      <SelectTrigger className="mt-1 bg-input border-border"><SelectValue placeholder="Link to quote" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">No quote</SelectItem>
-                        {quotesQuery.data?.map((q: any) => (
-                          <SelectItem key={q.id} value={String(q.id)}>{q.quoteNumber} — {q.propertyAddress || q.clientName || "No address"}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <Label className="text-xs text-muted-foreground">Start Date</Label>
-                      <Input type="date" value={form.startDate} onChange={e => setForm(p => ({ ...p, startDate: e.target.value }))} className="mt-1 bg-input border-border" />
-                    </div>
-                    <div>
-                      <Label className="text-xs text-muted-foreground">End Date</Label>
-                      <Input type="date" value={form.endDate} onChange={e => setForm(p => ({ ...p, endDate: e.target.value }))} className="mt-1 bg-input border-border" />
-                    </div>
-                  </div>
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Notes</Label>
-                    <Textarea value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} className="mt-1 bg-input border-border min-h-16 text-sm" />
-                  </div>
-                  <div className="flex gap-2">
-                    <Button size="sm"             onClick={() => createMutation.mutate({ title: form.title, quoteId: form.quoteId ? parseInt(form.quoteId) : undefined, startDate: form.startDate, endDate: form.endDate, description: form.notes || undefined })} disabled={!form.title || createMutation.isPending}>
-                      <Check className="w-4 h-4 mr-1" /> Save
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={() => setShowForm(false)}><X className="w-4 h-4 mr-1" /> Cancel</Button>
-                  </div>
-                </div>
+          {/* Selected Day Panel */}
+          <div>
+            <div className="section-accordion">
+              <div className="section-accordion-header">
+                <span className="flex items-center gap-2">
+                  <CalendarDays className="w-4 h-4 text-muted-foreground" />
+                  {selectedDay ? selectedDay.toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long" }) : "Select a day"}
+                </span>
               </div>
-            )}
-
-            {/* Selected day events */}
-            <div className="bg-card border border-border rounded-xl p-4">
-              <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-                <Clock className="w-4 h-4 text-primary" />
-                {selectedDay ? selectedDay.toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long" }) : "Select a day"}
-              </h3>
-              {selectedDayEvents.length === 0 ? (
-                <p className="text-xs text-muted-foreground">No jobs scheduled</p>
-              ) : (
-                <div className="space-y-2">
-                  {selectedDayEvents.map((e: any) => (
-                    <div key={e.id} className="flex items-start justify-between gap-2 p-2 bg-input rounded-lg">
-                      <div>
-                        <div className="text-sm font-medium text-foreground">{e.title}</div>
-                        {e.notes && <div className="text-xs text-muted-foreground">{e.notes}</div>}
+              <div className="section-accordion-body">
+                {!selectedDay ? (
+                  <p className="text-xs text-muted-foreground">Click a day to see events</p>
+                ) : selectedEvents.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">No events on this day</p>
+                ) : (
+                  <div className="space-y-2">
+                    {selectedEvents.map((e: any) => (
+                      <div key={e.id} className="p-3 bg-[oklch(7%_0_0)] rounded-lg border border-border">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <div className="text-sm font-medium text-foreground">{e.title}</div>
+                            {e.quoteId && <div className="text-xs text-muted-foreground mt-0.5">{getQuoteLabel(e.quoteId)}</div>}
+                            {e.notes && <div className="text-xs text-muted-foreground mt-0.5 italic">{e.notes}</div>}
+                          </div>
+                          <button className="quote-card-bottom-btn danger shrink-0" onClick={() => deleteMutation.mutate({ id: e.id })}>
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
-                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-destructive hover:text-destructive shrink-0" onClick={() => deleteMutation.mutate({ id: e.id })}>
-                        <X className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

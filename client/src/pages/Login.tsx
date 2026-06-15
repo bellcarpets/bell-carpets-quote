@@ -1,10 +1,7 @@
 import { useState } from "react";
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Lock, Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function Login() {
   const { login } = useAdminAuth();
@@ -35,87 +32,90 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="w-full max-w-sm">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 border border-primary/20 mb-4">
-            <Lock className="w-6 h-6 text-primary" />
-          </div>
-          <h1 className="text-2xl font-semibold text-foreground tracking-tight">Bell Carpets</h1>
-          <p className="text-sm text-muted-foreground mt-1">Quote Management System</p>
-        </div>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4">
+      {/* Logo block */}
+      <div className="mb-10 text-center">
+        <h1 className="font-display text-4xl font-semibold tracking-[0.2em] text-foreground uppercase mb-1">
+          Bell Carpets
+        </h1>
+        <p className="text-[0.65rem] tracking-[0.25em] text-muted-foreground uppercase">
+          Quote Management System
+        </p>
+      </div>
 
-        {/* Card */}
-        <div className="bg-card border border-border rounded-xl p-6 shadow-lg">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {!requires2FA ? (
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium">Password</Label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    placeholder="Enter admin password"
-                    className="pr-10 bg-input border-border"
-                    autoFocus
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <Label htmlFor="totp" className="text-sm font-medium">Authenticator Code</Label>
-                <Input
-                  id="totp"
-                  type="text"
-                  value={totpCode}
-                  onChange={e => setTotpCode(e.target.value)}
-                  placeholder="000000"
-                  className="bg-input border-border text-center text-xl tracking-widest"
-                  maxLength={6}
+      {/* Login card */}
+      <div className="w-full max-w-xs bg-card border border-border rounded-xl p-7">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {!requires2FA ? (
+            <div>
+              <label className="field-label">Admin Password</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="Enter password"
+                  className="field-input pr-10"
                   autoFocus
                   required
                 />
-                <p className="text-xs text-muted-foreground">Enter the 6-digit code from your authenticator app</p>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
-            )}
+            </div>
+          ) : (
+            <div>
+              <label className="field-label">Authenticator Code</label>
+              <input
+                type="text"
+                value={totpCode}
+                onChange={e => setTotpCode(e.target.value)}
+                placeholder="000000"
+                className="field-input text-center text-xl tracking-[0.4em]"
+                maxLength={6}
+                autoFocus
+                required
+              />
+              <p className="text-xs text-muted-foreground mt-1.5">
+                Enter the 6-digit code from your authenticator app
+              </p>
+            </div>
+          )}
 
-            {error && (
-              <div className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg px-3 py-2">
-                {error}
-              </div>
-            )}
+          {error && (
+            <div className="text-xs text-[oklch(65%_0.18_30)] bg-[oklch(15%_0.05_27)] border border-[oklch(30%_0.08_27/0.5)] rounded-lg px-3 py-2">
+              {error}
+            </div>
+          )}
 
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Verifying..." : requires2FA ? "Verify Code" : "Access Admin"}
-            </Button>
+          <button
+            type="submit"
+            className="btn-primary w-full"
+            disabled={loading}
+          >
+            {loading ? "Verifying..." : requires2FA ? "Verify Code" : "Access Admin"}
+          </button>
 
-            {requires2FA && (
-              <button
-                type="button"
-                onClick={() => { setRequires2FA(false); setTotpCode(""); }}
-                className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                ← Back to password
-              </button>
-            )}
-          </form>
-        </div>
-
-        <p className="text-center text-xs text-muted-foreground mt-6">
-          Bell Carpets © {new Date().getFullYear()}
-        </p>
+          {requires2FA && (
+            <button
+              type="button"
+              onClick={() => { setRequires2FA(false); setTotpCode(""); }}
+              className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              ← Back to password
+            </button>
+          )}
+        </form>
       </div>
+
+      <p className="text-center text-[0.65rem] text-muted-foreground mt-8 tracking-widest uppercase">
+        Bell Carpets © {new Date().getFullYear()}
+      </p>
     </div>
   );
 }

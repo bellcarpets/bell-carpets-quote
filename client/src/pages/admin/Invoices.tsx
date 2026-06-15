@@ -1,27 +1,9 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import AdminLayout from "@/components/AdminLayout";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Plus, X, Check, Receipt, AlertCircle, CheckCircle2, Clock } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/lib/quoteHelpers";
-
-const STATUS_STYLES: Record<string, string> = {
-  unpaid: "bg-amber-900/30 text-amber-300 border-amber-700",
-  paid: "bg-green-900/30 text-green-300 border-green-700",
-  overdue: "bg-red-900/30 text-red-300 border-red-700",
-  cancelled: "bg-zinc-800 text-zinc-400 border-zinc-700",
-};
-
-const STATUS_ICONS: Record<string, React.ReactNode> = {
-  unpaid: <Clock className="w-3 h-3" />,
-  paid: <CheckCircle2 className="w-3 h-3" />,
-  overdue: <AlertCircle className="w-3 h-3" />,
-  cancelled: <X className="w-3 h-3" />,
-};
 
 export default function InvoicesPage() {
   const utils = trpc.useUtils();
@@ -29,7 +11,7 @@ export default function InvoicesPage() {
   const [form, setForm] = useState({ quoteId: "", amount: "", dueDate: "", notes: "" });
 
   const invoicesQuery = trpc.invoices.list.useQuery();
-  const quotesQuery = trpc.quotes.list.useQuery({});
+  const quotesQuery = trpc.quotes.list.useQuery();
   const createMutation = trpc.invoices.create.useMutation({
     onSuccess: () => { utils.invoices.list.invalidate(); setShowForm(false); setForm({ quoteId: "", amount: "", dueDate: "", notes: "" }); toast.success("Invoice created"); },
     onError: e => toast.error(e.message),
@@ -48,107 +30,122 @@ export default function InvoicesPage() {
 
   const isOverdue = (inv: any) => inv.status === "unpaid" && inv.dueDate && new Date(inv.dueDate) < new Date();
 
+  const statusBadge = (inv: any) => {
+    const overdue = isOverdue(inv);
+    const s = overdue ? "overdue" : inv.status;
+    const map: Record<string, string> = {
+      unpaid: "status-scheduled",
+      paid: "status-invoice_paid",
+      overdue: "status-expired",
+      cancelled: "status-archived",
+    };
+    return <span className={`status-badge ${map[s] ?? "status-draft"}`}>{s.toUpperCase()}</span>;
+  };
+
   return (
     <AdminLayout>
-      <div className="max-w-4xl mx-auto p-4">
+      <div className="max-w-3xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-xl font-semibold text-foreground flex items-center gap-2"><Receipt className="w-5 h-5 text-primary" /> Invoices</h1>
-            <p className="text-sm text-muted-foreground">{invoices.length} invoice{invoices.length !== 1 ? "s" : ""}</p>
+            <h1 className="font-display text-2xl font-semibold text-foreground">Invoices</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">{invoices.length} invoice{invoices.length !== 1 ? "s" : ""}</p>
           </div>
-          <Button onClick={() => setShowForm(true)}><Plus className="w-4 h-4 mr-2" /> New Invoice</Button>
+          <button className="btn-primary flex items-center gap-2" onClick={() => setShowForm(true)}>
+            <Plus className="w-3.5 h-3.5" /> New Invoice
+          </button>
         </div>
 
         {showForm && (
-          <div className="bg-card border border-primary/30 rounded-xl p-4 mb-4">
-            <h3 className="text-sm font-semibold mb-3">New Invoice</h3>
-            <div className="grid grid-cols-2 gap-3 mb-3">
-              <div>
-                <Label className="text-xs text-muted-foreground">Quote *</Label>
-                <select
-                  value={form.quoteId}
-                  onChange={e => setForm(p => ({ ...p, quoteId: e.target.value }))}
-                  className="mt-1 w-full h-9 rounded-md border border-border bg-input px-3 text-sm text-foreground"
-                >
-                  <option value="">Select quote</option>
-                  {(quotesQuery.data ?? []).map((q: any) => (
-                    <option key={q.id} value={String(q.id)}>{q.quoteNumber} — {q.propertyAddress || q.clientName || "No address"}</option>
-                  ))}
-                </select>
+          <div className="section-accordion mb-3 animate-fade-in">
+            <div className="section-accordion-body">
+              <h3 className="text-sm font-semibold mb-3 text-foreground">New Invoice</h3>
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <div>
+                  <label className="field-label">Quote *</label>
+                  <select value={form.quoteId} onChange={e => setForm(p => ({ ...p, quoteId: e.target.value }))} className="field-select">
+                    <option value="">Select quote</option>
+                    {(quotesQuery.data ?? []).map((q: any) => (
+                      <option key={q.id} value={String(q.id)}>{q.quoteNumber} — {q.propertyAddress || q.clientName || "No address"}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="field-label">Amount ($) *</label>
+                  <input value={form.amount} onChange={e => setForm(p => ({ ...p, amount: e.target.value }))} placeholder="0.00" className="field-input" />
+                </div>
+                <div>
+                  <label className="field-label">Due Date</label>
+                  <input type="date" value={form.dueDate} onChange={e => setForm(p => ({ ...p, dueDate: e.target.value }))} className="field-input" />
+                </div>
+                <div>
+                  <label className="field-label">Notes</label>
+                  <input value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} className="field-input" />
+                </div>
               </div>
-              <div>
-                <Label className="text-xs text-muted-foreground">Amount ($) *</Label>
-                <Input value={form.amount} onChange={e => setForm(p => ({ ...p, amount: e.target.value }))} placeholder="0.00" className="mt-1 bg-input border-border" />
+              <div className="flex gap-2">
+                <button className="btn-primary flex items-center gap-1.5" onClick={() => createMutation.mutate({ quoteId: parseInt(form.quoteId), amount: form.amount, dueDate: form.dueDate || undefined, notes: form.notes || undefined })} disabled={!form.quoteId || !form.amount || createMutation.isPending}>
+                  <Check className="w-3.5 h-3.5" /> Create
+                </button>
+                <button className="btn-secondary flex items-center gap-1.5" onClick={() => setShowForm(false)}>
+                  <X className="w-3.5 h-3.5" /> Cancel
+                </button>
               </div>
-              <div>
-                <Label className="text-xs text-muted-foreground">Due Date</Label>
-                <Input type="date" value={form.dueDate} onChange={e => setForm(p => ({ ...p, dueDate: e.target.value }))} className="mt-1 bg-input border-border" />
-              </div>
-              <div>
-                <Label className="text-xs text-muted-foreground">Notes</Label>
-                <Input value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} className="mt-1 bg-input border-border" />
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <Button size="sm" onClick={() => createMutation.mutate({ quoteId: parseInt(form.quoteId), amount: form.amount, dueDate: form.dueDate || undefined, notes: form.notes || undefined })} disabled={!form.quoteId || !form.amount || createMutation.isPending}>
-                <Check className="w-4 h-4 mr-1" /> Create
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => setShowForm(false)}><X className="w-4 h-4 mr-1" /> Cancel</Button>
             </div>
           </div>
         )}
 
         {invoicesQuery.isLoading ? (
-          <div className="space-y-2">{[1,2,3].map(i => <div key={i} className="h-16 bg-card rounded-xl animate-pulse" />)}</div>
+          <div className="space-y-2">{[1,2,3].map(i => <div key={i} className="h-16 bg-card rounded-lg animate-pulse border border-border" />)}</div>
         ) : invoices.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground"><Receipt className="w-10 h-10 mx-auto mb-3 opacity-30" /><p>No invoices yet</p></div>
+          <div className="text-center py-16 text-muted-foreground">
+            <Receipt className="w-10 h-10 mx-auto mb-3 opacity-20" />
+            <p className="text-sm font-medium">No invoices yet</p>
+          </div>
         ) : (
           <div className="space-y-2">
             {invoices.map((inv: any) => {
               const overdue = isOverdue(inv);
-              const effectiveStatus = overdue && inv.status === "unpaid" ? "overdue" : inv.status;
               return (
-                <div key={inv.id} className={cn("bg-card border rounded-xl p-4", overdue ? "border-red-800" : "border-border")}>
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
+                <div key={inv.id} className={`quote-card animate-fade-in ${overdue ? "border-[oklch(35%_0.15_25)]" : ""}`}>
+                  <div className="px-4 py-3 flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="font-semibold text-foreground">{inv.invoiceNumber}</span>
-                        <span className={cn("text-xs px-2 py-0.5 rounded border flex items-center gap-1", STATUS_STYLES[effectiveStatus])}>
-                          {STATUS_ICONS[effectiveStatus]} {effectiveStatus.toUpperCase()}
-                        </span>
+                        <span className="text-sm font-semibold text-foreground">{inv.invoiceNumber}</span>
+                        {statusBadge(inv)}
                       </div>
                       <div className="text-xs text-muted-foreground">{getQuoteLabel(inv.quoteId)}</div>
                       {inv.dueDate && (
-                        <div className={cn("text-xs mt-0.5", overdue ? "text-red-400" : "text-muted-foreground")}>
+                        <div className={`text-xs mt-0.5 flex items-center gap-1 ${overdue ? "text-[oklch(65%_0.18_25)]" : "text-muted-foreground"}`}>
+                          {overdue ? <AlertCircle className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
                           Due: {new Date(inv.dueDate).toLocaleDateString("en-AU")}
                           {overdue && " — OVERDUE"}
                         </div>
                       )}
+                      {inv.notes && <div className="text-xs text-muted-foreground mt-0.5 italic">{inv.notes}</div>}
                     </div>
                     <div className="text-right shrink-0">
-                      <div className="text-lg font-bold text-foreground">{formatCurrency(inv.amount)}</div>
+                      <div className="text-lg font-bold text-foreground">{formatCurrency(parseFloat(inv.amount))}</div>
+                      {inv.status === "paid" && inv.paidAt && (
+                        <div className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1 justify-end">
+                          <CheckCircle2 className="w-3 h-3 text-green-400" />
+                          Paid {new Date(inv.paidAt).toLocaleDateString("en-AU")}
+                        </div>
+                      )}
                       {inv.status !== "paid" && inv.status !== "cancelled" && (
-                        <div className="flex gap-1 mt-1">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-7 text-xs text-green-400 border-green-800 hover:bg-green-900/30"
+                        <div className="flex gap-1 mt-1.5 justify-end">
+                          <button
+                            className="text-xs px-2.5 py-1 rounded border border-[oklch(30%_0.1_145)] text-[oklch(65%_0.15_145)] hover:bg-[oklch(12%_0.04_145)] transition-colors flex items-center gap-1"
                             onClick={() => updateMutation.mutate({ id: inv.id, status: "paid", paidAt: new Date().toISOString() })}
                           >
-                            <CheckCircle2 className="w-3 h-3 mr-1" /> Mark Paid
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-7 text-xs text-muted-foreground"
+                            <CheckCircle2 className="w-3 h-3" /> Mark Paid
+                          </button>
+                          <button
+                            className="quote-card-bottom-btn text-xs px-2.5 py-1"
                             onClick={() => updateMutation.mutate({ id: inv.id, status: "cancelled" })}
                           >
                             Cancel
-                          </Button>
+                          </button>
                         </div>
-                      )}
-                      {inv.status === "paid" && inv.paidAt && (
-                        <div className="text-xs text-green-400 mt-1">Paid {new Date(inv.paidAt).toLocaleDateString("en-AU")}</div>
                       )}
                     </div>
                   </div>
