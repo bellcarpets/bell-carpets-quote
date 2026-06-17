@@ -73,6 +73,25 @@ const UNDERLAY_SPECS: Record<NonNullable<Exclude<UnderlayOption, "">>, {
       { icon: Layers, label: "Premium 120 kg/m³ density for maximum comfort & longevity" },
     ],
   },
+  "Dunlop Springtred Extra": {
+    name: "Dunlop Springtred Extra",
+    tagline: "Everyday comfort & protection",
+    specs: [
+      { icon: Layers, label: "10mm Thickness" },
+      { icon: Shield, label: "56 kg/m³ Density" },
+      { icon: Volume2, label: "24dB Acoustic Performance" },
+      { icon: Thermometer, label: "R 0.22 Thermal Insulation" },
+    ],
+    highlight: {
+      icon: Shield,
+      title: "Reliable Everyday Performance",
+      body: "Quality re-bonded foam underlay with built-in moisture barrier for everyday living",
+    },
+    benefits: [
+      { icon: Shield, label: "Moisture barrier protection" },
+      { icon: Volume2, label: "Reduces noise transfer" },
+    ],
+  },
   "Dunlop Eureka": {
     name: "Dunlop Eureka",
     tagline: "Luxury classified. Solid underfoot.",
@@ -104,6 +123,10 @@ const UNDERLAY_SCOPE_ITEMS: Record<NonNullable<Exclude<UnderlayOption, "">>, { t
   "Dunlop Springtred Ultimate": {
     title: "Premium Underlay",
     description: "Dunlop Springtred Ultimate, 10mm, 120 kg/m\u00b3",
+  },
+  "Dunlop Springtred Extra": {
+    title: "Premium Underlay",
+    description: "Dunlop Springtred Extra, 10mm, 56 kg/m\u00b3",
   },
   "Dunlop Eureka": {
     title: "Premium Underlay",

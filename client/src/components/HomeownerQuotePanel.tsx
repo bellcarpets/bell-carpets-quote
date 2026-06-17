@@ -282,9 +282,10 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
           {/* ── UNDERLAY SECTION ── */}
           {config.product?.underlay && (() => {
             const underlaySpecs: Record<string, { name: string; specs: string }> = {
-              "Dunlop Springtred Protect": { name: "Dunlop Springtred Protect", specs: "10mm \u00b7 80 kg/m\u00b3" },
-              "Dunlop Springtred Ultimate": { name: "Dunlop Springtred Ultimate", specs: "10mm \u00b7 120 kg/m\u00b3" },
-              "Dunlop Eureka": { name: "Dunlop Eureka", specs: "10mm \u00b7 80 kg/m\u00b3" },
+                "Dunlop Springtred Protect": { name: "Dunlop Springtred Protect", specs: "10mm · 80 kg/m³" },
+              "Dunlop Springtred Ultimate": { name: "Dunlop Springtred Ultimate", specs: "10mm · 120 kg/m³" },
+              "Dunlop Springtred Extra": { name: "Dunlop Springtred Extra", specs: "10mm · 56 kg/m³" },
+              "Dunlop Eureka": { name: "Dunlop Eureka", specs: "10mm · 80 kg/m³" },
             };
             const u = underlaySpecs[config.product!.underlay!];
             if (!u) return null;

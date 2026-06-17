@@ -158,8 +158,8 @@ export default function ConfirmationPanel({
                 <p className="text-xs text-white/40">{tier.manufacturer} — {tier.productName}</p>
               </div>
               <div className="text-right">
-                <p className="text-sm font-semibold text-white">${Math.round(tier.price / 1.1).toLocaleString("en-AU")}</p>
-                <p className="text-xs text-white/40">ex GST</p>
+                <p className="text-sm font-semibold text-white">${Math.round(tier.price).toLocaleString("en-AU")}</p>
+                <p className="text-xs text-white/40">inc GST</p>
               </div>
             </button>
           ))}
@@ -425,7 +425,7 @@ export default function ConfirmationPanel({
                     {selectedTier.name} carpet supply & install
                   </span>
                   <span className="text-sm text-white/80">
-                    {formatPrice(Math.round(selectedTier.price / 1.1))} <span className="text-xs text-white/40">ex GST</span>
+                    {formatPrice(Math.round(selectedTier.price))} <span className="text-xs text-white/40">inc GST</span>
                   </span>
                 </div>
 
@@ -440,7 +440,7 @@ export default function ConfirmationPanel({
                       {addon.title}
                     </span>
                     <span className="text-sm flex-shrink-0 text-white/70">
-                      + {formatPrice(Math.round(addon.price / 1.1))} <span className="text-xs text-white/40">ex GST</span>
+                      + {formatPrice(Math.round(addon.price))} <span className="text-xs text-white/40">inc GST</span>
                     </span>
                   </motion.div>
                 ))}

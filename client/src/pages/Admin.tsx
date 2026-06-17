@@ -313,6 +313,7 @@ const STYLE_OPTIONS = [
 const UNDERLAY_OPTIONS = [
   "Dunlop Springtred Protect",
   "Dunlop Springtred Ultimate",
+  "Dunlop Springtred Extra",
   "Dunlop Eureka",
 ];
 

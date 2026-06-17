@@ -348,11 +348,11 @@ export default function TierCard({
                 <div className="text-right flex-shrink-0">
                   <div className="flex items-baseline gap-1 justify-end">
                     <span className="text-2xl sm:text-3xl font-semibold tracking-tight text-white">
-                      ${Math.round(tier.price / 1.1).toLocaleString("en-AU")}
+                      ${Math.round(tier.price).toLocaleString("en-AU")}
                     </span>
                   </div>
                   <span className="text-[11px] text-white/40 block -mt-0.5">
-                    ex GST
+                    inc GST
                   </span>
                 </div>
               </div>
