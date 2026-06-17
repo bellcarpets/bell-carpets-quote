@@ -3003,25 +3003,26 @@ function QuoteEditor({
   const handleExportPDF = async () => {
     if (!config || !quoteData) return;
     try {
+      const isSingle = config.pricingMode === "single";
       const selectedTier = config.tiers?.[0];
-      if (!selectedTier) {
+      if (!isSingle && !selectedTier) {
         toast.error("No tiers found in quote");
         return;
       }
-      const selectedColour = selectedTier.colours?.[0];
+      const selectedColour = isSingle ? null : (selectedTier?.colours?.[0] ?? null);
       const input = {
         quoteSlug: slug,
-        tierName: selectedTier.name,
-        productName: selectedTier.productName,
-        manufacturer: selectedTier.manufacturer,
-        fibre: selectedTier.fibre,
-        pileType: selectedTier.pileType,
-        colourName: selectedColour?.name || "Default",
-        colourCode: selectedColour?.id || "",
-        basePrice: selectedTier.price,
+        tierName: isSingle ? (config.product?.productName ?? "Carpet") : selectedTier!.name,
+        productName: isSingle ? (config.product?.productName ?? "") : selectedTier!.productName,
+        manufacturer: isSingle ? (config.product?.manufacturer ?? "") : selectedTier!.manufacturer,
+        fibre: isSingle ? (config.product?.fibre ?? "") : (selectedTier!.fibre ?? ""),
+        pileType: isSingle ? (config.product?.pileType ?? "") : (selectedTier!.pileType ?? ""),
+        colourName: isSingle ? (config.product?.colourName ?? "Default") : (selectedColour?.name || "Default"),
+        colourCode: isSingle ? "" : (selectedColour?.id || ""),
+        basePrice: isSingle ? (config.product?.price ?? 0) : selectedTier!.price,
         addons: config.addons || [],
-        grandTotal: selectedTier.price + (config.addons?.reduce((sum, a) => sum + a.price, 0) || 0),
-        allTiers: config.tiers?.map(t => ({
+        grandTotal: (isSingle ? (config.product?.price ?? 0) : selectedTier!.price) + (config.addons?.reduce((sum, a) => sum + a.price, 0) || 0),
+        allTiers: isSingle ? undefined : config.tiers?.map(t => ({
           name: t.name,
           productName: t.productName,
           manufacturer: t.manufacturer,
