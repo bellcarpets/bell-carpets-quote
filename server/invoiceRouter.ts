@@ -17,6 +17,7 @@ import { invoices, quotes } from "../drizzle/schema";
 import { eq, desc, sql, isNull, and } from "drizzle-orm";
 import { storagePut } from "./storage";
 import { generateInvoicePdf, type InvoiceData } from "./invoiceGenerator";
+import { generateQuotePdfBuffer } from "./quotePdf";
 import type { QuoteConfigData, QuoteType } from "../shared/quoteConfigTypes";
 import { usesAgentPaymentTerms, routeNotificationsToAgent } from "../shared/quoteConfigTypes";
 import { formatAESTDate } from "../shared/aestUtils";
@@ -647,54 +648,10 @@ export const invoiceRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      const db = await getDb();
-      if (!db) throw new Error("Database not available");
-
-      const quoteRows = await db
-        .select()
-        .from(quotes)
-        .where(and(eq(quotes.slug, input.quoteSlug), isNull(quotes.deletedAt)))
-        .limit(1);
-
-      if (quoteRows.length === 0) throw new Error("Quote not found");
-
-      const quote = quoteRows[0]!;
-      const config = JSON.parse(quote.configJson) as QuoteConfigData;
-
-      const invoiceData: InvoiceData = {
-        quoteNumber: quote.quoteNumber,
-        issueDate: config.issueDate,
-        validDays: config.validDays,
-        depositPercent: config.depositPercent,
-        clientName: config.client.name,
-        clientType: config.client.type,
-        propertyAddress:
-          config.property.address || config.property.fullAddress || "",
-        tierName: input.tierName,
-        productName: input.productName,
-        manufacturer: input.manufacturer,
-        fibre: input.fibre || "",
-        pileType: input.pileType || "",
-        colourName: input.colourName,
-        colourCode: input.colourCode,
-        basePrice: input.basePrice,
-        addons: input.addons,
-        grandTotal: input.grandTotal,
-        rooms: input.rooms,
-        allTiers: input.allTiers,
-        scopeOfWorks: config.scopeOfWorks,
-        terms: config.terms,
-        agentName: quote.agentName || config.client.name || "",
-        agentEmail: quote.agentEmail || "",
-        agentPhone: quote.agentPhone || "",
-        isAgent: usesAgentPaymentTerms(quote.quoteType),
-      };
-
-      const pdfBuffer = await generateInvoicePdf(invoiceData);
-
+      const { pdfBuffer, quoteNumber } = await generateQuotePdfBuffer(input.quoteSlug);
       return {
         pdfBase64: pdfBuffer.toString("base64"),
-        quoteNumber: quote.quoteNumber,
+        quoteNumber,
       };
     }),
 

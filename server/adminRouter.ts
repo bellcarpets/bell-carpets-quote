@@ -24,6 +24,7 @@ import { routeNotificationsToAgent } from "../shared/quoteConfigTypes";
 import { sendQuoteLinkSms, sendAcceptanceSmsToBellCarpets, sendSms, normaliseAuPhone } from "./smsHelper";
 import { logNotification } from "./notificationLog";
 import { formatAESTDate, todayAESTString, parseAESTDate, addDaysAEST } from "../shared/aestUtils";
+import { generateQuotePdfBuffer } from "./quotePdf";
 
 // ─── Default Templates ────────────────────────────────────────────────
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663449952732/a29pcHdf6xRSErj7q2ehpL";
@@ -458,35 +459,53 @@ export async function sendQuoteLinkEmail(data: QuoteLinkEmailData): Promise<bool
 </body>
 </html>`;
 
+  // Generate the quote PDF to attach
+  let pdfAttachment: { filename: string; content: string } | undefined;
   try {
+    const { pdfBuffer } = await generateQuotePdfBuffer(data.slug);
+    pdfAttachment = {
+      filename: `Bell-Carpets-Quote-${data.quoteNumber}.pdf`,
+      content: pdfBuffer.toString("base64"),
+    };
+  } catch (pdfErr) {
+    console.warn("[Admin] Could not generate PDF for quote email attachment:", pdfErr);
+  }
+
+  try {
+    const emailPayload: Record<string, unknown> = {
+      from: "Bell Carpets <quotes@bellcarpets.com.au>",
+      reply_to: "hello@bellcarpets.com.au",
+      to: [data.agentEmail],
+      bcc: ["hello@bellcarpets.com.au"],
+      subject: `Your Flooring Quote ${data.quoteNumber} — Bell Carpets`,
+      html: htmlBody,
+    };
+    if (pdfAttachment) {
+      emailPayload.attachments = [{
+        filename: pdfAttachment.filename,
+        content: pdfAttachment.content,
+      }];
+    }
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${resendApiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        from: "Bell Carpets <quotes@bellcarpets.com.au>",
-        reply_to: "hello@bellcarpets.com.au",
-        to: [data.agentEmail],
-        bcc: ["hello@bellcarpets.com.au"],
-        subject: `Your Flooring Quote ${data.quoteNumber} — Bell Carpets`,
-        html: htmlBody,
-      }),
+      body: JSON.stringify(emailPayload),
     });
     if (!response.ok) {
       const err = await response.text();
       console.error("[Admin] Quote link email failed:", err);
       return false;
     }
-    console.log(`[Admin] Quote link email sent to ${data.agentEmail} for ${data.quoteNumber}`);
+    console.log(`[Admin] Quote link email sent to ${data.agentEmail} for ${data.quoteNumber}${pdfAttachment ? " (with PDF)" : ""}`);
     return true;
   } catch (e) {
     console.error("[Admin] Quote link email error:", e);
     return false;
   }
 }
-
 
 export async function sendReminderEmail(data: QuoteLinkEmailData & { daysLeft: number }): Promise<boolean> {
   const resendApiKey = process.env.RESEND_API_KEY;
