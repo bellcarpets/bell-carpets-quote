@@ -287,7 +287,7 @@ export async function sendSchedulingConfirmationEmail(data: SchedulingConfirmati
           </table>
 
           <p style="color:#555555;font-size:12px;line-height:1.7;margin:0;font-family:Arial,sans-serif;">
-            If you have any questions or need to make changes, please contact us at <a href="tel:0755711177" style="color:#555555;">07 5571 1177</a>.
+            If you have any questions or need to make changes, please reply to this email.
           </p>
         </td></tr>
 
@@ -296,8 +296,7 @@ export async function sendSchedulingConfirmationEmail(data: SchedulingConfirmati
 
         <!-- Footer -->
         <tr><td style="background:#ffffff;padding:28px 48px;text-align:center;">
-          <p style="color:#4a4a4a;font-size:11px;margin:0 0 4px;font-family:Arial,sans-serif;">Bell Carpets &nbsp;&middot;&nbsp; 41 Olympic Circuit, Southport QLD 4215 &nbsp;&middot;&nbsp; 07 5571 1177</p>
-
+          <img src="${LOGO_CDN_URL}" alt="Bell Carpets" style="height:30px;display:block;margin:0 auto;" />
         </td></tr>
 
       </table>
@@ -450,7 +449,7 @@ export async function sendQuoteLinkEmail(data: QuoteLinkEmailData): Promise<bool
 
         <!-- Footer -->
         <tr><td style="padding:32px 48px;text-align:center;border-top:1px solid #e8e8e8;background:#fafafa;">
-          <p style="color:#999999;font-size:11px;margin:0;font-family:Arial,sans-serif;">Bell Carpets &nbsp;&middot;&nbsp; 41 Olympic Circuit, Southport QLD 4215 &nbsp;&middot;&nbsp; 07 5571 1177</p>
+          <img src="${LOGO_CDN_URL}" alt="Bell Carpets" style="height:30px;display:block;margin:0 auto;" />
         </td></tr>
 
       </table>
@@ -610,8 +609,7 @@ export async function sendReminderEmail(data: QuoteLinkEmailData & { daysLeft: n
 
         <!-- Footer -->
         <tr><td style="padding:32px 48px;text-align:center;border-top:1px solid #e8e8e8;background:#fafafa;">
-          <p style="color:#999;font-size:11px;margin:0 0 4px;font-family:Arial,sans-serif;">Bell Carpets &nbsp;&middot;&nbsp; 41 Olympic Circuit, Southport QLD 4215 &nbsp;&middot;&nbsp; 07 5571 1177</p>
-
+          <img src="${LOGO_CDN_URL}" alt="Bell Carpets" style="height:30px;display:block;margin:0 auto;" />
         </td></tr>
 
       </table>

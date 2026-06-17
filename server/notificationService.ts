@@ -29,7 +29,7 @@ function emailFooter(): string {
   return `
           </td></tr>
           <tr><td style="padding:40px 40px 32px;text-align:center;">
-            <p style="color:#888888;font-size:12px;margin:0;font-family:Arial,sans-serif;">Leon Bell / Bell Carpets / 07 5571 1177</p>
+            <img src="${LOGO_URL}" alt="Bell Carpets" style="height:24px;display:block;margin:0 auto;" />
           </td></tr>
         </table>
       </td></tr>
@@ -66,14 +66,12 @@ function buildAcceptanceEmail(params: {
       </div>
 
       <p style="color:#cccccc;font-size:14px;line-height:1.6;margin:0 0 24px;font-family:Arial,sans-serif;">Once we receive your deposit, we'll be in touch to schedule your installation.</p>
-      <p style="color:#999999;font-size:12px;line-height:1.6;margin:0;font-family:Arial,sans-serif;">Questions? Call us on <a href="tel:0755711177" style="color:#d4a853;text-decoration:none;">07 5571 1177</a>.</p>
     ` + emailFooter();
   } else {
     // Agent variant: no deposit details
     return emailHeader() + `
       <p style="color:#ffffff;font-size:16px;line-height:1.6;margin:0 0 24px;font-family:Arial,sans-serif;">Hi ${params.recipientName},</p>
       <p style="color:#cccccc;font-size:14px;line-height:1.6;margin:0 0 24px;font-family:Arial,sans-serif;">Thank you for accepting quote <strong>${params.quoteNumber}</strong> for <strong>${params.propertyAddress}</strong>. We'll be in touch shortly to schedule the installation.</p>
-      <p style="color:#999999;font-size:12px;line-height:1.6;margin:0;font-family:Arial,sans-serif;">Questions? Call us on <a href="tel:0755711177" style="color:#d4a853;text-decoration:none;">07 5571 1177</a>.</p>
     ` + emailFooter();
   }
 }
@@ -105,7 +103,7 @@ function buildDepositPaidEmail(params: {
     <p style="color:#ffffff;font-size:16px;line-height:1.6;margin:0 0 24px;font-family:Arial,sans-serif;">Hi ${params.recipientName},</p>
     <p style="color:#cccccc;font-size:14px;line-height:1.6;margin:0 0 24px;font-family:Arial,sans-serif;">Thank you! We've received your deposit for <strong>${params.quoteNumber}</strong>. Your installation date is now secured, and we'll be in touch shortly to confirm the exact date and time.</p>
     ${bankingBlock}
-    <p style="color:#999999;font-size:12px;line-height:1.6;margin:0;font-family:Arial,sans-serif;">Questions? Call us on <a href="tel:0755711177" style="color:#d4a853;text-decoration:none;">07 5571 1177</a>.</p>
+    
   ` + emailFooter();
 }
 
@@ -127,7 +125,7 @@ function buildScheduledEmail(params: {
     <p style="color:#ffffff;font-size:16px;line-height:1.6;margin:0 0 24px;font-family:Arial,sans-serif;">Hi ${params.recipientName},</p>
     <p style="color:#cccccc;font-size:14px;line-height:1.6;margin:0 0 24px;font-family:Arial,sans-serif;">Your carpet installation for <strong>${params.quoteNumber}</strong> at <strong>${params.propertyAddress}</strong> has been scheduled for <strong>${dateStr}</strong>.</p>
     <p style="color:#cccccc;font-size:14px;line-height:1.6;margin:0 0 24px;font-family:Arial,sans-serif;">Please ensure access is available on the day. If you need to reschedule, let us know as soon as possible.</p>
-    <p style="color:#999999;font-size:12px;line-height:1.6;margin:0;font-family:Arial,sans-serif;">Questions? Call us on <a href="tel:0755711177" style="color:#d4a853;text-decoration:none;">07 5571 1177</a>.</p>
+    
   ` + emailFooter();
 }
 
@@ -154,7 +152,7 @@ function buildCompletedEmail(params: {
     <p style="color:#ffffff;font-size:16px;line-height:1.6;margin:0 0 24px;font-family:Arial,sans-serif;">Hi ${params.recipientName},</p>
     <p style="color:#cccccc;font-size:14px;line-height:1.6;margin:0 0 24px;font-family:Arial,sans-serif;">Your carpet installation at <strong>${params.propertyAddress}</strong> is complete. ${!usesAgentPaymentTerms(params.quoteType) ? `The remaining balance of <strong>${formatPrice(params.balanceAmount)}</strong> is now due.` : `The full amount of <strong>${formatPrice(params.balanceAmount)}</strong> is now due.`}</p>
     ${bankingDetails}
-    <p style="color:#999999;font-size:12px;line-height:1.6;margin:0;font-family:Arial,sans-serif;">Thank you for choosing Bell Carpets. Questions? Call us on <a href="tel:0755711177" style="color:#d4a853;text-decoration:none;">07 5571 1177</a>.</p>
+    
   ` + emailFooter();
 }
 
@@ -167,7 +165,7 @@ function buildPaidInFullEmail(params: {
   return emailHeader() + `
     <p style="color:#ffffff;font-size:16px;line-height:1.6;margin:0 0 24px;font-family:Arial,sans-serif;">Hi ${params.recipientName},</p>
     <p style="color:#cccccc;font-size:14px;line-height:1.6;margin:0 0 24px;font-family:Arial,sans-serif;">Thank you! We've received your final payment for <strong>${params.quoteNumber}</strong>. Everything is now settled, and we hope you're enjoying your new floors!</p>
-    <p style="color:#999999;font-size:12px;line-height:1.6;margin:0;font-family:Arial,sans-serif;">Questions? Call us on <a href="tel:0755711177" style="color:#d4a853;text-decoration:none;">07 5571 1177</a>.</p>
+    
   ` + emailFooter();
 }
 
@@ -419,7 +417,7 @@ function buildReviewRequestEmail(params: {
             <p style="color:#999999;font-size:12px;line-height:1.6;margin:0;font-family:Arial,sans-serif;">Thanks again for choosing Bell Carpets.</p>
           </td></tr>
           <tr><td style="padding:40px 40px 32px;text-align:center;">
-            <p style="color:#888888;font-size:12px;margin:0;font-family:Arial,sans-serif;">Leon Bell / Bell Carpets / 07 5571 1177</p>
+            <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663449952732/EvSxkTrWsYNTCIAI.jpg" alt="Bell Carpets" style="height:24px;display:block;margin:0 auto;" />
           </td></tr>
         </table>
       </td></tr>
