@@ -1,22 +1,25 @@
 /**
- * Invoice PDF Generator — creates a branded Bell Carpets quote PDF
+ * Invoice PDF Generator — creates a luxury branded Bell Carpets quote PDF
  * Uses PDFKit for server-side generation.
  *
- * Page 1: Quote details, pricing, banking details
- * Page 2+: Full Terms & Conditions (auto-paginates without blank pages)
- * Every page: footer with "BELL CARPETS | ESTABLISHED 1987" and "RESIDENTIAL | COMMERCIAL | PROJECTS"
+ * Design: Black & white, EB Garamond serif font, generous whitespace,
+ * architectural firm aesthetic. No gold, no colour, no gradients.
  *
- * Printer-friendly: white background, black/dark text, champagne gold accents.
+ * Page 1: Quote details, product, pricing, banking
+ * Page 2+: Full Terms & Conditions (auto-paginates)
+ * Every page: minimal footer with Bell Carpets wordmark
  */
 
 import PDFDocument from "pdfkit";
 import https from "https";
 import http from "http";
+import path from "path";
+import fs from "fs";
 import { formatAESTDate, nowAEST } from "../shared/aestUtils";
 
 export interface InvoiceData {
   quoteNumber: string;
-  invoiceNumber?: string; // When set, PDF shows "INVOICE INV-XXX" instead of "QUOTE BC-XXX"
+  invoiceNumber?: string;
   issueDate: string;
   validDays: number;
   depositPercent: number;
@@ -37,15 +40,8 @@ export interface InvoiceData {
   addons: { title: string; price: number }[];
   grandTotal: number;
 
-  /** For homeowner quotes with room itemisation: array of rooms with individual prices.
-   * When present, the PDF shows a room-by-room breakdown instead of a single product line.
-   */
   rooms?: { id: string; name: string; price: number }[];
 
-  /** For agent/tiered quotes: all tiers to show in the PDF comparison layout.
-   * When present, overrides the single-tier product section with a multi-tier layout.
-   * NOTE: rooms and allTiers are mutually exclusive — rooms for homeowner, allTiers for agent.
-   */
   allTiers?: {
     name: string;
     productName: string;
@@ -63,25 +59,24 @@ export interface InvoiceData {
   agentEmail: string;
   agentPhone: string;
 
-  /** When true, hides deposit/balance breakdown and uses agent-specific T&C payment terms */
   isAgent?: boolean;
 }
 
-// ─── Printer-Friendly Palette ─────────────────────────────────────
-const WHITE        = "#FFFFFF";
-const PAGE_BG      = "#FFFFFF";
-const INK_BLACK    = "#111111";
-const INK_DARK     = "#222222";
-const INK_MID      = "#555555";
-const INK_LIGHT    = "#888888";
-const RULE_LIGHT   = "#DDDDDD";
-const RULE_DARK    = "#AAAAAA";
-const ROW_ALT      = "#F7F7F5";
-const CHAMPAGNE    = "#B8965A";
-const HEADER_BG    = "#111111";
+// ─── Palette: Pure B&W ─────────────────────────────────────────────
+const BLACK = "#000000";
+const DARK = "#1a1a1a";
+const MID = "#666666";
+const LIGHT = "#999999";
+const RULE = "#e0e0e0";
+const FAINT = "#f5f5f5";
 
-// Logo — dark version for white backgrounds
+// Logo URL (black wordmark on white)
 const LOGO_URL = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663449952732/EvSxkTrWsYNTCIAI.jpg";
+
+// Font paths — relative to this file's directory
+const FONT_DIR = path.join(__dirname, "fonts");
+const FONT_REGULAR = path.join(FONT_DIR, "EBGaramond-Variable.ttf");
+const FONT_ITALIC = path.join(FONT_DIR, "EBGaramond-Italic-Variable.ttf");
 
 function formatPrice(n: number): string {
   return "$" + n.toLocaleString("en-AU", { minimumFractionDigits: 0 });
@@ -126,521 +121,316 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
     console.warn("[InvoiceGenerator] Failed to download logo:", e);
   }
 
+  // Check if custom fonts exist, fall back to Helvetica if not
+  const hasCustomFont = fs.existsSync(FONT_REGULAR);
+  const hasItalicFont = fs.existsSync(FONT_ITALIC);
+
   return new Promise<Buffer>((resolve, reject) => {
     const doc = new PDFDocument({
       size: "A4",
-      margins: { top: 0, bottom: 0, left: 50, right: 50 },
+      margins: { top: 60, bottom: 0, left: 60, right: 60 },
       autoFirstPage: true,
-      bufferPages: true,   // ← key: buffer all pages so we can patch footers
+      bufferPages: true,
       info: {
-        Title: `Bell Carpets — ${data.quoteNumber}`,
+        Title: `Bell Carpets — ${data.invoiceNumber ?? data.quoteNumber}`,
         Author: "Bell Carpets",
-        Subject: `Quote ${data.quoteNumber}`,
+        Subject: `Quote ${data.invoiceNumber ?? data.quoteNumber}`,
       },
     });
+
+    // Register fonts
+    if (hasCustomFont) {
+      doc.registerFont("Garamond", FONT_REGULAR);
+    }
+    if (hasItalicFont) {
+      doc.registerFont("Garamond-Italic", FONT_ITALIC);
+    }
+
+    const fontRegular = hasCustomFont ? "Garamond" : "Helvetica";
+    const fontBold = hasCustomFont ? "Garamond" : "Helvetica-Bold";
+    const fontItalic = hasItalicFont ? "Garamond-Italic" : "Helvetica-Oblique";
 
     const chunks: Buffer[] = [];
     doc.on("data", (chunk: Buffer) => chunks.push(chunk));
     doc.on("end", () => resolve(Buffer.concat(chunks)));
     doc.on("error", reject);
 
-    const pageWidth  = doc.page.width - 100;   // 50 left + 50 right
-    const leftMargin = 50;
-    const fullWidth  = doc.page.width;
+    const pageWidth = doc.page.width - 120; // 60 left + 60 right
+    const leftMargin = 60;
+    const rightEdge = leftMargin + pageWidth;
     const pageHeight = doc.page.height;
-    const FOOTER_H   = 40;                       // reserved at bottom of every page
-    const SAFE_BOTTOM = pageHeight - FOOTER_H;   // content must stay above this
+    const FOOTER_H = 50;
+    const SAFE_BOTTOM = pageHeight - FOOTER_H - 60;
 
     let pageCount = 1;
 
-    // ─── Helper: draw page footer ─────────────────────────────────
+    // ─── Helper: draw minimal footer ─────────────────────────────
     function drawPageFooter(pageNum: number) {
-      const footerY = pageHeight - 30;
-      doc.moveTo(leftMargin, footerY - 8)
-        .lineTo(leftMargin + pageWidth, footerY - 8)
-        .strokeColor(CHAMPAGNE).lineWidth(0.5).stroke();
+      const footerY = pageHeight - 50;
+      doc.moveTo(leftMargin, footerY - 6)
+        .lineTo(rightEdge, footerY - 6)
+        .strokeColor(RULE).lineWidth(0.5).stroke();
 
-      doc.font("Helvetica-Bold").fontSize(6.5).fillColor(INK_MID);
+      doc.font(fontRegular).fontSize(7).fillColor(LIGHT);
       doc.text(
-        "BELL CARPETS  |  ESTABLISHED 1987",
-        leftMargin, footerY,
-        { width: pageWidth * 0.5, align: "left", characterSpacing: 0.8 }
+        "Bell Carpets  ·  Established 1987",
+        leftMargin, footerY + 2,
+        { width: pageWidth * 0.6, align: "left" }
       );
-      doc.font("Helvetica").fontSize(6).fillColor(INK_LIGHT);
-      doc.text(
-        "RESIDENTIAL  |  COMMERCIAL  |  PROJECTS",
-        leftMargin, footerY + 10,
-        { width: pageWidth * 0.5, align: "left", characterSpacing: 0.6 }
-      );
-      doc.font("Helvetica").fontSize(6.5).fillColor(INK_LIGHT);
+      doc.font(fontRegular).fontSize(7).fillColor(LIGHT);
       doc.text(
         `Page ${pageNum}`,
-        leftMargin + pageWidth * 0.5, footerY + 3,
-        { width: pageWidth * 0.5, align: "right" }
+        leftMargin + pageWidth * 0.6, footerY + 2,
+        { width: pageWidth * 0.4, align: "right" }
       );
     }
 
-    // ─── Helper: section heading ──────────────────────────────────
-    function sectionHeading(label: string, yPos: number): number {
-      doc.font("Helvetica-Bold").fontSize(7).fillColor(INK_MID);
-      doc.text(label, leftMargin, yPos, { characterSpacing: 1.2 });
-      const ruleY = yPos + 13;
-      doc.moveTo(leftMargin, ruleY).lineTo(leftMargin + pageWidth, ruleY)
-        .strokeColor(RULE_DARK).lineWidth(0.5).stroke();
-      return ruleY + 8;
-    }
-
-    // ─── Helper: start a new T&C page ────────────────────────────
-    function startTCPage(isFirst: boolean): number {
-      if (!isFirst) {
+    // ─── Helper: check page break ────────────────────────────────
+    function ensureSpace(needed: number, y: number): number {
+      if (y + needed > SAFE_BOTTOM) {
         drawPageFooter(pageCount);
         doc.addPage();
         pageCount++;
-        doc.rect(0, 0, fullWidth, pageHeight).fill(PAGE_BG);
+        return 60;
       }
-
-      // Minimal header band
-      doc.rect(0, 0, fullWidth, 50).fill(HEADER_BG);
-      doc.rect(0, 50, fullWidth, 2).fill(CHAMPAGNE);
-
-      if (logoBuffer) {
-        try {
-          doc.save();
-          doc.rect(leftMargin - 2, 10, 110, 30).fill(WHITE);
-          doc.image(logoBuffer, leftMargin, 12, { height: 26 });
-          doc.restore();
-        } catch {
-          doc.font("Helvetica-Bold").fontSize(14).fillColor(WHITE);
-          doc.text("BELL CARPETS", leftMargin, 18);
-        }
-      } else {
-        doc.font("Helvetica-Bold").fontSize(14).fillColor(WHITE);
-        doc.text("BELL CARPETS", leftMargin, 18);
-      }
-
-      doc.font("Helvetica-Bold").fontSize(9).fillColor(WHITE);
-      doc.text("Standard Terms and Conditions of Trade", leftMargin + pageWidth * 0.35, 20, {
-        width: pageWidth * 0.65,
-        align: "right",
-      });
-      doc.font("Helvetica").fontSize(7).fillColor("#999999");
-      doc.text(`Reference: ${data.invoiceNumber ?? data.quoteNumber}`, leftMargin + pageWidth * 0.35, 33, {
-        width: pageWidth * 0.65,
-        align: "right",
-      });
-
-      return 68; // content starts here
+      return y;
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // PAGE 1: Quote Details
+    // PAGE 1: Quote
     // ═══════════════════════════════════════════════════════════════
-    doc.rect(0, 0, fullWidth, pageHeight).fill(PAGE_BG);
 
-    // Dark header band
-    const headerHeight = 90;
-    doc.rect(0, 0, fullWidth, headerHeight).fill(HEADER_BG);
-    doc.rect(0, headerHeight, fullWidth, 2).fill(CHAMPAGNE);
-
-    let y = 22;
+    let y = 60;
 
     // Logo
     if (logoBuffer) {
       try {
-        doc.save();
-        doc.rect(leftMargin - 2, y - 2, 148, 38).fill(WHITE);
-        doc.image(logoBuffer, leftMargin, y, { height: 34 });
-        doc.restore();
+        doc.image(logoBuffer, leftMargin, y, { height: 32 });
       } catch {
-        doc.font("Helvetica-Bold").fontSize(18).fillColor(WHITE);
-        doc.text("BELL CARPETS", leftMargin, y + 8);
+        doc.font(fontBold).fontSize(20).fillColor(BLACK);
+        doc.text("BELL CARPETS", leftMargin, y + 6);
       }
     } else {
-      doc.font("Helvetica-Bold").fontSize(18).fillColor(WHITE);
-      doc.text("BELL CARPETS", leftMargin, y + 8);
+      doc.font(fontBold).fontSize(20).fillColor(BLACK);
+      doc.text("BELL CARPETS", leftMargin, y + 6);
     }
 
-    // Tagline below logo
-    doc.font("Helvetica").fontSize(5.5).fillColor("#888888");
-    doc.text("RESIDENTIAL  |  COMMERCIAL  |  PROJECTS", leftMargin, y + 40, {
-      width: 160,
-      align: "left",
-      characterSpacing: 0.8,
-    });
+    y += 56;
 
-    // Quote number (right side of header)
-    doc.font("Helvetica").fontSize(7).fillColor("#999999");
-    doc.text(data.invoiceNumber ? "INVOICE" : "QUOTE", leftMargin + pageWidth * 0.65, y + 4, {
-      width: pageWidth * 0.35,
-      align: "right",
-      characterSpacing: 1.5,
-    });
-    doc.font("Helvetica-Bold").fontSize(20).fillColor(WHITE);
-    doc.text(data.invoiceNumber ?? data.quoteNumber, leftMargin + pageWidth * 0.65, y + 16, {
-      width: pageWidth * 0.35,
-      align: "right",
-    });
+    // Thin rule below logo
+    doc.moveTo(leftMargin, y).lineTo(rightEdge, y)
+      .strokeColor(BLACK).lineWidth(1).stroke();
 
-    // Dates (right side)
+    y += 24;
+
+    // QUOTE number and dates — right aligned
+    const docLabel = data.invoiceNumber ? "INVOICE" : "QUOTE";
+    const docNumber = data.invoiceNumber ?? data.quoteNumber;
     const validUntil = calculateValidUntil(data.issueDate, data.validDays);
-    doc.font("Helvetica").fontSize(7.5).fillColor("#999999");
-    doc.text(`Issued: ${data.issueDate}`, leftMargin + pageWidth * 0.65, y + 42, {
-      width: pageWidth * 0.35,
-      align: "right",
-    });
+
+    doc.font(fontRegular).fontSize(9).fillColor(LIGHT);
+    doc.text(docLabel, rightEdge - 160, y, { width: 160, align: "right" });
+    y += 2;
+    doc.font(fontBold).fontSize(18).fillColor(BLACK);
+    doc.text(docNumber, rightEdge - 160, y + 10, { width: 160, align: "right" });
+
+    // Left side: client details
+    const detailStartY = y;
+    doc.font(fontRegular).fontSize(9).fillColor(LIGHT);
+    doc.text("PREPARED FOR", leftMargin, detailStartY);
+    doc.font(fontRegular).fontSize(11).fillColor(DARK);
+    doc.text(data.agentName || data.clientName, leftMargin, detailStartY + 14);
+    if (data.clientName && data.clientName !== data.agentName) {
+      doc.font(fontRegular).fontSize(10).fillColor(MID);
+      doc.text(data.clientName, leftMargin, detailStartY + 28);
+    }
+
+    y = detailStartY + 50;
+
+    // Property address
+    if (data.propertyAddress) {
+      doc.font(fontRegular).fontSize(9).fillColor(LIGHT);
+      doc.text("PROPERTY", leftMargin, y);
+      doc.font(fontRegular).fontSize(10).fillColor(DARK);
+      doc.text(data.propertyAddress, leftMargin, y + 14);
+      y += 36;
+    }
+
+    // Dates
+    y += 8;
+    doc.font(fontRegular).fontSize(9).fillColor(LIGHT);
+    doc.text("ISSUED", leftMargin, y);
+    doc.font(fontRegular).fontSize(10).fillColor(DARK);
+    doc.text(data.issueDate, leftMargin + 80, y);
+
     if (validUntil) {
-      doc.font("Helvetica").fontSize(7.5).fillColor(CHAMPAGNE);
-      doc.text(`Valid until: ${validUntil}`, leftMargin + pageWidth * 0.65, y + 54, {
-        width: pageWidth * 0.35,
-        align: "right",
-      });
+      y += 16;
+      doc.font(fontRegular).fontSize(9).fillColor(LIGHT);
+      doc.text("VALID UNTIL", leftMargin, y);
+      doc.font(fontRegular).fontSize(10).fillColor(DARK);
+      doc.text(validUntil, leftMargin + 80, y);
     }
 
-    // Contact info bar
-    y = headerHeight + 10;
-    doc.font("Helvetica").fontSize(7).fillColor(INK_LIGHT);
-    doc.text(
-      "41 Olympic Circuit, Southport QLD 4215  ·  07 5571 1177  ·  hello@bellcarpets.com.au  ·  bellcarpets.com.au",
-      leftMargin, y, { width: pageWidth, align: "center" }
-    );
+    y += 36;
 
-    // Client & Property
-    y = headerHeight + 28;
-    y = sectionHeading("CLIENT & PROPERTY", y);
-
-    const colW = pageWidth / 2 - 12;
-    const isHomeowner = !data.isAgent && data.clientType?.includes("Residential");
-
-    if (isHomeowner) {
-      // Homeowner: show customer name once (no duplication)
-      doc.font("Helvetica").fontSize(7).fillColor(INK_LIGHT);
-      doc.text("Customer", leftMargin, y);
-      doc.font("Helvetica-Bold").fontSize(9.5).fillColor(INK_BLACK);
-      doc.text(data.clientName || "—", leftMargin, y + 11, { width: colW });
-      doc.font("Helvetica").fontSize(7.5).fillColor(INK_MID);
-      if (data.agentEmail || data.agentPhone) {
-        doc.text(
-          [data.agentEmail, data.agentPhone].filter(Boolean).join("  ·  "),
-          leftMargin, y + 24, { width: pageWidth }
-        );
-      }
-      y += 44;
-    } else {
-      // Agent/real_estate: show both "Prepared for" (agency) and "Agent Contact" (person)
-      doc.font("Helvetica").fontSize(7).fillColor(INK_LIGHT);
-      doc.text("Prepared for", leftMargin, y);
-      doc.font("Helvetica-Bold").fontSize(9.5).fillColor(INK_BLACK);
-      doc.text(data.clientName || "—", leftMargin, y + 11, { width: colW });
-      doc.font("Helvetica").fontSize(7.5).fillColor(INK_MID);
-      doc.text(data.clientType, leftMargin, y + 24, { width: colW });
-
-      doc.font("Helvetica").fontSize(7).fillColor(INK_LIGHT);
-      doc.text("Agent Contact", leftMargin + colW + 24, y);
-      doc.font("Helvetica-Bold").fontSize(9).fillColor(INK_BLACK);
-      doc.text(data.agentName || "—", leftMargin + colW + 24, y + 11, { width: colW });
-      doc.font("Helvetica").fontSize(7.5).fillColor(INK_MID);
-      if (data.agentEmail || data.agentPhone) {
-        doc.text(
-          [data.agentEmail, data.agentPhone].filter(Boolean).join("  ·  "),
-          leftMargin + colW + 24, y + 24, { width: colW }
-        );
-      }
-      y += 44;
-    }
-
-    doc.font("Helvetica").fontSize(7).fillColor(INK_LIGHT);
-    doc.text("Property", leftMargin, y);
-    doc.font("Helvetica-Bold").fontSize(9.5).fillColor(INK_BLACK);
-    doc.text(data.propertyAddress || "—", leftMargin, y + 11, { width: colW });
-
+    // ─── Product Section ─────────────────────────────────────────
+    doc.moveTo(leftMargin, y).lineTo(rightEdge, y)
+      .strokeColor(RULE).lineWidth(0.5).stroke();
     y += 16;
 
-    // Product Selection — multi-tier or single-tier
+    doc.font(fontRegular).fontSize(9).fillColor(LIGHT);
+    doc.text("PRODUCT", leftMargin, y);
+    y += 18;
 
     if (data.allTiers && data.allTiers.length > 1) {
-      // ── MULTI-TIER COMPARISON LAYOUT ──────────────────────────────
-      y = sectionHeading("PRODUCT OPTIONS", y);
-
-      const tierColW = Math.floor(pageWidth / data.allTiers.length);
-      const labelRows = data.isAgent
-        ? ["Product", "Fibre", "Pile Type", "Price (inc GST)"]
-        : ["Product", "Fibre", "Pile Type", "Price (inc GST)", "Deposit Required"];
-      const ROW_H = 20;
-
-      // Tier header row
-      doc.rect(leftMargin, y, pageWidth, ROW_H).fill(INK_BLACK);
-      doc.rect(leftMargin, y, 3, ROW_H).fill(CHAMPAGNE);
-      data.allTiers.forEach((tier, ti) => {
-        const tx = leftMargin + ti * tierColW;
-        doc.font("Helvetica-Bold").fontSize(8.5).fillColor(WHITE);
-        doc.text(tier.name, tx + 8, y + 6, { width: tierColW - 12, align: "center" });
-      });
-      y += ROW_H;
-
-      // Product name row
-      doc.rect(leftMargin, y, pageWidth, ROW_H).fill(ROW_ALT);
-      data.allTiers.forEach((tier, ti) => {
-        const tx = leftMargin + ti * tierColW;
-        doc.font("Helvetica-Bold").fontSize(7.5).fillColor(INK_DARK);
-        doc.text(`${tier.manufacturer} — ${tier.productName}`, tx + 8, y + 5, { width: tierColW - 14 });
-      });
-      y += ROW_H;
-
-      // Fibre row
-      doc.rect(leftMargin, y, pageWidth, ROW_H).fill(WHITE);
-      doc.font("Helvetica").fontSize(6.5).fillColor(INK_LIGHT);
-      doc.text("Fibre", leftMargin + 4, y + 3, { width: 40 });
-      data.allTiers.forEach((tier, ti) => {
-        const tx = leftMargin + ti * tierColW;
-        doc.font("Helvetica").fontSize(7.5).fillColor(INK_MID);
-        doc.text(tier.fibre || "—", tx + 8, y + 5, { width: tierColW - 14 });
-      });
-      y += ROW_H;
-
-      // Pile type row
-      doc.rect(leftMargin, y, pageWidth, ROW_H).fill(ROW_ALT);
-      doc.font("Helvetica").fontSize(6.5).fillColor(INK_LIGHT);
-      doc.text("Pile Type", leftMargin + 4, y + 3, { width: 50 });
-      data.allTiers.forEach((tier, ti) => {
-        const tx = leftMargin + ti * tierColW;
-        doc.font("Helvetica").fontSize(7.5).fillColor(INK_MID);
-        doc.text(tier.pileType || "—", tx + 8, y + 5, { width: tierColW - 14 });
-      });
-      y += ROW_H;
-
-      // Price row
-      doc.rect(leftMargin, y, pageWidth, ROW_H + 2).fill(WHITE);
-      doc.rect(leftMargin, y, 3, ROW_H + 2).fill(CHAMPAGNE);
-      data.allTiers.forEach((tier, ti) => {
-        const tx = leftMargin + ti * tierColW;
-        doc.font("Helvetica-Bold").fontSize(10).fillColor(INK_BLACK);
-        doc.text(formatPrice(tier.price), tx + 8, y + 5, { width: tierColW - 14, align: "center" });
-      });
-      y += ROW_H + 2;
-
-      // Deposit row — homeowner only; agent quotes pay in full on completion
-      if (!data.isAgent) {
-        doc.rect(leftMargin, y, pageWidth, ROW_H).fill(ROW_ALT);
-        doc.font("Helvetica").fontSize(6.5).fillColor(INK_LIGHT);
-        doc.text("Deposit", leftMargin + 4, y + 3, { width: 40 });
-        data.allTiers.forEach((tier, ti) => {
-          const tx = leftMargin + ti * tierColW;
-          const dep = Math.round(tier.price * (tier.depositPercent / 100));
-          doc.font("Helvetica").fontSize(7.5).fillColor(INK_MID);
-          doc.text(`${formatPrice(dep)} (${tier.depositPercent}%)`, tx + 8, y + 5, { width: tierColW - 14, align: "center" });
-        });
-        y += ROW_H;
-      }
-
-      // Vertical dividers between tiers
-      const tableRowCount = data.isAgent ? 4 : 5; // 4 rows without deposit, 5 with
-      for (let ti = 1; ti < data.allTiers.length; ti++) {
-        const divX = leftMargin + ti * tierColW;
-        const startY = y - (ROW_H * tableRowCount + ROW_H + 2); // back to start of table
-        doc.moveTo(divX, startY).lineTo(divX, y)
-          .strokeColor(RULE_LIGHT).lineWidth(0.5).stroke();
-      }
-    // ── PREMIUM UNDERLAY CALLOUT (agent/tiered quotes only) ────────────
-    if (data.allTiers && data.allTiers.length > 1 && data.isAgent) {
-      y += 10;
-      const GOLD_BG    = "#FBF5E8";
-      // Section heading
-      y = sectionHeading("PREMIUM UNDERLAY INCLUDED", y);
-      // Outer box
-      const boxH = 88;
-      doc.rect(leftMargin, y, pageWidth, boxH).fill(GOLD_BG);
-      doc.rect(leftMargin, y, 3, boxH).fill(CHAMPAGNE);
-      // Header line
-      doc.font("Helvetica-Bold").fontSize(9).fillColor(INK_BLACK);
-      doc.text("Premium Underlay Included", leftMargin + 12, y + 8, { width: pageWidth - 20 });
-      doc.font("Helvetica-Bold").fontSize(11).fillColor(INK_BLACK);
-      doc.text("Dunlop Eureka\u00ae", leftMargin + 12, y + 20, { width: pageWidth - 20 });
-      // Key selling point
-      doc.font("Helvetica-Bold").fontSize(8).fillColor(CHAMPAGNE);
-      doc.text("Premium comfort underlay — trusted by professionals", leftMargin + 12, y + 34, { width: pageWidth - 20 });
-      // Spec columns — two rows of specs
-      const underlaySpecs = [
-        "10mm Thickness",
-        "High Density Foam",
-        "Acoustic Insulation",
-        "Thermal Performance",
-        "Australian Made",
-      ];
-      const colW = Math.floor(pageWidth / 3);
-      underlaySpecs.forEach((spec, i) => {
-        const col = i % 3;
-        const row = Math.floor(i / 3);
-        const sx = leftMargin + 12 + col * colW;
-        const sy = y + 48 + row * 14;
-        doc.font("Helvetica").fontSize(7).fillColor(INK_MID);
-        doc.text("\u2022  " + spec, sx, sy, { width: colW - 8 });
-      });
-      y += boxH + 6;
-    }
-
-    } else {
-      // ── SINGLE-TIER LAYOUT (homeowner / single-price agent) ────────────
-      y = sectionHeading("PRODUCT SELECTION", y);
-
-      const productRows: [string, string][] = [
-        ["Tier", data.tierName],
-        ["Product", `${data.manufacturer} — ${data.productName}`],
-        ["Fibre", data.fibre],
-        ["Pile Type", data.pileType],
-        ["Colour", data.colourCode ? `${data.colourCode}  ${data.colourName}` : data.colourName],
-      ];
-
-      for (let ri = 0; ri < productRows.length; ri++) {
-        const [label, value] = productRows[ri]!;
-        doc.rect(leftMargin, y - 2, pageWidth, 16).fill(ri % 2 === 0 ? WHITE : ROW_ALT);
-        doc.font("Helvetica").fontSize(7.5).fillColor(INK_LIGHT);
-        doc.text(label, leftMargin + 6, y + 2, { width: 90 });
-        doc.font("Helvetica").fontSize(8).fillColor(INK_DARK);
-        doc.text(value, leftMargin + 100, y + 2, { width: pageWidth - 106 });
+      // Multi-tier layout
+      for (const tier of data.allTiers) {
+        y = ensureSpace(50, y);
+        doc.font(fontBold).fontSize(11).fillColor(BLACK);
+        doc.text(tier.name, leftMargin, y);
         y += 16;
+        doc.font(fontRegular).fontSize(10).fillColor(MID);
+        doc.text(`${tier.manufacturer} ${tier.productName}`, leftMargin + 12, y);
+        if (tier.fibre) {
+          doc.text(`  ·  ${tier.fibre}`, leftMargin + 12 + doc.widthOfString(`${tier.manufacturer} ${tier.productName}`), y);
+        }
+        y += 14;
+        doc.font(fontRegular).fontSize(10).fillColor(DARK);
+        doc.text(formatPrice(tier.price) + " inc GST", leftMargin + 12, y);
+        y += 22;
+      }
+    } else {
+      // Single product
+      doc.font(fontBold).fontSize(12).fillColor(BLACK);
+      doc.text(`${data.manufacturer} ${data.productName}`, leftMargin, y);
+      y += 18;
+
+      const details: string[] = [];
+      if (data.fibre) details.push(data.fibre);
+      if (data.pileType) details.push(data.pileType);
+      if (data.colourName) details.push(data.colourName);
+
+      if (details.length > 0) {
+        doc.font(fontRegular).fontSize(10).fillColor(MID);
+        doc.text(details.join("  ·  "), leftMargin, y);
+        y += 18;
       }
     }
 
-    // Scope of Works
     y += 8;
-    y = sectionHeading("SCOPE OF WORKS", y);
+
+    // ─── Scope of Works ──────────────────────────────────────────
+    y = ensureSpace(80, y);
+    doc.moveTo(leftMargin, y).lineTo(rightEdge, y)
+      .strokeColor(RULE).lineWidth(0.5).stroke();
+    y += 16;
+
+    doc.font(fontRegular).fontSize(9).fillColor(LIGHT);
+    doc.text("SCOPE OF WORKS", leftMargin, y);
+    y += 18;
 
     for (const item of data.scopeOfWorks) {
-      doc.font("Helvetica-Bold").fontSize(7.5).fillColor(INK_DARK);
-      doc.text(item.title, leftMargin + 6, y, { width: 110 });
-      doc.font("Helvetica").fontSize(7.5).fillColor(INK_MID);
-      doc.text(item.description, leftMargin + 120, y, { width: pageWidth - 126 });
-      y += 15;
+      y = ensureSpace(20, y);
+      doc.font(fontRegular).fontSize(10).fillColor(DARK);
+      doc.text(`${item.title}`, leftMargin, y, { continued: false });
+      if (item.description) {
+        doc.font(fontRegular).fontSize(9).fillColor(MID);
+        doc.text(item.description, leftMargin + 160, y, { width: pageWidth - 160 });
+      }
+      y += 16;
     }
 
-    // Pricing Table
-    y += 8;
-    y = sectionHeading("PRICING", y);
+    y += 12;
 
-    // Table header
-    doc.rect(leftMargin, y, pageWidth, 20).fill(INK_BLACK);
-    doc.font("Helvetica-Bold").fontSize(7.5).fillColor(WHITE);
-    doc.text("Description", leftMargin + 8, y + 6, {
-      width: pageWidth * 0.68,
-      characterSpacing: 0.5,
-    });
-    doc.text("Amount (ex GST)", leftMargin + pageWidth * 0.68, y + 6, {
-      width: pageWidth * 0.32 - 8,
-      align: "right",
-      characterSpacing: 0.5,
-    });
+    // ─── Pricing ─────────────────────────────────────────────────
+    y = ensureSpace(120, y);
+    doc.moveTo(leftMargin, y).lineTo(rightEdge, y)
+      .strokeColor(BLACK).lineWidth(0.75).stroke();
+    y += 16;
+
+    doc.font(fontRegular).fontSize(9).fillColor(LIGHT);
+    doc.text("PRICING", leftMargin, y);
     y += 20;
 
     if (data.rooms && data.rooms.length > 0) {
-      // Room itemisation: show each room as a separate pricing row
-      for (let ri = 0; ri < data.rooms.length; ri++) {
-        const room = data.rooms[ri]!;
-        doc.rect(leftMargin, y, pageWidth, 20).fill(ri % 2 === 0 ? WHITE : ROW_ALT);
-        doc.font("Helvetica").fontSize(8.5).fillColor(INK_DARK);
-        doc.text(`${room.name} — Carpet supply & installation`, leftMargin + 8, y + 6, {
-          width: pageWidth * 0.68,
-        });
-        doc.font("Helvetica-Bold").fontSize(8.5).fillColor(INK_BLACK);
-        doc.text(formatPrice(Math.round(room.price / 1.1)), leftMargin + pageWidth * 0.68, y + 6, {
-          width: pageWidth * 0.32 - 8,
-          align: "right",
-        });
-        y += 20;
-        doc.moveTo(leftMargin, y).lineTo(leftMargin + pageWidth, y)
-          .strokeColor(RULE_LIGHT).lineWidth(0.3).stroke();
+      // Room itemisation
+      for (const room of data.rooms) {
+        y = ensureSpace(22, y);
+        doc.font(fontRegular).fontSize(10).fillColor(DARK);
+        doc.text(`${room.name} — Supply & installation`, leftMargin, y, { width: pageWidth * 0.65 });
+        doc.font(fontRegular).fontSize(10).fillColor(BLACK);
+        doc.text(formatPrice(room.price), rightEdge - 100, y, { width: 100, align: "right" });
+        y += 18;
+        doc.moveTo(leftMargin, y).lineTo(rightEdge, y)
+          .strokeColor(RULE).lineWidth(0.3).stroke();
+        y += 8;
       }
     } else if (data.allTiers && data.allTiers.length > 1) {
-      // Multi-tier: show each tier as a separate pricing row
-      for (let ai = 0; ai < data.allTiers.length; ai++) {
-        const tier = data.allTiers[ai]!;
-        doc.rect(leftMargin, y, pageWidth, 20).fill(ai % 2 === 0 ? WHITE : ROW_ALT);
-        doc.font("Helvetica").fontSize(8.5).fillColor(INK_DARK);
-        doc.text(`${tier.name} — Carpet supply & installation`, leftMargin + 8, y + 6, {
-          width: pageWidth * 0.68,
-        });
-        doc.font("Helvetica-Bold").fontSize(8.5).fillColor(INK_BLACK);
-        doc.text(formatPrice(Math.round(tier.price / 1.1)), leftMargin + pageWidth * 0.68, y + 6, {
-          width: pageWidth * 0.32 - 8,
-          align: "right",
-        });
-        y += 20;
-        doc.moveTo(leftMargin, y).lineTo(leftMargin + pageWidth, y)
-          .strokeColor(RULE_LIGHT).lineWidth(0.3).stroke();
+      // Multi-tier pricing
+      for (const tier of data.allTiers) {
+        y = ensureSpace(22, y);
+        doc.font(fontRegular).fontSize(10).fillColor(DARK);
+        doc.text(`${tier.name} — Supply & installation`, leftMargin, y, { width: pageWidth * 0.65 });
+        doc.font(fontRegular).fontSize(10).fillColor(BLACK);
+        doc.text(formatPrice(tier.price) + " inc GST", rightEdge - 140, y, { width: 140, align: "right" });
+        y += 18;
+        doc.moveTo(leftMargin, y).lineTo(rightEdge, y)
+          .strokeColor(RULE).lineWidth(0.3).stroke();
+        y += 8;
       }
+      // Note for multi-tier
+      y += 4;
+      doc.font(fontItalic).fontSize(9).fillColor(MID);
+      doc.text("Select one option to proceed. Prices include GST.", leftMargin, y);
+      y += 20;
     } else {
-      // Single-tier: show one base price row
-      doc.rect(leftMargin, y, pageWidth, 20).fill(WHITE);
-      doc.font("Helvetica").fontSize(8.5).fillColor(INK_DARK);
-      doc.text(`${data.tierName} — Carpet supply & installation`, leftMargin + 8, y + 6, {
-        width: pageWidth * 0.68,
-      });
-      doc.font("Helvetica-Bold").fontSize(8.5).fillColor(INK_BLACK);
-      doc.text(formatPrice(Math.round(data.basePrice / 1.1)), leftMargin + pageWidth * 0.68, y + 6, {
-        width: pageWidth * 0.32 - 8,
-        align: "right",
-      });
-      y += 20;
-      doc.moveTo(leftMargin, y).lineTo(leftMargin + pageWidth, y)
-        .strokeColor(RULE_LIGHT).lineWidth(0.3).stroke();
+      // Single product pricing
+      doc.font(fontRegular).fontSize(10).fillColor(DARK);
+      doc.text("Carpet supply & installation", leftMargin, y, { width: pageWidth * 0.65 });
+      doc.font(fontRegular).fontSize(10).fillColor(BLACK);
+      doc.text(formatPrice(Math.round(data.basePrice / 1.1)), rightEdge - 100, y, { width: 100, align: "right" });
+      y += 18;
+      doc.moveTo(leftMargin, y).lineTo(rightEdge, y)
+        .strokeColor(RULE).lineWidth(0.3).stroke();
+      y += 8;
     }
 
-    // Add-on rows (shared for both layouts)
-    for (let ai = 0; ai < data.addons.length; ai++) {
-      const addon = data.addons[ai]!;
-      doc.rect(leftMargin, y, pageWidth, 20).fill(ai % 2 === 0 ? ROW_ALT : WHITE);
-      doc.font("Helvetica").fontSize(8.5).fillColor(INK_DARK);
-      doc.text(addon.title, leftMargin + 8, y + 6, { width: pageWidth * 0.68 });
-      doc.font("Helvetica-Bold").fontSize(8.5).fillColor(INK_BLACK);
-      doc.text(formatPrice(Math.round(addon.price / 1.1)), leftMargin + pageWidth * 0.68, y + 6, {
-        width: pageWidth * 0.32 - 8,
-        align: "right",
-      });
-      y += 20;
-      doc.moveTo(leftMargin, y).lineTo(leftMargin + pageWidth, y)
-        .strokeColor(RULE_LIGHT).lineWidth(0.3).stroke();
+    // Add-ons
+    for (const addon of data.addons) {
+      y = ensureSpace(22, y);
+      doc.font(fontRegular).fontSize(10).fillColor(DARK);
+      doc.text(addon.title, leftMargin, y, { width: pageWidth * 0.65 });
+      doc.font(fontRegular).fontSize(10).fillColor(BLACK);
+      doc.text(formatPrice(Math.round(addon.price / 1.1)), rightEdge - 100, y, { width: 100, align: "right" });
+      y += 18;
+      doc.moveTo(leftMargin, y).lineTo(rightEdge, y)
+        .strokeColor(RULE).lineWidth(0.3).stroke();
+      y += 8;
     }
 
-    // For multi-tier: no single "Total" row — each tier has its own price shown above.
-    // For single-tier: show GST row then grand total row.
+    // Total (for single-tier / rooms only)
     if (!data.allTiers || data.allTiers.length <= 1) {
-      // GST row
       y += 4;
-      doc.rect(leftMargin, y, pageWidth, 20).fill(WHITE);
-      doc.font("Helvetica").fontSize(8.5).fillColor(INK_MID);
-      doc.text("GST (10%)", leftMargin + 12, y + 5, { width: pageWidth * 0.6 });
-      doc.font("Helvetica").fontSize(8.5).fillColor(INK_MID);
-      doc.text(formatPrice(Math.round(data.grandTotal / 11)), leftMargin + pageWidth * 0.6, y + 5, {
-        width: pageWidth * 0.4 - 8,
-        align: "right",
-      });
-      y += 20;
-      // Total row
-      doc.rect(leftMargin, y, pageWidth, 30).fill(ROW_ALT);
-      doc.rect(leftMargin, y, 3, 30).fill(CHAMPAGNE);
-      doc.font("Helvetica").fontSize(9).fillColor(INK_MID);
-      doc.text("Total (inc GST)", leftMargin + 12, y + 10, { width: pageWidth * 0.6 });
-      doc.font("Helvetica-Bold").fontSize(15).fillColor(INK_BLACK);
-      doc.text(formatPrice(data.grandTotal), leftMargin + pageWidth * 0.6, y + 8, {
-        width: pageWidth * 0.4 - 8,
-        align: "right",
-      });
-      y += 30;
-    } else {
-      // Multi-tier: show a note instead of a single total
-      y += 4;
-      doc.rect(leftMargin, y, pageWidth, 24).fill(ROW_ALT);
-      doc.rect(leftMargin, y, 3, 24).fill(CHAMPAGNE);
-      doc.font("Helvetica").fontSize(8).fillColor(INK_MID);
-      doc.text("Prices shown per option above (ex GST). Select one option to proceed.", leftMargin + 12, y + 7, {
-        width: pageWidth - 20,
-      });
-      y += 24;
+      // GST line
+      doc.font(fontRegular).fontSize(9).fillColor(MID);
+      doc.text("GST (10%)", leftMargin, y, { width: pageWidth * 0.65 });
+      doc.text(formatPrice(Math.round(data.grandTotal / 11)), rightEdge - 100, y, { width: 100, align: "right" });
+      y += 18;
+
+      // Total
+      doc.moveTo(leftMargin, y).lineTo(rightEdge, y)
+        .strokeColor(BLACK).lineWidth(0.75).stroke();
+      y += 10;
+      doc.font(fontBold).fontSize(12).fillColor(BLACK);
+      doc.text("Total (inc GST)", leftMargin, y, { width: pageWidth * 0.65 });
+      doc.font(fontBold).fontSize(14).fillColor(BLACK);
+      doc.text(formatPrice(data.grandTotal), rightEdge - 120, y, { width: 120, align: "right" });
+      y += 28;
     }
 
-    // Deposit / Balance — homeowner quotes only; agent quotes pay in full on completion
+    // ─── Deposit / Payment Terms ─────────────────────────────────
     if (!data.isAgent) {
-      y += 6;
-      // For multi-tier, use the first tier's price for the deposit/balance summary
+      y = ensureSpace(50, y);
       const summaryTotal = (data.allTiers && data.allTiers.length > 1)
         ? data.allTiers[0]!.price
         : data.grandTotal;
@@ -651,98 +441,73 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
       const balance = summaryTotal - deposit;
 
       if (summaryDepositPct > 0) {
-        doc.font("Helvetica").fontSize(8).fillColor(INK_LIGHT);
-        doc.text(`${summaryDepositPct}% Non-refundable Deposit`, leftMargin + 6, y + 4, {
-          width: pageWidth * 0.7,
-        });
-        doc.font("Helvetica-Bold").fontSize(8).fillColor(INK_DARK);
-        doc.text(formatPrice(deposit), leftMargin + pageWidth * 0.7, y + 4, {
-          width: pageWidth * 0.3 - 6,
-          align: "right",
-        });
-        y += 18;
-        doc.font("Helvetica").fontSize(8).fillColor(INK_LIGHT);
-        doc.text("Balance on Practical Completion", leftMargin + 6, y + 4, {
-          width: pageWidth * 0.7,
-        });
-        doc.font("Helvetica-Bold").fontSize(8).fillColor(INK_DARK);
-        doc.text(formatPrice(balance), leftMargin + pageWidth * 0.7, y + 4, {
-          width: pageWidth * 0.3 - 6,
-          align: "right",
-        });
-        y += 28;
-      } else {
-        // 0% deposit — full payment on completion
-        doc.font("Helvetica").fontSize(8).fillColor(INK_LIGHT);
-        doc.text("Full Payment on Practical Completion", leftMargin + 6, y + 4, {
-          width: pageWidth * 0.7,
-        });
-        doc.font("Helvetica-Bold").fontSize(8).fillColor(INK_DARK);
-        doc.text(formatPrice(summaryTotal), leftMargin + pageWidth * 0.7, y + 4, {
-          width: pageWidth * 0.3 - 6,
-          align: "right",
-        });
-        y += 28;
+        doc.font(fontRegular).fontSize(9).fillColor(MID);
+        doc.text(`${summaryDepositPct}% non-refundable deposit`, leftMargin, y);
+        doc.text(formatPrice(deposit), rightEdge - 100, y, { width: 100, align: "right" });
+        y += 16;
+        doc.text("Balance on practical completion", leftMargin, y);
+        doc.text(formatPrice(balance), rightEdge - 100, y, { width: 100, align: "right" });
+        y += 24;
       }
     }
 
-    // Banking Details
-    y = sectionHeading("BANKING DETAILS", y);
+    // ─── Banking Details ─────────────────────────────────────────
+    y = ensureSpace(100, y);
+    doc.moveTo(leftMargin, y).lineTo(rightEdge, y)
+      .strokeColor(RULE).lineWidth(0.5).stroke();
+    y += 16;
 
-    doc.rect(leftMargin, y, pageWidth, 72).fill(ROW_ALT);
-    doc.rect(leftMargin, y, 3, 72).fill(CHAMPAGNE);
-
-    const bankLeft = leftMargin + 14;
-    const bankLabelW = 90;
-    const bankValueX = leftMargin + 110;
-    const bankValueW = pageWidth - 120;
+    doc.font(fontRegular).fontSize(9).fillColor(LIGHT);
+    doc.text("BANKING DETAILS", leftMargin, y);
+    y += 20;
 
     const bankRows: [string, string][] = [
-      ["ACC NAME", "Bell Spec Pty Ltd"],
+      ["Account Name", "Bell Spec Pty Ltd"],
       ["BSB", "124 022"],
-      ["ACC NUMBER", "22496442"],
-      ["REFERENCE", data.invoiceNumber ?? data.quoteNumber],
+      ["Account Number", "22496442"],
+      ["Reference", data.invoiceNumber ?? data.quoteNumber],
     ];
 
-    let by = y + 10;
     for (const [label, value] of bankRows) {
-      doc.font("Helvetica").fontSize(7.5).fillColor(INK_LIGHT);
-      doc.text(label, bankLeft, by, { width: bankLabelW });
-      doc.font("Helvetica-Bold").fontSize(8).fillColor(INK_DARK);
-      doc.text(value, bankValueX, by, { width: bankValueW });
-      by += 14;
+      doc.font(fontRegular).fontSize(9).fillColor(MID);
+      doc.text(label, leftMargin, y, { width: 120 });
+      doc.font(fontRegular).fontSize(10).fillColor(DARK);
+      doc.text(value, leftMargin + 120, y);
+      y += 16;
     }
 
-    y += 78;
+    y += 12;
 
-    // Payment terms note
-    doc.font("Helvetica").fontSize(7.5).fillColor(INK_MID);
+    // Payment note
     const paymentNote = data.isAgent
-      ? `Full payment is due upon practical completion of the installation. Payment can be made direct into our bank account. Please send all remittances by email to: hello@bellcarpets.com.au`
-      : `Payment due within ${data.validDays} days. Payment can be made direct into our bank account. Please send all remittances by email to: hello@bellcarpets.com.au`;
+      ? "Full payment is due upon practical completion. Please send remittances to hello@bellcarpets.com.au"
+      : `Payment due within ${data.validDays} days. Please send remittances to hello@bellcarpets.com.au`;
+    doc.font(fontRegular).fontSize(9).fillColor(MID);
     doc.text(paymentNote, leftMargin, y, { width: pageWidth });
     y += 24;
 
-    // ABN note
-    doc.font("Helvetica").fontSize(6.5).fillColor(INK_LIGHT);
+    // ABN
+    doc.font(fontRegular).fontSize(7.5).fillColor(LIGHT);
     doc.text(
-      "BELL SPEC PTY LTD  ·  ABN 74 613 299 773  ·  Unit 1, 41 Olympic Circuit, Southport QLD 4215",
+      "Bell Spec Pty Ltd  ·  ABN 74 613 299 773  ·  Unit 1, 41 Olympic Circuit, Southport QLD 4215",
       leftMargin, y, { width: pageWidth, align: "center" }
     );
     y += 12;
-    doc.font("Helvetica").fontSize(6.5).fillColor(INK_LIGHT);
-    const taxInvoiceNote = data.isAgent
+
+    // Tax invoice note
+    const taxNote = data.isAgent
       ? "This document is a quotation and does not constitute a tax invoice. A tax invoice will be issued upon completion of works."
       : (data.depositPercent ?? 50) === 0
       ? "This document is a quotation and does not constitute a tax invoice. A tax invoice will be issued upon completion of works."
       : "This document is a quotation and does not constitute a tax invoice. A tax invoice will be issued upon receipt of deposit.";
-    doc.text(taxInvoiceNote, leftMargin, y, { width: pageWidth, align: "center" });
+    doc.font(fontItalic).fontSize(7.5).fillColor(LIGHT);
+    doc.text(taxNote, leftMargin, y, { width: pageWidth, align: "center" });
 
     // Page 1 Footer
     drawPageFooter(pageCount);
 
     // ═══════════════════════════════════════════════════════════════
-    // T&C PAGES — auto-paginate without blank pages
+    // T&C PAGES
     // ═══════════════════════════════════════════════════════════════
     const depPct = data.depositPercent ?? 50;
     const balPct = 100 - depPct;
@@ -753,188 +518,144 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
             text: "Full payment of the invoice total is strictly due upon practical completion of the installation on the scheduled day. Materials will not be ordered until written acceptance of this quotation is received.",
           },
           {
-            label: "Express Installations",
-            text: "If an installation is scheduled within ten (10) business days of the order date, 100% of the invoice total is required upon booking confirmation.",
+            label: "Invoicing",
+            text: "A tax invoice will be issued upon completion of works. Payment is to be made by direct bank transfer within 7 days of invoice date.",
           },
         ]
       : depPct === 0
       ? [
           {
             label: "Payment Terms",
-            text: "Full payment of the invoice total is strictly due upon practical completion of the installation on the scheduled day. Materials will not be ordered until written acceptance of this quotation is received.",
-          },
-          {
-            label: "Express Installations",
-            text: "If an installation is scheduled within ten (10) business days of the order date, 100% of the invoice total is required upon booking.",
+            text: "Full payment is due upon practical completion of the installation. A tax invoice will be issued upon completion of works.",
           },
         ]
       : [
           {
-            label: "Booking Deposit",
-            text: `A ${depPct}% non-refundable deposit is required to secure your booking, allocate our installation teams, and order materials. Materials will not be ordered until this deposit is received in cleared funds.`,
+            label: "Deposit",
+            text: `A non-refundable deposit of ${depPct}% of the total quoted amount is required to confirm your booking and order materials. Materials will not be ordered until the deposit is received.`,
           },
           {
-            label: "Final Balance",
-            text: `The remaining ${balPct}% balance is strictly due upon practical completion of the installation on the scheduled day.`,
-          },
-          {
-            label: "Express Installations",
-            text: "If an installation is scheduled within ten (10) business days of the order date, 100% of the invoice total is required upon booking.",
+            label: "Balance",
+            text: `The remaining ${balPct}% is due upon practical completion of the installation on the scheduled day.`,
           },
         ];
-    const tAndC: { section: string; items: { label: string; text: string }[] }[] = [
+
+    const tcSections = [
       {
-        section: "1. Financial Commitment & Payment Terms",
+        title: "Financial Commitment",
         items: financialCommitmentItems,
       },
       {
-        section: "2. Sub-Floor Preparation & Variations",
+        title: "Scheduling & Access",
         items: [
-          {
-            label: "Site Unseen Clause",
-            text: "Floor preparation is the critical foundation of any hard flooring installation. If the existing sub-floor is obscured by current floor coverings at the time of quotation, this quote assumes a standard, level surface.",
-          },
-          {
-            label: "Automatic Variations",
-            text: "Should the removal of existing flooring reveal undulations, moisture issues, or damage requiring rectification, these works fall outside the initial scope. The client acknowledges that such necessary preparation will incur an automatic variation charge based on materials and labour required to meet manufacturer warranty standards.",
-          },
+          { label: "Lead Time", text: "Installation dates are subject to material availability. Typical lead time is 5–10 business days from deposit receipt." },
+          { label: "Site Access", text: "Clear and safe access to the installation area must be provided. Furniture must be removed from the work area prior to the scheduled installation date unless a furniture removal add-on has been included in this quote." },
+          { label: "Subfloor", text: "Subfloor must be structurally sound, dry, and level. Any remediation required beyond normal preparation (e.g. levelling compound, moisture barriers) will be quoted separately." },
         ],
       },
       {
-        section: "3. Site Readiness & Furniture",
+        title: "Variations & Cancellations",
         items: [
-          {
-            label: "Client Responsibility",
-            text: "Unless explicitly itemised in the quotation, the movement of furniture, removal of existing floor coverings, and disposal of waste are the sole responsibility of the client prior to our arrival.",
-          },
-          {
-            label: "Subcontractor Liability",
-            text: "If Bell Carpets is contracted to move furniture, our elite subcontracted installation teams will exercise the utmost care. However, Bell Carpets and its contractors hold zero liability for any incidental damage to fragile items, electronics, antiques, or structural fixtures during this process. All valuables must be removed by the client prior to site handover.",
-          },
-          {
-            label: "Site Delays",
-            text: "If the site is not ready for installation upon our team's scheduled arrival, a stand-by or rescheduling fee will apply.",
-          },
+          { label: "Variations", text: "Any changes to the scope of works after acceptance must be agreed in writing. Additional costs will be quoted and confirmed before proceeding." },
+          { label: "Cancellation", text: "If you cancel after materials have been ordered, you forfeit the deposit. If materials have been cut or customised, the full material cost is non-refundable." },
         ],
       },
       {
-        section: "4. Exclusions of Scope",
+        title: "Warranty & Liability",
         items: [
-          {
-            label: "Unforeseen Works",
-            text: "This quotation strictly covers the supply and installation of flooring as itemised. It explicitly excludes: structural sub-floor repairs, asbestos testing or removal, plumbing or electrical disconnections/re-connections, and the repair or repainting of existing skirting boards.",
-          },
+          { label: "Installation Guarantee", text: "All installations are guaranteed for life against installation defects. This does not cover damage caused by misuse, flooding, or failure to follow manufacturer care instructions." },
+          { label: "Manufacturer Warranty", text: "Product warranties are provided by the manufacturer and are separate from our installation guarantee. Warranty documentation will be provided upon completion." },
+          { label: "Limitation", text: "Our liability is limited to the quoted amount. We are not liable for consequential loss, loss of use, or damage to existing fixtures unless caused by our negligence." },
         ],
       },
       {
-        section: "5. Asset Protection & Retention of Title",
+        title: "General",
         items: [
-          {
-            label: "Ownership",
-            text: "All goods remain the exclusive property of Bell Carpets until the invoice is paid in full with cleared funds.",
-          },
-          {
-            label: "Right of Recovery",
-            text: "In the event of non-payment, the client grants Bell Carpets and its agents the irrevocable right to enter the premises to recover the goods, without liability for any damage caused to the premises during the recovery of our property. Bell Carpets reserves the right to register a security interest on the Personal Property Securities Register (PPSR).",
-          },
-        ],
-      },
-      {
-        section: "6. Cancellations & Manufacturing Delays",
-        items: [
-          {
-            label: "Binding Orders",
-            text: data.isAgent
-              ? `Orders cannot be cancelled without the express written consent of Bell Carpets management. Approved cancellations may incur a cancellation fee to cover administrative, allocation, and restocking liabilities.`
-              : depPct === 0
-              ? `Orders cannot be cancelled without the express written consent of Bell Carpets management. Approved cancellations may incur a cancellation fee to cover administrative, allocation, and restocking liabilities.`
-              : `Orders cannot be cancelled without the express written consent of Bell Carpets management. Approved cancellations will result in the immediate forfeiture of the ${depPct}% deposit to cover administrative, allocation, and restocking liabilities.`,
-          },
-          {
-            label: "External Delays",
-            text: "Bell Carpets operates with world-class suppliers but cannot be held liable for manufacturing delays, shipping disruptions, or acts of God outside of our direct control.",
-          },
-        ],
-      },
-      {
-        section: "7. Quality of Workmanship & Industry Tolerances",
-        items: [
-          {
-            label: "Standard of Excellence",
-            text: "Bell Carpets exclusively deploys rigorously vetted, highly qualified subcontracted craftsmen. All installations are strictly executed in accordance with current Australian Building Standards and precise manufacturer specifications to ensure maximum product longevity.",
-          },
-          {
-            label: "Material and Environmental Tolerances",
-            text: "Hard flooring is a dynamic product influenced by environmental factors, structural settling, and natural lighting. The client acknowledges that minor, industry-acceptable tolerances and variations do not constitute defective workmanship.",
-          },
-          {
-            label: "Practical Completion & Handover",
-            text: "Upon the conclusion of the installation, the work is deemed to meet our elite operational standards. The client is required to conduct a final site inspection with the installation team prior to their departure to ensure complete satisfaction.",
-          },
+          { label: "Quote Validity", text: `This quote is valid for ${data.validDays} days from the issue date. After expiry, pricing may be subject to change.` },
+          { label: "Colour Variation", text: "Carpet and flooring products may vary slightly in colour from samples due to dye lot variations. This is normal and not a defect." },
+          { label: "Governing Law", text: "This agreement is governed by the laws of Queensland, Australia." },
         ],
       },
     ];
 
-    // Start first T&C page — startTCPage(false) already calls addPage() and increments pageCount
-    let ty = startTCPage(false);
+    // Start T&C on new page
+    drawPageFooter(pageCount);
+    doc.addPage();
+    pageCount++;
+    y = 60;
 
-    for (const section of tAndC) {
-      // Measure section heading height (18) + all items
-      // Check if we need a new page before starting this section
-      const sectionHeadingH = 22;
-      let sectionContentH = 0;
-      doc.fontSize(7.5);
-      for (const item of section.items) {
-        const textH = doc.heightOfString(item.text, { width: pageWidth - 126 });
-        sectionContentH += Math.max(textH + 10, 20) + 1; // +1 for rule
+    // T&C header
+    if (logoBuffer) {
+      try {
+        doc.image(logoBuffer, leftMargin, y, { height: 24 });
+      } catch {
+        doc.font(fontBold).fontSize(14).fillColor(BLACK);
+        doc.text("BELL CARPETS", leftMargin, y + 4);
       }
-      sectionContentH += 8; // trailing gap
-
-      // If the whole section fits on remaining space, draw it; otherwise start new page
-      // (but always start a new page if we're very close to the bottom)
-      if (ty + sectionHeadingH + 40 > SAFE_BOTTOM) {
-        // Not even the heading fits — start new page
-        ty = startTCPage(false);
-        pageCount++;
-      }
-
-      // Section heading bar
-      doc.rect(leftMargin, ty, pageWidth, 18).fill(INK_BLACK);
-      doc.rect(leftMargin, ty, 3, 18).fill(CHAMPAGNE);
-      doc.font("Helvetica-Bold").fontSize(8).fillColor(WHITE);
-      doc.text(section.section, leftMargin + 10, ty + 5, {
-        width: pageWidth - 14,
-        characterSpacing: 0.3,
-      });
-      ty += 22;
-
-      for (const item of section.items) {
-        doc.fontSize(7.5);
-        const textHeight = doc.heightOfString(item.text, { width: pageWidth - 126 });
-        const rowHeight = Math.max(textHeight + 10, 20);
-
-        // If this item won't fit, start a new page
-        if (ty + rowHeight > SAFE_BOTTOM) {
-          ty = startTCPage(false);
-          pageCount++;
-        }
-
-        doc.font("Helvetica-Bold").fontSize(7.5).fillColor(INK_DARK);
-        doc.text(item.label + ":", leftMargin + 6, ty + 3, { width: 110 });
-        doc.font("Helvetica").fontSize(7.5).fillColor(INK_MID);
-        doc.text(item.text, leftMargin + 120, ty + 3, { width: pageWidth - 126 });
-
-        ty += rowHeight;
-
-        // Light rule between items
-        doc.moveTo(leftMargin, ty).lineTo(leftMargin + pageWidth, ty)
-          .strokeColor(RULE_LIGHT).lineWidth(0.2).stroke();
-      }
-
-      ty += 8;
     }
 
-    // Footer on the last T&C page
+    doc.font(fontRegular).fontSize(9).fillColor(MID);
+    doc.text("Terms and Conditions", rightEdge - 160, y + 8, { width: 160, align: "right" });
+    doc.font(fontRegular).fontSize(8).fillColor(LIGHT);
+    doc.text(`Reference: ${data.invoiceNumber ?? data.quoteNumber}`, rightEdge - 160, y + 20, { width: 160, align: "right" });
+
+    y += 44;
+    doc.moveTo(leftMargin, y).lineTo(rightEdge, y)
+      .strokeColor(BLACK).lineWidth(0.5).stroke();
+    y += 20;
+
+    // Render T&C sections
+    for (const section of tcSections) {
+      y = ensureSpace(60, y);
+      if (y <= 60) {
+        // New page — add mini header
+        if (logoBuffer) {
+          try { doc.image(logoBuffer, leftMargin, 60, { height: 20 }); } catch {}
+        }
+        y = 90;
+      }
+
+      doc.font(fontBold).fontSize(10).fillColor(BLACK);
+      doc.text(section.title, leftMargin, y);
+      y += 18;
+
+      for (const item of section.items) {
+        y = ensureSpace(40, y);
+        if (y <= 60) {
+          if (logoBuffer) {
+            try { doc.image(logoBuffer, leftMargin, 60, { height: 20 }); } catch {}
+          }
+          y = 90;
+        }
+
+        doc.font(fontBold).fontSize(9).fillColor(DARK);
+        doc.text(item.label, leftMargin, y);
+        y += 13;
+        doc.font(fontRegular).fontSize(9).fillColor(MID);
+        const textHeight = doc.heightOfString(item.text, { width: pageWidth - 12 });
+        doc.text(item.text, leftMargin + 12, y, { width: pageWidth - 12 });
+        y += textHeight + 10;
+      }
+
+      y += 8;
+    }
+
+    // Custom terms from quote config
+    if (data.terms && data.terms.length > 0) {
+      y = ensureSpace(40, y);
+      doc.font(fontBold).fontSize(10).fillColor(BLACK);
+      doc.text("Additional Terms", leftMargin, y);
+      y += 18;
+
+      for (const term of data.terms) {
+        y = ensureSpace(24, y);
+        doc.font(fontRegular).fontSize(9).fillColor(MID);
+        doc.text(`·  ${term}`, leftMargin + 12, y, { width: pageWidth - 12 });
+        y += 16;
+      }
+    }
+
+    // Final footer on last page
     drawPageFooter(pageCount);
 
     doc.end();
