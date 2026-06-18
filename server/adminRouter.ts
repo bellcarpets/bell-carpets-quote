@@ -1279,15 +1279,8 @@ export const adminRouter = router({
         })
         .where(eq(quotes.slug, input.slug));
 
-      // SMS to Bell Carpets (fire-and-forget — never blocks or throws)
-      sendAcceptanceSmsToBellCarpets({
-        agentName: input.agentName,
-        agentPhone: input.agentPhone,
-        quoteNumber: quoteRow?.quoteNumber || input.slug,
-        tierName: input.tierName,
-        grandTotal: input.totalPrice,
-        propertyAddress: config.property?.fullAddress || config.property?.address || "",
-      }).catch((err) => console.error("[SMS] sendAcceptanceSmsToBellCarpets error:", err));
+      // SMS to Leon disabled — email-only for owner notifications
+      // sendAcceptanceSmsToBellCarpets removed per Leon's request
 
       return { success: true };
     }),

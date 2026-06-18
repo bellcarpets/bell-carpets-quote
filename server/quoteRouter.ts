@@ -602,14 +602,7 @@ export const quoteRouter = router({
       // Pass depositPercent so notifications use the correct % from config (not hardcoded 50%)
       const [emailSent, smsSent, notificationSent, confirmationSent] = await Promise.all([
         sendEmailNotification(input, pdfAttachment, quoteType, depositPercent),
-        sendAcceptanceSmsToBellCarpets({
-          agentName: input.agentName,
-          agentPhone: input.agentPhone,
-          quoteNumber: input.quoteNumber,
-          tierName: input.tierName,
-          grandTotal: input.grandTotal,
-          propertyAddress: input.propertyAddress,
-        }),
+        Promise.resolve(false), // SMS to Leon disabled — email-only for owner notifications
         sendOwnerNotification(input, quoteType, depositPercent),
         sendAcceptanceConfirmationEmail(input, quoteType, invoiceNumber, pdfAttachment, depositPercent),
       ]);
