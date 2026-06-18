@@ -266,57 +266,78 @@ export async function sendSchedulingConfirmationEmail(data: SchedulingConfirmati
 
   const htmlBody = `<!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Installation Scheduled — Bell Carpets</title></head>
-<body style="margin:0;padding:0;background:#ffffff;font-family:Georgia,'Times New Roman',serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;">
-    <tr><td align="center" style="padding:40px 16px 0;">
-      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Installation Scheduled — Bell Carpets</title>
+</head>
+<body style="margin:0;padding:0;background:#f5f5f5;font-family:Georgia,'Times New Roman',serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;">
+    <tr><td align="center" style="padding:48px 16px;">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;">
 
         <!-- Header -->
-        <tr><td style="background:#ffffff;padding:40px 48px 28px;text-align:center;border-bottom:1px solid #2a2a2a;">
-          <img src="${LOGO_CDN_URL}" alt="Bell Carpets" style="height:40px;display:block;margin:0 auto 6px;" />
-
+        <tr><td style="padding:48px 48px 32px;text-align:center;border-bottom:1px solid #e8e8e8;">
+          <img src="${LOGO_CDN_URL}" alt="Bell Carpets" style="width:200px;display:block;margin:0 auto;" />
         </td></tr>
 
-        <!-- Green accent bar -->
-        <tr><td style="background:linear-gradient(90deg,#1a6b3a,#2d9e5a,#1a6b3a);height:2px;"></td></tr>
+        <!-- Body -->
+        <tr><td style="padding:48px 48px 40px;">
 
-        <!-- Hero section -->
-        <tr><td style="background:#ffffff;padding:48px 48px 36px;">
-          <p style="color:#555555;font-size:12px;margin:0 0 8px;font-family:Arial,sans-serif;letter-spacing:0.05em;">Dear ${data.recipientName},</p>
-          <h1 style="color:#111111;font-size:28px;font-weight:400;margin:0 0 6px;letter-spacing:-0.01em;line-height:1.2;">Installation Confirmed</h1>
-          <p style="color:#2d9e5a;font-size:11px;margin:0 0 24px;font-family:Arial,sans-serif;letter-spacing:0.15em;text-transform:uppercase;">Bell Carpets — Scheduled</p>
-          <p style="color:#555555;font-size:14px;line-height:1.7;margin:0 0 32px;font-family:Arial,sans-serif;">
-            Your carpet installation at <strong style="color:#f0ebe0;">${data.propertyAddress}</strong> has been scheduled. Please ensure access is available on the day.
+          <p style="color:#333;font-size:14px;margin:0 0 32px;font-family:Arial,sans-serif;line-height:1.6;">
+            Dear ${data.recipientName},
           </p>
 
-          <!-- Details card -->
-          <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;border:1px solid #2a2a2a;border-radius:6px;margin-bottom:32px;">
-            <tr><td style="padding:20px 24px;border-bottom:1px solid #222;">
-              <p style="color:#555555;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;margin:0 0 4px;font-family:Arial,sans-serif;">Quote Reference</p>
-              <p style="color:#f0ebe0;font-size:18px;font-weight:400;margin:0;letter-spacing:0.05em;">${data.quoteNumber}</p>
+          <h1 style="color:#111;font-size:28px;font-weight:400;margin:0 0 8px;line-height:1.2;letter-spacing:-0.01em;">
+            Installation scheduled.
+          </h1>
+
+          <p style="color:#666;font-size:13px;margin:0 0 40px;font-family:Arial,sans-serif;line-height:1.7;">
+            Your installation at <strong style="color:#111;">${data.propertyAddress}</strong> has been confirmed.
+            Please ensure access is available on the day.
+          </p>
+
+          <!-- Details table -->
+          <table width="100%" cellpadding="0" cellspacing="0" style="border-top:2px solid #111;margin-bottom:40px;">
+            <tr><td style="padding:16px 0;border-bottom:1px solid #e8e8e8;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="color:#999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:140px;">Quote</td>
+                  <td style="color:#111;font-size:14px;font-family:Arial,sans-serif;font-weight:600;">${data.quoteNumber}</td>
+                </tr>
+              </table>
             </td></tr>
-            <tr><td style="padding:14px 24px;border-bottom:1px solid #1e1e1e;">
-              <p style="color:#555555;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;margin:0 0 3px;font-family:Arial,sans-serif;">Property</p>
-              <p style="color:#c8c0b0;font-size:13px;margin:0;font-family:Arial,sans-serif;">${data.propertyAddress}</p>
+            <tr><td style="padding:16px 0;border-bottom:1px solid #e8e8e8;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="color:#999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:140px;">Property</td>
+                  <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;">${data.propertyAddress}</td>
+                </tr>
+              </table>
             </td></tr>
-            <tr><td style="padding:20px 24px;">
-              <p style="color:#555555;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;margin:0 0 4px;font-family:Arial,sans-serif;">Installation Date</p>
-              <p style="color:#2d9e5a;font-size:16px;font-weight:600;margin:0;font-family:Arial,sans-serif;">${dateStr}</p>
+            <tr><td style="padding:16px 0;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="color:#999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:140px;">Installation Date</td>
+                  <td style="color:#111;font-size:14px;font-family:Arial,sans-serif;font-weight:600;">${dateStr}</td>
+                </tr>
+              </table>
             </td></tr>
           </table>
 
-          <p style="color:#555555;font-size:12px;line-height:1.7;margin:0;font-family:Arial,sans-serif;">
-            If you have any questions or need to make changes, please reply to this email.
+          <p style="color:#666;font-size:13px;line-height:1.7;margin:0;font-family:Arial,sans-serif;">
+            If you need to reschedule or have any questions, please reply to this email.
           </p>
+
         </td></tr>
 
-        <!-- Green accent bar -->
-        <tr><td style="background:linear-gradient(90deg,#1a6b3a,#2d9e5a,#1a6b3a);height:1px;"></td></tr>
-
         <!-- Footer -->
-        <tr><td style="background:#ffffff;padding:28px 48px;text-align:center;">
-          <img src="${LOGO_CDN_URL}" alt="Bell Carpets" style="height:30px;display:block;margin:0 auto;" />
+        <tr><td style="padding:32px 48px;text-align:center;background:#ffffff;border-top:1px solid #e8e8e8;">
+          <img src="${LOGO_CDN_URL}" alt="Bell Carpets" style="height:30px;display:block;margin:0 auto 12px;" />
+          <p style="margin:0;font-size:11px;color:#999;font-family:Arial,sans-serif;line-height:1.6;">
+            Bell Spec Pty Ltd &nbsp;&middot;&nbsp; ABN 74 613 299 773<br />
+            Unit 1, 41 Olympic Circuit, Southport QLD 4215
+          </p>
         </td></tr>
 
       </table>

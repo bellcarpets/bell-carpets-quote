@@ -104,7 +104,9 @@ function extractLineItems(
   return items;
 }
 
-/** Build the branded invoice email HTML */
+/** Build the branded invoice email HTML — clean white style */
+const INVOICE_LOGO_URL = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663449952732/EvSxkTrWsYNTCIAI.jpg";
+
 function buildInvoiceEmailHtml(data: {
   recipientName: string;
   invoiceNumber: string;
@@ -117,66 +119,127 @@ function buildInvoiceEmailHtml(data: {
   const formatPrice = (n: number) =>
     "$" + n.toLocaleString("en-AU", { minimumFractionDigits: 0 });
 
+  const refLine = data.quoteNumber
+    ? `${data.invoiceNumber} &nbsp;&middot;&nbsp; Ref: ${data.quoteNumber}`
+    : data.invoiceNumber;
+
   return `<!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin:0;padding:0;background-color:#111111;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#111111;padding:40px 20px;">
-<tr><td align="center">
-<table width="600" cellpadding="0" cellspacing="0" style="background-color:#1a1a1a;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);">
-  <!-- Header -->
-  <tr><td style="background-color:#000000;padding:32px 40px;text-align:center;border-bottom:2px solid #B8965A;">
-    <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663449952732/EvSxkTrWsYNTCIAI.jpg" alt="Bell Carpets" width="180" style="display:block;margin:0 auto 8px;" />
-    <p style="margin:0;font-size:10px;letter-spacing:2px;color:#888888;">Established 1987</p>
-  </td></tr>
-  <!-- Body -->
-  <tr><td style="padding:40px;">
-    <h1 style="margin:0 0 8px;font-size:24px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">Tax Invoice</h1>
-    <p style="margin:0 0 24px;font-size:13px;color:#B8965A;font-weight:600;">${data.invoiceNumber} &nbsp;·&nbsp; Ref: ${data.quoteNumber}</p>
-    
-    <p style="margin:0 0 24px;font-size:15px;color:#cccccc;line-height:1.6;">
-      Dear ${data.recipientName || "Valued Client"},<br/><br/>
-      Please find attached your tax invoice for the carpet installation at <strong style="color:#ffffff;">${data.propertyAddress || "your property"}</strong>.
-    </p>
-    
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:rgba(255,255,255,0.04);border-radius:12px;border:1px solid rgba(255,255,255,0.08);margin-bottom:24px;">
-      <tr><td style="padding:20px;">
-        <table width="100%" cellpadding="0" cellspacing="0">
-          <tr>
-            <td style="font-size:12px;color:#888888;padding-bottom:8px;">Total Amount (inc GST)</td>
-            <td style="font-size:24px;font-weight:700;color:#ffffff;text-align:right;padding-bottom:8px;">${formatPrice(data.totalAmount)}</td>
-          </tr>
-        </table>
-      </td></tr>
-    </table>
-    
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:rgba(184,150,90,0.08);border-radius:12px;border:1px solid rgba(184,150,90,0.2);margin-bottom:24px;">
-      <tr><td style="padding:20px;">
-        <p style="margin:0 0 12px;font-size:12px;color:#B8965A;font-weight:600;letter-spacing:1px;">BANKING DETAILS</p>
-        <table width="100%" cellpadding="0" cellspacing="0" style="font-size:13px;color:#cccccc;">
-          <tr><td style="padding:3px 0;color:#888888;width:120px;">ACC NAME</td><td style="padding:3px 0;color:#ffffff;font-weight:600;">Bell Spec Pty Ltd</td></tr>
-          <tr><td style="padding:3px 0;color:#888888;">BSB</td><td style="padding:3px 0;color:#ffffff;font-weight:600;">124 022</td></tr>
-          <tr><td style="padding:3px 0;color:#888888;">ACC NUMBER</td><td style="padding:3px 0;color:#ffffff;font-weight:600;">22496442</td></tr>
-          <tr><td style="padding:3px 0;color:#888888;">REFERENCE</td><td style="padding:3px 0;color:#B8965A;font-weight:600;">${data.invoiceNumber}</td></tr>
-        </table>
-      </td></tr>
-    </table>
-    
-    <p style="margin:0 0 8px;font-size:12px;color:#888888;line-height:1.5;">
-      Payment due within <strong style="color:#ffffff;">${data.paymentTermsDays ?? 30} days</strong>. Please send all remittances by email to: <a href="mailto:hello@bellcarpets.com.au" style="color:#B8965A;">hello@bellcarpets.com.au</a>
-    </p>
-    <p style="margin:0;font-size:11px;color:#666666;">
-      BELL SPEC PTY LTD &nbsp;·&nbsp; ABN 74 613 299 773 &nbsp;·&nbsp; Unit 1, 41 Olympic Circuit, Southport QLD 4215
-    </p>
-  </td></tr>
-  <!-- Footer -->
-  <tr><td style="background-color:#000000;padding:20px 40px;text-align:center;border-top:1px solid rgba(255,255,255,0.08);">
-    <p style="margin:0;font-size:11px;color:#666666;">Bell Carpets &nbsp;·&nbsp; Established 1987 &nbsp;·&nbsp; Gold Coast, QLD</p>
-    <p style="margin:4px 0 0;font-size:10px;color:#555555;">07 5571 1177 &nbsp;·&nbsp; hello@bellcarpets.com.au &nbsp;·&nbsp; bellcarpets.com.au</p>
-  </td></tr>
-</table>
-</td></tr></table>
-</body></html>`;
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Tax Invoice ${data.invoiceNumber} — Bell Carpets</title>
+</head>
+<body style="margin:0;padding:0;background:#f5f5f5;font-family:Georgia,'Times New Roman',serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;">
+    <tr><td align="center" style="padding:48px 16px;">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;">
+
+        <!-- Header -->
+        <tr><td style="padding:48px 48px 32px;text-align:center;border-bottom:1px solid #e8e8e8;">
+          <img src="${INVOICE_LOGO_URL}" alt="Bell Carpets" style="width:200px;display:block;margin:0 auto;" />
+        </td></tr>
+
+        <!-- Body -->
+        <tr><td style="padding:48px 48px 40px;">
+
+          <p style="color:#333;font-size:14px;margin:0 0 32px;font-family:Arial,sans-serif;line-height:1.6;">
+            Dear ${data.recipientName || "Valued Client"},
+          </p>
+
+          <h1 style="color:#111;font-size:28px;font-weight:400;margin:0 0 8px;line-height:1.2;letter-spacing:-0.01em;">
+            Tax Invoice
+          </h1>
+
+          <p style="color:#666;font-size:13px;margin:0 0 40px;font-family:Arial,sans-serif;line-height:1.7;">
+            Please find attached your tax invoice for the installation at
+            <strong style="color:#111;">${data.propertyAddress || "your property"}</strong>.
+          </p>
+
+          <!-- Invoice details -->
+          <table width="100%" cellpadding="0" cellspacing="0" style="border-top:2px solid #111;margin-bottom:40px;">
+            <tr><td style="padding:16px 0;border-bottom:1px solid #e8e8e8;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="color:#999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:140px;">Invoice</td>
+                  <td style="color:#111;font-size:14px;font-family:Arial,sans-serif;font-weight:600;">${refLine}</td>
+                </tr>
+              </table>
+            </td></tr>
+            <tr><td style="padding:16px 0;border-bottom:1px solid #e8e8e8;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="color:#999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:140px;">Property</td>
+                  <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;">${data.propertyAddress || ""}</td>
+                </tr>
+              </table>
+            </td></tr>
+            <tr><td style="padding:16px 0;border-bottom:1px solid #e8e8e8;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="color:#999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:140px;">Total (inc GST)</td>
+                  <td style="color:#111;font-size:18px;font-family:Arial,sans-serif;font-weight:600;">${formatPrice(data.totalAmount)}</td>
+                </tr>
+              </table>
+            </td></tr>
+            <tr><td style="padding:16px 0;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="color:#999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:140px;">Payment Due</td>
+                  <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;">Within ${data.paymentTermsDays ?? 30} days</td>
+                </tr>
+              </table>
+            </td></tr>
+          </table>
+
+          <!-- Banking details -->
+          <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e8e8e8;margin-bottom:40px;">
+            <tr><td style="padding:16px 24px;border-bottom:1px solid #e8e8e8;background:#f9f9f9;">
+              <p style="margin:0;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;color:#999;">Banking Details</p>
+            </td></tr>
+            <tr><td style="padding:20px 24px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="font-family:Arial,sans-serif;font-size:13px;">
+                <tr>
+                  <td style="color:#999;padding:4px 0;width:130px;">Account Name</td>
+                  <td style="color:#111;font-weight:600;padding:4px 0;">Bell Spec Pty Ltd</td>
+                </tr>
+                <tr>
+                  <td style="color:#999;padding:4px 0;">BSB</td>
+                  <td style="color:#111;font-weight:600;padding:4px 0;">124 022</td>
+                </tr>
+                <tr>
+                  <td style="color:#999;padding:4px 0;">Account Number</td>
+                  <td style="color:#111;font-weight:600;padding:4px 0;">22496442</td>
+                </tr>
+                <tr>
+                  <td style="color:#999;padding:4px 0;">Reference</td>
+                  <td style="color:#111;font-weight:600;padding:4px 0;">${data.invoiceNumber}</td>
+                </tr>
+              </table>
+            </td></tr>
+          </table>
+
+          <p style="color:#999;font-size:11px;line-height:1.6;margin:0;font-family:Arial,sans-serif;">
+            Please send all remittances to
+            <a href="mailto:hello@bellcarpets.com.au" style="color:#555;">hello@bellcarpets.com.au</a>
+          </p>
+
+        </td></tr>
+
+        <!-- Footer -->
+        <tr><td style="padding:32px 48px;text-align:center;background:#ffffff;border-top:1px solid #e8e8e8;">
+          <img src="${INVOICE_LOGO_URL}" alt="Bell Carpets" style="height:30px;display:block;margin:0 auto 12px;" />
+          <p style="margin:0;font-size:11px;color:#999;font-family:Arial,sans-serif;line-height:1.6;">
+            Bell Spec Pty Ltd &nbsp;&middot;&nbsp; ABN 74 613 299 773<br />
+            Unit 1, 41 Olympic Circuit, Southport QLD 4215
+          </p>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
 }
 
 export const invoiceRouter = router({
