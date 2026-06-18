@@ -12,7 +12,12 @@ import { formatAESTDateTime } from "../shared/aestUtils";
 
 // ─── Shared email layout helpers ─────────────────────────────────────────
 
-const LOGO_URL = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663449952732/EvSxkTrWsYNTCIAI.jpg";
+const LOGO_URL = "https://quote.bellcarpets.com.au/images/logo.jpg";
+
+/** Wrap text in an anchor tag that prevents iOS Mail from auto-linking addresses */
+function noAutoLink(text: string, color: string = '#333333'): string {
+  return `<a href="x-apple-data-detectors://0" dir="ltr" style="color:${color};text-decoration:none;pointer-events:none;">${text}</a>`;
+}
 
 /**
  * Shared outer wrapper: white card on light grey background.
@@ -53,7 +58,7 @@ function buildEmail(title: string, body: string): string {
           <img src="${LOGO_URL}" alt="Bell Carpets" style="height:30px;display:block;margin:0 auto 12px;" />
           <p style="margin:0;font-size:11px;color:#999;font-family:Arial,sans-serif;line-height:1.6;">
             Bell Spec Pty Ltd &nbsp;&middot;&nbsp; ABN 74 613 299 773<br />
-            Unit 1, 41 Olympic Circ&#8203;uit, South&#8203;port QLD 4215
+            <a href="x-apple-data-detectors://0" dir="ltr" style="color:#999;text-decoration:none;pointer-events:none;">Unit 1, 41 Olympic Circuit, Southport QLD 4215</a>
           </p>
         </td></tr>
 
@@ -141,14 +146,14 @@ function buildAcceptanceEmail(params: {
       </h1>
 
       <p style="color:#666;font-size:13px;margin:0 0 40px;font-family:Arial,sans-serif;line-height:1.7;">
-        Thank you for accepting your quote for <strong style="color:#111;">${params.propertyAddress}</strong>.
+        Thank you for accepting your quote for <strong style="color:#111;">${noAutoLink(params.propertyAddress, "#111")}</strong>.
         To secure your installation, a <strong style="color:#111;">${params.depositPercent ?? 50}% deposit</strong>
         of <strong style="color:#111;">${formatPrice(params.depositAmount)}</strong> is required.
       </p>
 
       <table width="100%" cellpadding="0" cellspacing="0" style="border-top:2px solid #111;margin-bottom:40px;">
         ${detailRow("Quote", params.quoteNumber)}
-        ${detailRow("Property", params.propertyAddress)}
+        ${detailRow("Property", noAutoLink(params.propertyAddress))}
         ${detailRow("Deposit Due", formatPrice(params.depositAmount), true)}
       </table>
 
@@ -173,13 +178,13 @@ function buildAcceptanceEmail(params: {
 
       <p style="color:#666;font-size:13px;margin:0 0 40px;font-family:Arial,sans-serif;line-height:1.7;">
         Thank you for accepting quote <strong style="color:#111;">${params.quoteNumber}</strong>
-        for <strong style="color:#111;">${params.propertyAddress}</strong>.
+        for <strong style="color:#111;">${noAutoLink(params.propertyAddress, "#111")}</strong>.
         We'll be in touch shortly to schedule the installation.
       </p>
 
       <table width="100%" cellpadding="0" cellspacing="0" style="border-top:2px solid #111;margin-bottom:40px;">
         ${detailRow("Quote", params.quoteNumber)}
-        ${detailRow("Property", params.propertyAddress, true)}
+        ${detailRow("Property", noAutoLink(params.propertyAddress), true)}
       </table>
 
       <p style="color:#666;font-size:13px;line-height:1.7;margin:0;font-family:Arial,sans-serif;">
@@ -228,9 +233,9 @@ function buildDepositPaidEmail(params: {
 
     <table width="100%" cellpadding="0" cellspacing="0" style="border-top:2px solid #111;margin-bottom:40px;">
       ${detailRow("Quote", params.quoteNumber)}
-      ${detailRow("Property", params.propertyAddress)}
+      ${detailRow("Property", noAutoLink(params.propertyAddress))}
       ${params.depositAmount ? detailRow("Deposit Received", formatPrice(params.depositAmount)) : ""}
-      ${params.remainingBalance ? detailRow("Remaining Balance", formatPrice(params.remainingBalance), true) : detailRow("Property", params.propertyAddress, true).replace(detailRow("Property", params.propertyAddress), "")}
+      ${params.remainingBalance ? detailRow("Remaining Balance", formatPrice(params.remainingBalance), true) : detailRow("Property", noAutoLink(params.propertyAddress), true).replace(detailRow("Property", noAutoLink(params.propertyAddress)), "")}
     </table>
 
     ${remainingSection}
@@ -267,13 +272,13 @@ function buildScheduledEmail(params: {
 
     <p style="color:#666;font-size:13px;margin:0 0 40px;font-family:Arial,sans-serif;line-height:1.7;">
       Your installation for <strong style="color:#111;">${params.quoteNumber}</strong>
-      at <strong style="color:#111;">${params.propertyAddress}</strong> has been confirmed.
+      at <strong style="color:#111;">${noAutoLink(params.propertyAddress, "#111")}</strong> has been confirmed.
       Please ensure access is available on the day.
     </p>
 
     <table width="100%" cellpadding="0" cellspacing="0" style="border-top:2px solid #111;margin-bottom:40px;">
       ${detailRow("Quote", params.quoteNumber)}
-      ${detailRow("Property", params.propertyAddress)}
+      ${detailRow("Property", noAutoLink(params.propertyAddress))}
       ${detailRow("Installation Date", `<strong style="color:#111;">${dateStr}</strong>`, true)}
     </table>
 
@@ -315,14 +320,14 @@ function buildCompletedEmail(params: {
     </h1>
 
     <p style="color:#666;font-size:13px;margin:0 0 40px;font-family:Arial,sans-serif;line-height:1.7;">
-      Your installation at <strong style="color:#111;">${params.propertyAddress}</strong> is complete.
+      Your installation at <strong style="color:#111;">${noAutoLink(params.propertyAddress, "#111")}</strong> is complete.
       ${balanceText}
     </p>
 
     <table width="100%" cellpadding="0" cellspacing="0" style="border-top:2px solid #111;margin-bottom:40px;">
       ${detailRow("Quote", params.quoteNumber)}
       ${detailRow("Invoice", params.invoiceNumber)}
-      ${detailRow("Property", params.propertyAddress, !params.balanceAmount)}
+      ${detailRow("Property", noAutoLink(params.propertyAddress), !params.balanceAmount)}
       ${params.balanceAmount ? detailRow("Amount Due", formatPrice(params.balanceAmount), true) : ""}
     </table>
 
@@ -359,7 +364,7 @@ function buildPaidInFullEmail(params: {
     <table width="100%" cellpadding="0" cellspacing="0" style="border-top:2px solid #111;margin-bottom:40px;">
       ${detailRow("Quote", params.quoteNumber)}
       ${detailRow("Invoice", params.invoiceNumber)}
-      ${detailRow("Property", params.propertyAddress, true)}
+      ${detailRow("Property", noAutoLink(params.propertyAddress), true)}
     </table>
 
     <p style="color:#666;font-size:13px;line-height:1.7;margin:0;font-family:Arial,sans-serif;">

@@ -242,7 +242,12 @@ function generateSlug(quoteNumber: string): string {
 
 // ─── Email Helpers ────────────────────────────────────────────────────
 
-const LOGO_CDN_URL = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663449952732/EvSxkTrWsYNTCIAI.jpg";
+const LOGO_CDN_URL = "https://quote.bellcarpets.com.au/images/logo.jpg";
+
+/** Wrap text in an anchor tag that prevents iOS Mail from auto-linking addresses */
+function noAutoLink(text: string, color: string = '#333333'): string {
+  return `<a href="x-apple-data-detectors://0" dir="ltr" style="color:${color};text-decoration:none;pointer-events:none;">${text}</a>`;
+}
 
 // ─── Scheduling Confirmation Email ─────────────────────────────────────────
 
@@ -296,7 +301,7 @@ export async function sendSchedulingConfirmationEmail(data: SchedulingConfirmati
           </h1>
 
           <p style="color:#666;font-size:13px;margin:0 0 40px;font-family:Arial,sans-serif;line-height:1.7;">
-            Your installation at <strong style="color:#111;">${data.propertyAddress}</strong> has been confirmed.
+            Your installation at <strong style="color:#111;">${noAutoLink(data.propertyAddress, "#111")}</strong> has been confirmed.
             Please ensure access is available on the day.
           </p>
 
@@ -314,7 +319,7 @@ export async function sendSchedulingConfirmationEmail(data: SchedulingConfirmati
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td style="color:#999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:140px;">Property</td>
-                  <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;"><span style="color:#333;text-decoration:none;">${data.propertyAddress}</span></td>
+                  <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;">${noAutoLink(data.propertyAddress)}</td>
                 </tr>
               </table>
             </td></tr>
@@ -339,7 +344,7 @@ export async function sendSchedulingConfirmationEmail(data: SchedulingConfirmati
           <img src="${LOGO_CDN_URL}" alt="Bell Carpets" style="height:30px;display:block;margin:0 auto 12px;" />
           <p style="margin:0;font-size:11px;color:#999;font-family:Arial,sans-serif;line-height:1.6;">
             Bell Spec Pty Ltd &nbsp;&middot;&nbsp; ABN 74 613 299 773<br />
-            Unit 1, 41 Olympic Circ&#8203;uit, South&#8203;port QLD 4215
+            <a href="x-apple-data-detectors://0" dir="ltr" style="color:#999;text-decoration:none;pointer-events:none;">Unit 1, 41 Olympic Circuit, Southport QLD 4215</a>
           </p>
         </td></tr>
 
@@ -458,7 +463,7 @@ export async function sendQuoteLinkEmail(data: QuoteLinkEmailData): Promise<bool
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td style="color:#999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:140px;">Property</td>
-                  <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;"><span style="color:#333;text-decoration:none;">${data.propertyAddress}</span></td>
+                  <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;">${noAutoLink(data.propertyAddress)}</td>
                 </tr>
               </table>
             </td></tr>` : ""}
@@ -615,7 +620,7 @@ export async function sendReminderEmail(data: QuoteLinkEmailData & { daysLeft: n
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td style="color:#999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:140px;">Property</td>
-                  <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;"><span style="color:#333;text-decoration:none;">${data.propertyAddress}</span></td>
+                  <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;">${noAutoLink(data.propertyAddress)}</td>
                 </tr>
               </table>
             </td></tr>` : ""}

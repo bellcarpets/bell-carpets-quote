@@ -105,7 +105,7 @@ function extractLineItems(
 }
 
 /** Build the branded invoice email HTML — clean white style */
-const INVOICE_LOGO_URL = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663449952732/EvSxkTrWsYNTCIAI.jpg";
+const INVOICE_LOGO_URL = "https://quote.bellcarpets.com.au/images/logo.jpg";
 
 function buildInvoiceEmailHtml(data: {
   recipientName: string;
@@ -128,7 +128,10 @@ function buildInvoiceEmailHtml(data: {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
+  <meta name="x-apple-disable-message-reformatting">
   <title>Tax Invoice ${data.invoiceNumber} — Bell Carpets</title>
+  <style>a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important;font-size:inherit!important;font-family:inherit!important;font-weight:inherit!important;line-height:inherit!important;}</style>
 </head>
 <body style="margin:0;padding:0;background:#f5f5f5;font-family:Georgia,'Times New Roman',serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;">
@@ -153,7 +156,7 @@ function buildInvoiceEmailHtml(data: {
 
           <p style="color:#666;font-size:13px;margin:0 0 40px;font-family:Arial,sans-serif;line-height:1.7;">
             Please find attached your tax invoice for the installation at
-            <strong style="color:#111;">${data.propertyAddress || "your property"}</strong>.
+            <strong style="color:#111;"><a href="x-apple-data-detectors://0" dir="ltr" style="color:#111;text-decoration:none;pointer-events:none;">${data.propertyAddress || "your property"}</a></strong>.
           </p>
 
           <!-- Invoice details -->
@@ -170,7 +173,7 @@ function buildInvoiceEmailHtml(data: {
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td style="color:#999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:140px;">Property</td>
-                  <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;">${data.propertyAddress || ""}</td>
+                  <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;"><a href="x-apple-data-detectors://0" dir="ltr" style="color:#333;text-decoration:none;pointer-events:none;">${data.propertyAddress || ""}</a></td>
                 </tr>
               </table>
             </td></tr>
@@ -231,7 +234,7 @@ function buildInvoiceEmailHtml(data: {
           <img src="${INVOICE_LOGO_URL}" alt="Bell Carpets" style="height:30px;display:block;margin:0 auto 12px;" />
           <p style="margin:0;font-size:11px;color:#999;font-family:Arial,sans-serif;line-height:1.6;">
             Bell Spec Pty Ltd &nbsp;&middot;&nbsp; ABN 74 613 299 773<br />
-            Unit 1, 41 Olympic Circuit, Southport QLD 4215
+            <a href="x-apple-data-detectors://0" dir="ltr" style="color:#999;text-decoration:none;pointer-events:none;">Unit 1, 41 Olympic Circuit, Southport QLD 4215</a>
           </p>
         </td></tr>
 

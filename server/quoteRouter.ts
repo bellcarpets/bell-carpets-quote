@@ -69,7 +69,10 @@ async function sendEmailNotification(data: AcceptQuoteInput, pdfAttachment?: { c
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
+  <meta name="x-apple-disable-message-reformatting">
   <title>New Quote Accepted — Bell Carpets</title>
+  <style>a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important;font-size:inherit!important;font-family:inherit!important;font-weight:inherit!important;line-height:inherit!important;}</style>
 </head>
 <body style="margin:0;padding:0;background:#f5f5f5;font-family:Georgia,'Times New Roman',serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;">
@@ -78,7 +81,7 @@ async function sendEmailNotification(data: AcceptQuoteInput, pdfAttachment?: { c
 
         <!-- Header -->
         <tr><td style="padding:48px 48px 32px;text-align:center;border-bottom:1px solid #e8e8e8;">
-          <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663449952732/EvSxkTrWsYNTCIAI.jpg" alt="Bell Carpets" style="width:200px;display:block;margin:0 auto;" />
+          <img src="https://quote.bellcarpets.com.au/images/logo.jpg" alt="Bell Carpets" style="width:200px;display:block;margin:0 auto;" />
         </td></tr>
 
         <!-- Body -->
@@ -89,7 +92,7 @@ async function sendEmailNotification(data: AcceptQuoteInput, pdfAttachment?: { c
           </h1>
 
           <p style="color:#666;font-size:13px;margin:0 0 40px;font-family:Arial,sans-serif;line-height:1.7;">
-            ${data.quoteNumber} — ${data.propertyAddress}
+            ${data.quoteNumber} — <a href="x-apple-data-detectors://0" dir="ltr" style="color:#666;text-decoration:none;pointer-events:none;">${data.propertyAddress}</a>
           </p>
 
           <!-- Quote details -->
@@ -103,7 +106,7 @@ async function sendEmailNotification(data: AcceptQuoteInput, pdfAttachment?: { c
             <tr><td style="padding:16px 0;border-bottom:1px solid #e8e8e8;">
               <table width="100%" cellpadding="0" cellspacing="0"><tr>
                 <td style="color:#999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:140px;">Property</td>
-                <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;">${data.propertyAddress}</td>
+                <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;"><a href="x-apple-data-detectors://0" dir="ltr" style="color:#333;text-decoration:none;pointer-events:none;">${data.propertyAddress}</a></td>
               </tr></table>
             </td></tr>
             <tr><td style="padding:16px 0;border-bottom:1px solid #e8e8e8;">
@@ -166,7 +169,7 @@ async function sendEmailNotification(data: AcceptQuoteInput, pdfAttachment?: { c
 
         <!-- Footer -->
         <tr><td style="padding:32px 48px;text-align:center;background:#ffffff;border-top:1px solid #e8e8e8;">
-          <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663449952732/EvSxkTrWsYNTCIAI.jpg" alt="Bell Carpets" style="height:30px;display:block;margin:0 auto;" />
+          <img src="https://quote.bellcarpets.com.au/images/logo.jpg" alt="Bell Carpets" style="height:30px;display:block;margin:0 auto;" />
         </td></tr>
 
       </table>

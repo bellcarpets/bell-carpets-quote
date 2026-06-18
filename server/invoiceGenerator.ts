@@ -75,7 +75,7 @@ const RULE = "#e0e0e0";
 const FAINT = "#f5f5f5";
 
 // Logo URL (black wordmark on white)
-const LOGO_URL = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663449952732/EvSxkTrWsYNTCIAI.jpg";
+const LOGO_URL = "https://quote.bellcarpets.com.au/images/logo.jpg";
 
 // Font paths — relative to this file's directory
 const FONT_DIR = path.join(__dirname, "fonts");
