@@ -8,7 +8,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Shield, Leaf, Award, ZoomIn, X, FileText } from "lucide-react";
+import { Check, Shield, Leaf, Award, ZoomIn, X, FileText, ExternalLink } from "lucide-react";
 import type { Tier, ColourOption } from "@/lib/quoteData";
 
 // ── Product Specs Data ──────────────────────────────────────────────────────
@@ -399,11 +399,25 @@ export default function TierCard({
                         e.stopPropagation();
                         setShowSpecs(true);
                       }}
-                      className="inline-flex items-center gap-1.5 mb-4 text-xs text-white/50 hover:text-white/80 transition-colors underline underline-offset-2 decoration-white/20 hover:decoration-white/50"
+                      className="inline-flex items-center gap-1.5 mb-2 text-xs text-white/50 hover:text-white/80 transition-colors underline underline-offset-2 decoration-white/20 hover:decoration-white/50"
                     >
                       <FileText className="w-3.5 h-3.5" />
                       View product specs
                     </button>
+                  )}
+
+                  {/* View colours link to product page */}
+                  {tier.productUrl && (
+                    <a
+                      href={tier.productUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="inline-flex items-center gap-1.5 mb-4 text-xs text-white/50 hover:text-white/80 transition-colors underline underline-offset-2 decoration-white/20 hover:decoration-white/50"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      View colours
+                    </a>
                   )}
 
                   {/* Badges */}
