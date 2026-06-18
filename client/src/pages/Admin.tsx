@@ -1621,7 +1621,7 @@ function QuotesDashboard({
                     ? "Single product — with optional room itemisation"
                     : newQuoteForm.quoteType === "agency_single"
                     ? "One carpet, one price — agent payment terms, no deposit"
-                    : "2-tier Good / Best — agent payment terms, no deposit"}
+                    : "3-tier Good / Better / Best — agent payment terms, no deposit"}
                 </p>
               </div>
               {/* Insurance Assessment Toggle */}
