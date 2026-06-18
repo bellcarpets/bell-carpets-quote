@@ -140,7 +140,7 @@ export async function sendReminderSms(data: {
   const recipientName = data.agentPropertyManager || data.agentName;
   const body =
     `Hi ${recipientName}, reminder: your Bell Carpets quote ${data.quoteNumber}${property} expires ${urgency}. ` +
-    `Accept here: ${quoteUrl} — Bell Carpets 07 5571 1177`;
+    `Accept here: ${quoteUrl} — Bell Carpets`;
   return sendSms(data.agentPhone, body);
 }
 

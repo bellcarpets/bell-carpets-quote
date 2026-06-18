@@ -74,10 +74,10 @@ async function sendEmailNotification(data: AcceptQuoteInput, pdfAttachment?: { c
           <tr><td style="padding:32px 40px;">
             <p style="color:#ffffff;font-size:16px;line-height:1.6;margin:0 0 24px;font-family:Arial,sans-serif;">Hi ${data.clientName || 'there'},</p>
             <p style="color:#cccccc;font-size:14px;line-height:1.6;margin:0 0 24px;font-family:Arial,sans-serif;">Thank you for accepting quote <strong>${data.quoteNumber}</strong> for <strong>${data.propertyAddress}</strong>. We'll be in touch shortly to confirm the next steps.</p>
-            <p style="color:#999999;font-size:12px;line-height:1.6;margin:0;font-family:Arial,sans-serif;">Questions? Call us on <a href="tel:0755711177" style="color:#d4a853;text-decoration:none;">07 5571 1177</a>.</p>
+
           </td></tr>
           <tr><td style="padding:40px 40px 32px;text-align:center;">
-            <p style="color:#888888;font-size:12px;margin:0;font-family:Arial,sans-serif;">Leon Bell / Bell Carpets / 07 5571 1177</p>
+            <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663449952732/EvSxkTrWsYNTCIAI.jpg" alt="Bell Carpets" style="height:30px;display:block;margin:0 auto;" />
           </td></tr>
         </table>
       </td></tr>
@@ -211,9 +211,8 @@ async function sendEmailNotification(data: AcceptQuoteInput, pdfAttachment?: { c
             <p style="color:#333333;font-size:14px;line-height:1.7;font-family:Arial,sans-serif;margin:0;white-space:pre-wrap;">${data.agentNotes.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>` : ''}
 
           </td></tr>
-          <tr><td style="padding:24px 40px 32px;text-align:center;border-top:1px solid #e8e8e8;background:#fafafa;">
-            <p style="color:#999999;font-size:11px;margin:0;font-family:Arial,sans-serif;">Bell Carpets &nbsp;&middot;&nbsp; 41 Olympic Circuit, Southport QLD 4215 &nbsp;&middot;&nbsp; 07 5571 1177</p>
-            <p style="color:#bbbbbb;font-size:10px;margin:6px 0 0;font-family:Arial,sans-serif;">Gold Coast's premium flooring specialists since 1987</p>
+          <tr><td style="padding:32px 48px;text-align:center;border-top:1px solid #e8e8e8;background:#fafafa;">
+            <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663449952732/EvSxkTrWsYNTCIAI.jpg" alt="Bell Carpets" style="height:30px;display:block;margin:0 auto;" />
           </td></tr>
         </table>
       </td></tr>

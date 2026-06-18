@@ -120,17 +120,15 @@ function buildOverdueEmail(data: {
 
             <p style="color:#555555;font-size:13px;margin:0;line-height:1.6;font-family:Arial,sans-serif;">
               If you have already made payment, please disregard this reminder. For any questions, contact us at
-              <a href="mailto:hello@bellcarpets.com.au" style="color:#111111;">hello@bellcarpets.com.au</a>
-              or call <strong>07 5571 1177</strong>.
+              <a href="mailto:hello@bellcarpets.com.au" style="color:#111111;">hello@bellcarpets.com.au</a>.
             </p>
           </td>
         </tr>
 
         <!-- Footer -->
         <tr>
-          <td style="padding:24px 40px;text-align:center;border-top:1px solid #e8e8e8;background:#fafafa;">
-            <p style="color:#999999;font-size:11px;margin:0;font-family:Arial,sans-serif;">Bell Carpets &nbsp;&middot;&nbsp; 41 Olympic Circuit, Southport QLD 4215 &nbsp;&middot;&nbsp; 07 5571 1177</p>
-            <p style="color:#bbbbbb;font-size:10px;margin:6px 0 0;font-family:Arial,sans-serif;">Gold Coast's premium flooring specialists since 1987</p>
+          <td style="padding:32px 48px;text-align:center;border-top:1px solid #e8e8e8;background:#fafafa;">
+            <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663449952732/EvSxkTrWsYNTCIAI.jpg" alt="Bell Carpets" style="height:30px;display:block;margin:0 auto;" />
           </td>
         </tr>
 
@@ -264,7 +262,7 @@ export async function checkAndSendOverdueReminders(): Promise<void> {
             ? inv.totalAmount - inv.depositAmount
             : inv.totalAmount;
 
-        const smsBody = `Hi ${inv.recipientName || "there"}, this is a friendly reminder from Bell Carpets that your quote ${inv.quoteNumber} (${formatPrice(amountOwed)}) is now overdue. Please arrange payment at your earliest convenience. Ref: ${inv.quoteNumber}. Questions? Call 07 5571 1177.`;
+        const smsBody = `Hi ${inv.recipientName || "there"}, this is a friendly reminder from Bell Carpets that your quote ${inv.quoteNumber} (${formatPrice(amountOwed)}) is now overdue. Please arrange payment at your earliest convenience. Ref: ${inv.quoteNumber}. Questions? Email hello@bellcarpets.com.au`;
 
         sendSms(inv.recipientPhone, smsBody)
           .then(async (smsSent) => {
