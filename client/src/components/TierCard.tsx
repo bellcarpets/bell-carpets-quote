@@ -392,20 +392,6 @@ export default function TierCard({
                     )}
                   </div>
 
-                  {/* View product specs link */}
-                  {specs && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowSpecs(true);
-                      }}
-                      className="inline-flex items-center gap-1.5 mb-2 text-xs text-white/50 hover:text-white/80 transition-colors underline underline-offset-2 decoration-white/20 hover:decoration-white/50"
-                    >
-                      <FileText className="w-3.5 h-3.5" />
-                      View product specs
-                    </button>
-                  )}
-
                   {/* View colours link to product page */}
                   {tier.productUrl && (
                     <a
