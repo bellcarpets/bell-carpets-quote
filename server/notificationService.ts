@@ -614,12 +614,17 @@ function buildReviewRequestEmail(params: {
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:32px;">
       <tr><td>
         <a href="${GOOGLE_REVIEW_URL}" target="_blank"
-           style="display:inline-block;background:#111111;color:#ffffff;text-decoration:none;padding:16px 40px;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;font-family:Arial,sans-serif;">
+           style="display:inline-block;background:#111111;color:#ffffff;text-decoration:none;padding:16px 40px;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;font-family:Arial,sans-serif;border-radius:4px;">
           Leave a Google Review
         </a>
       </td></tr>
     </table>
 
+    <p style="color:#666;font-size:13px;line-height:1.7;margin:0;font-family:Arial,sans-serif;border-top:1px solid #e8e8e8;padding-top:32px;">
+      Just let us know once it's done and we'll apply the credit. No rush — and thanks again for choosing Bell Carpets.
+    </p>`;
+
+  return buildEmail("A small thank you from Bell Carpets", body);
 }
 
 export function buildReviewRequestSms(firstName: string): string {
