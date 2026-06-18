@@ -284,7 +284,7 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
             const underlaySpecs: Record<string, { name: string; specs: string }> = {
                 "Dunlop Springtred Protect": { name: "Dunlop Springtred Protect", specs: "10mm · 80 kg/m³" },
               "Dunlop Springtred Ultimate": { name: "Dunlop Springtred Ultimate", specs: "10mm · 120 kg/m³" },
-              "Dunlop Springtred Extra": { name: "Dunlop Springtred Extra", specs: "10mm · 56 kg/m³" },
+              "Dunlop Springtred Extra": { name: "Dunlop Springtred Extra", specs: "95 kg/m³" },
               "Dunlop Eureka": { name: "Dunlop Eureka", specs: "10mm · 80 kg/m³" },
             };
             const u = underlaySpecs[config.product!.underlay!];
@@ -325,7 +325,7 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
                         }`}
                       >
                         {colour.swatchImage ? (
-                          <img src={colour.swatchImage} alt={colour.name} className="w-full h-full object-cover" />
+                          <img src={colour.swatchImage} alt={colour.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                         ) : (
                           <div className="w-full h-full" style={{ background: (colour as { swatchColor?: string }).swatchColor || "#888" }} />
                         )}

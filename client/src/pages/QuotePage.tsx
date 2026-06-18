@@ -77,8 +77,7 @@ const UNDERLAY_SPECS: Record<NonNullable<Exclude<UnderlayOption, "">>, {
     name: "Dunlop Springtred Extra",
     tagline: "Everyday comfort & protection",
     specs: [
-      { icon: Layers, label: "10mm Thickness" },
-      { icon: Shield, label: "56 kg/m³ Density" },
+      { icon: Shield, label: "95 kg/m³ Density" },
       { icon: Volume2, label: "24dB Acoustic Performance" },
       { icon: Thermometer, label: "R 0.22 Thermal Insulation" },
     ],
@@ -126,7 +125,7 @@ const UNDERLAY_SCOPE_ITEMS: Record<NonNullable<Exclude<UnderlayOption, "">>, { t
   },
   "Dunlop Springtred Extra": {
     title: "Premium Underlay",
-    description: "Dunlop Springtred Extra, 10mm, 56 kg/m\u00b3",
+    description: "Dunlop Springtred Extra, 95 kg/m\u00b3",
   },
   "Dunlop Eureka": {
     title: "Premium Underlay",

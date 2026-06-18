@@ -203,6 +203,7 @@ function SwatchLightbox({ colour, onClose }: LightboxProps) {
             src={colour.swatchImage}
             alt={`${colour.name} carpet swatch`}
             className="w-full h-full object-cover"
+            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
           />
         </div>
 
@@ -465,6 +466,7 @@ export default function TierCard({
                                   src={colour.swatchImage}
                                   alt={colour.name}
                                   className="w-full h-full object-cover rounded-full"
+                                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                                 />
                                 {isChosen && (
                                   <motion.div

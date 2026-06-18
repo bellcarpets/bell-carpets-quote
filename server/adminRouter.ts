@@ -209,8 +209,8 @@ async function getNextQuoteNumber(): Promise<string> {
   const db = await getDb();
   if (!db) return "BC-001";
 
-  // Fetch all quote numbers and find the max in JS — avoids dialect-specific SQL
-  const allQuotes = await db.select({ quoteNumber: quotes.quoteNumber }).from(quotes).where(isNull(quotes.deletedAt));
+  // Fetch ALL quote numbers (including soft-deleted) to avoid duplicate-key collisions
+  const allQuotes = await db.select({ quoteNumber: quotes.quoteNumber }).from(quotes);
   const maxNum = allQuotes.reduce((max, q) => {
     const num = parseInt((q.quoteNumber || "").replace(/^BC-/, ""), 10);
     return isNaN(num) ? max : Math.max(max, num);

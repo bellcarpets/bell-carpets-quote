@@ -331,6 +331,7 @@ export default function ConfirmationPanel({
                     src={selectedColour.swatchImage}
                     alt={selectedColour.name}
                     className="w-full h-full object-cover"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                   />
                 </div>
                 <span className="text-sm text-white/60">
@@ -408,6 +409,7 @@ export default function ConfirmationPanel({
                         src={selectedColour.swatchImage}
                         alt={selectedColour.name}
                         className="w-full h-full object-cover"
+                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                       />
                     </div>
                     <span className="text-sm text-white">
