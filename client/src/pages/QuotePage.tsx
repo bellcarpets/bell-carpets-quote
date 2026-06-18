@@ -451,10 +451,8 @@ export default function QuotePage({ slug }: QuotePageProps) {
         quoteNumber={config.quoteNumber}
         propertyAddress={config.property.address}
         jobStatus={quoteData.jobStatus}
-        quoteType={quoteType}
         scheduledDate={quoteData.scheduledDate}
         acceptedAt={quoteData.acceptedAt}
-        installerName={quoteData.installerName}
       />
     );
   }

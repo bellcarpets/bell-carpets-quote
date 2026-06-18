@@ -64,9 +64,6 @@ async function sendEmailNotification(data: AcceptQuoteInput, pdfAttachment?: { c
 
   const formatPrice = (n: number) => "$" + n.toLocaleString("en-AU");
 
-  const pct = depositPct ?? 50;
-  const deposit = Math.round(data.grandTotal * (pct / 100));
-
   const htmlBody = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -180,6 +177,11 @@ async function sendEmailNotification(data: AcceptQuoteInput, pdfAttachment?: { c
   </table>
 </body>
 </html>`;
+
+
+  const pct = depositPct ?? 50;
+  const deposit = Math.round(data.grandTotal * (pct / 100));
+
 
   try {
     const response = await fetch("https://api.resend.com/emails", {

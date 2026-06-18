@@ -732,7 +732,6 @@ export const adminRouter = router({
           reminderSentAt: quotes.reminderSentAt,
           expiresAt: quotes.expiresAt,
           scheduledDate: quotes.scheduledDate,
-          installerName: quotes.installerName,
           depositPaidAmount: quotes.depositPaidAmount,
           discountAmount: quotes.discountAmount,
           paymentTermsDays: quotes.paymentTermsDays,
@@ -815,7 +814,6 @@ export const adminRouter = router({
           reminderSentAt: row.reminderSentAt,
           expiresAt: row.expiresAt,
           scheduledDate: row.scheduledDate,
-          installerName: row.installerName,
           depositPaidAmount: row.depositPaidAmount,
           discountAmount: row.discountAmount ?? 0,
           paymentTermsDays: row.paymentTermsDays ?? 30,
@@ -883,7 +881,6 @@ export const adminRouter = router({
         linkedQuoteSlug: row.linkedQuoteSlug,
         linkedQuoteNumber,
         scheduledDate: row.scheduledDate,
-        installerName: row.installerName,
       };
     }),
   /** Get a single quote config for admin editing */
@@ -934,7 +931,6 @@ export const adminRouter = router({
         acceptedAt: row.acceptedAt,
         acceptedNotes: row.acceptedNotes,
         scheduledDate: row.scheduledDate,
-        installerName: row.installerName,
         internalNotes: row.internalNotes,
         depositPaidAmount: row.depositPaidAmount,
         discountAmount: row.discountAmount ?? 0,
@@ -1304,8 +1300,6 @@ export const adminRouter = router({
         slug: z.string(),
         jobStatus: z.enum(["draft", "quote_sent", "accepted", "deposit_paid", "scheduled", "completed", "paid_in_full", "cancelled"]),
         scheduledDate: z.date().nullable().optional(),
-        /** Free-text installer name set when scheduling — shown on the job tracker */
-        installerName: z.string().max(255).nullable().optional(),
         /** Actual deposit amount received — required when jobStatus = 'deposit_paid' */
         depositPaidAmount: z.number().int().positive().optional(),
         /** For admin manual acceptance of tiered quotes: the chosen tier name (e.g. "Better") */
@@ -1331,10 +1325,6 @@ export const adminRouter = router({
       const updateData: Record<string, unknown> = { jobStatus: input.jobStatus };
       if (input.scheduledDate !== undefined) {
         updateData.scheduledDate = input.scheduledDate;
-      }
-      if (input.installerName !== undefined) {
-        const trimmed = (input.installerName ?? "").trim();
-        updateData.installerName = trimmed === "" ? null : trimmed;
       }
       if (input.depositPaidAmount !== undefined) {
         updateData.depositPaidAmount = input.depositPaidAmount;
