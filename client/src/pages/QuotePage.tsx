@@ -519,12 +519,12 @@ export default function QuotePage({ slug }: QuotePageProps) {
         <button
           onClick={handleDownloadPdf}
           disabled={downloading}
-          className="inline-flex items-center gap-1.5 text-xs text-white/30 hover:text-white/60 underline underline-offset-4 decoration-white/15 hover:decoration-white/40 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-white/10 border border-white/20 rounded-lg hover:bg-white/20 hover:border-white/40 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
         >
           {downloading ? (
-            <Loader2 className="w-3 h-3 animate-spin" />
+            <Loader2 className="w-4 h-4 animate-spin" />
           ) : (
-            <Download className="w-3 h-3" />
+            <Download className="w-4 h-4" />
           )}
           {downloading ? "Generating PDF..." : "Download Quote as PDF"}
         </button>
