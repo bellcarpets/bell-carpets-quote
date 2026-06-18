@@ -211,7 +211,7 @@ async function sendEmailNotification(data: AcceptQuoteInput, pdfAttachment?: { c
             <p style="color:#333333;font-size:14px;line-height:1.7;font-family:Arial,sans-serif;margin:0;white-space:pre-wrap;">${data.agentNotes.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>` : ''}
 
           </td></tr>
-          <tr><td style="padding:32px 48px;text-align:center;border-top:1px solid #e8e8e8;background:#fafafa;">
+          <tr><td style="padding:32px 48px;text-align:center;background:#ffffff;">
             <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663449952732/EvSxkTrWsYNTCIAI.jpg" alt="Bell Carpets" style="height:30px;display:block;margin:0 auto;" />
           </td></tr>
         </table>

@@ -448,7 +448,7 @@ export async function sendQuoteLinkEmail(data: QuoteLinkEmailData): Promise<bool
         </td></tr>
 
         <!-- Footer -->
-        <tr><td style="padding:32px 48px;text-align:center;border-top:1px solid #e8e8e8;background:#fafafa;">
+        <tr><td style="padding:32px 48px;text-align:center;background:#ffffff;">
           <img src="${LOGO_CDN_URL}" alt="Bell Carpets" style="height:30px;display:block;margin:0 auto;" />
         </td></tr>
 
@@ -608,7 +608,7 @@ export async function sendReminderEmail(data: QuoteLinkEmailData & { daysLeft: n
         </td></tr>
 
         <!-- Footer -->
-        <tr><td style="padding:32px 48px;text-align:center;border-top:1px solid #e8e8e8;background:#fafafa;">
+        <tr><td style="padding:32px 48px;text-align:center;background:#ffffff;">
           <img src="${LOGO_CDN_URL}" alt="Bell Carpets" style="height:30px;display:block;margin:0 auto;" />
         </td></tr>
 

@@ -116,7 +116,7 @@ function buildReminderEmail(data: {
 
         <!-- Footer -->
         <tr>
-          <td style="padding:32px 48px;text-align:center;border-top:1px solid #e8e8e8;background:#fafafa;">
+          <td style="padding:32px 48px;text-align:center;background:#ffffff;">
             <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663449952732/EvSxkTrWsYNTCIAI.jpg" alt="Bell Carpets" style="height:30px;display:block;margin:0 auto;" />
           </td>
         </tr>
