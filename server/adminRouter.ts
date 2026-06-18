@@ -269,7 +269,10 @@ export async function sendSchedulingConfirmationEmail(data: SchedulingConfirmati
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
+  <meta name="x-apple-disable-message-reformatting">
   <title>Installation Scheduled — Bell Carpets</title>
+  <style>a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important;font-size:inherit!important;font-family:inherit!important;font-weight:inherit!important;line-height:inherit!important;}</style>
 </head>
 <body style="margin:0;padding:0;background:#f5f5f5;font-family:Georgia,'Times New Roman',serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;">
@@ -336,7 +339,7 @@ export async function sendSchedulingConfirmationEmail(data: SchedulingConfirmati
           <img src="${LOGO_CDN_URL}" alt="Bell Carpets" style="height:30px;display:block;margin:0 auto 12px;" />
           <p style="margin:0;font-size:11px;color:#999;font-family:Arial,sans-serif;line-height:1.6;">
             Bell Spec Pty Ltd &nbsp;&middot;&nbsp; ABN 74 613 299 773<br />
-            Unit 1, 41 Olympic Circuit, Southport QLD 4215
+            Unit 1, 41 Olympic Circ&#8203;uit, South&#8203;port QLD 4215
           </p>
         </td></tr>
 
@@ -402,7 +405,10 @@ export async function sendQuoteLinkEmail(data: QuoteLinkEmailData): Promise<bool
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
+  <meta name="x-apple-disable-message-reformatting">
   <title>Your Flooring Quote — Bell Carpets</title>
+  <style>a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important;font-size:inherit!important;font-family:inherit!important;font-weight:inherit!important;line-height:inherit!important;}</style>
 </head>
 <body style="margin:0;padding:0;background:#f5f5f5;font-family:Georgia,'Times New Roman',serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;">
@@ -556,7 +562,10 @@ export async function sendReminderEmail(data: QuoteLinkEmailData & { daysLeft: n
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
+  <meta name="x-apple-disable-message-reformatting">
   <title>Quote Reminder — Bell Carpets</title>
+  <style>a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important;font-size:inherit!important;font-family:inherit!important;font-weight:inherit!important;line-height:inherit!important;}</style>
 </head>
 <body style="margin:0;padding:0;background:#f5f5f5;font-family:Georgia,'Times New Roman',serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;">
