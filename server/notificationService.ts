@@ -620,17 +620,6 @@ function buildReviewRequestEmail(params: {
       </td></tr>
     </table>
 
-    <!-- Fallback link -->
-    <p style="color:#999;font-size:11px;line-height:1.6;margin:0 0 32px;font-family:Arial,sans-serif;">
-      If the button doesn't work, paste this link into your browser:<br />
-      <a href="${GOOGLE_REVIEW_URL}" style="color:#555;word-break:break-all;">${GOOGLE_REVIEW_URL}</a>
-    </p>
-
-    <p style="color:#666;font-size:13px;line-height:1.7;margin:0;font-family:Arial,sans-serif;border-top:1px solid #e8e8e8;padding-top:32px;">
-      Just let us know once it's done and we'll apply the credit. No rush — and thanks again for choosing Bell Carpets.
-    </p>`;
-
-  return buildEmail("A small thank you from Bell Carpets", body);
 }
 
 export function buildReviewRequestSms(firstName: string): string {

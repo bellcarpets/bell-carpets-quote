@@ -311,7 +311,7 @@ export async function sendSchedulingConfirmationEmail(data: SchedulingConfirmati
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td style="color:#999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:140px;">Property</td>
-                  <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;">${data.propertyAddress}</td>
+                  <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;"><span style="color:#333;text-decoration:none;">${data.propertyAddress}</span></td>
                 </tr>
               </table>
             </td></tr>
@@ -452,7 +452,7 @@ export async function sendQuoteLinkEmail(data: QuoteLinkEmailData): Promise<bool
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td style="color:#999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:140px;">Property</td>
-                  <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;">${data.propertyAddress}</td>
+                  <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;"><span style="color:#333;text-decoration:none;">${data.propertyAddress}</span></td>
                 </tr>
               </table>
             </td></tr>` : ""}
@@ -469,21 +469,15 @@ export async function sendQuoteLinkEmail(data: QuoteLinkEmailData): Promise<bool
           <!-- CTA Button -->
           <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:40px;">
             <tr><td>
-              <a href="${quoteUrl}" style="display:inline-block;background:#ffffff;color:#fff;text-decoration:none;padding:16px 40px;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;font-family:Arial,sans-serif;">
+              <a href="${quoteUrl}" style="display:inline-block;background:#111111;color:#ffffff;text-decoration:none;padding:16px 40px;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;font-family:Arial,sans-serif;border-radius:4px;">
                 View Your Quote
               </a>
             </td></tr>
           </table>
 
-          <!-- Fallback link -->
-          <p style="color:#999;font-size:11px;line-height:1.6;margin:0 0 32px;font-family:Arial,sans-serif;">
-            If the button doesn't work, paste this link into your browser:<br />
-            <a href="${quoteUrl}" style="color:#555;word-break:break-all;">${quoteUrl}</a>
-          </p>
-
-          <!-- Alternative products note -->
+          <!-- Note -->
           <p style="color:#666;font-size:13px;line-height:1.7;margin:0;font-family:Arial,sans-serif;border-top:1px solid #e8e8e8;padding-top:32px;">
-            If you'd like a quote on an alternative product, please let us know — we have a wide range of options available.
+            If you have any questions, please reply to this email.
           </p>
 
         </td></tr>
@@ -612,7 +606,7 @@ export async function sendReminderEmail(data: QuoteLinkEmailData & { daysLeft: n
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td style="color:#999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:140px;">Property</td>
-                  <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;">${data.propertyAddress}</td>
+                  <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;"><span style="color:#333;text-decoration:none;">${data.propertyAddress}</span></td>
                 </tr>
               </table>
             </td></tr>` : ""}
@@ -629,21 +623,15 @@ export async function sendReminderEmail(data: QuoteLinkEmailData & { daysLeft: n
           <!-- CTA Button -->
           <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:40px;">
             <tr><td>
-              <a href="${quoteUrl}" style="display:inline-block;background:#ffffff;color:#fff;text-decoration:none;padding:16px 40px;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;font-family:Arial,sans-serif;">
+              <a href="${quoteUrl}" style="display:inline-block;background:#111111;color:#ffffff;text-decoration:none;padding:16px 40px;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;font-family:Arial,sans-serif;border-radius:4px;">
                 ${isUrgent ? "Accept Now" : "Review Quote"}
               </a>
             </td></tr>
           </table>
 
-          <!-- Fallback link -->
-          <p style="color:#999;font-size:11px;line-height:1.6;margin:0 0 32px;font-family:Arial,sans-serif;">
-            If the button doesn't work, paste this link into your browser:<br />
-            <a href="${quoteUrl}" style="color:#555;word-break:break-all;">${quoteUrl}</a>
-          </p>
-
           <!-- Note -->
           <p style="color:#666;font-size:13px;line-height:1.7;margin:0;font-family:Arial,sans-serif;border-top:1px solid #e8e8e8;padding-top:32px;">
-            If you have any questions, please don't hesitate to get in touch.
+            If you have any questions, please reply to this email.
           </p>
 
         </td></tr>
