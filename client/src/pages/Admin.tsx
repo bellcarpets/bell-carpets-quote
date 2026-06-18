@@ -603,7 +603,7 @@ const MESSAGE_TEMPLATES = [
     label: "New Quote",
     template: (name: string, link: string, address?: string) => {
       const addressLine = address ? ` for ${address}` : '';
-      return `Hey ${name || "there"},\n\nLeon from Bell Carpets here. I've put together the carpet quote${addressLine} — have a look here:\n${link}\n\nLet me know if you have any questions.\n\nCheers,\nLeon`;
+      return `Hey ${name || "there"},\n\nI've just emailed your flooring quote${addressLine} — you can also view it here:\n${link}\n\nCheers,\nLeon`;
     },
   },
   {
