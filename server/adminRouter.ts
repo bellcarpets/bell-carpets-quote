@@ -86,7 +86,13 @@ export const DEFAULT_AGENT_CONFIG: QuoteConfigData = {
       colorAccent: "#C4956A",
       image: "https://d2xsxph8kpxj0f.cloudfront.net/31051966",
       productUrl: "https://www.bellcarpets.com.au/products/godfrey-hirst-enforcer",
-      colours: [],
+      colours: [
+        { id: "warmstone", name: "Warmstone", code: "5160", swatchImage: "/images/swatches/enforcer-warmstone.jpg" },
+        { id: "windspray", name: "Windspray", code: "7108", swatchImage: "/images/swatches/enforcer-windspray.jpg" },
+        { id: "smoke", name: "Smoke", code: "7250", swatchImage: "/images/swatches/enforcer-smoke.jpg" },
+        { id: "lava", name: "Lava", code: "7350", swatchImage: "/images/swatches/enforcer-lava.jpg" },
+        { id: "aggregate", name: "Aggregate", code: "7450", swatchImage: "/images/swatches/enforcer-aggregate.jpg" },
+      ],
     },
     {
       id: "silver",
@@ -102,7 +108,13 @@ export const DEFAULT_AGENT_CONFIG: QuoteConfigData = {
       colorAccent: "#D0D4DC",
       image: "https://d2xsxph8kpxj0f.cloudfront.net/31051966",
       productUrl: "https://www.bellcarpets.com.au/products/godfrey-hirst-serina",
-      colours: [],
+      colours: [
+        { id: "orchard", name: "Orchard", code: "506", swatchImage: "/images/swatches/serina-orchard.jpg" },
+        { id: "valley", name: "Valley", code: "510", swatchImage: "/images/swatches/serina-valley.jpg" },
+        { id: "vintage", name: "Vintage", code: "542", swatchImage: "/images/swatches/serina-vintage.jpg" },
+        { id: "province", name: "Province", code: "715", swatchImage: "/images/swatches/serina-province.jpg" },
+        { id: "vineyard", name: "Vineyard", code: "750", swatchImage: "/images/swatches/serina-vineyard.jpg" },
+      ],
     },
     {
       id: "gold",
@@ -118,7 +130,13 @@ export const DEFAULT_AGENT_CONFIG: QuoteConfigData = {
       colorAccent: "#E8C84D",
       image: "https://d2xsxph8kpxj0f.cloudfront.net/31051966",
       productUrl: "https://www.bellcarpets.com.au/products/victoria-carpets-lemar-twist",
-      colours: [],
+      colours: [
+        { id: "smokey-canvas", name: "Smokey Canvas", code: "32", swatchImage: "/images/swatches/lemar-smokey-canvas.jpg" },
+        { id: "alicante", name: "Alicante", code: "23", swatchImage: "/images/swatches/lemar-alicante.jpg" },
+        { id: "platinum-grey", name: "Platinum Grey", code: "54", swatchImage: "/images/swatches/lemar-platinum-grey.jpg" },
+        { id: "black-finestone", name: "Black Finestone", code: "51", swatchImage: "/images/swatches/lemar-black-finestone.jpg" },
+        { id: "bellville", name: "Bellville", code: "55", swatchImage: "/images/swatches/lemar-bellville.jpg" },
+      ],
     },
   ],
 
