@@ -1085,6 +1085,7 @@ function QuotesDashboard({
 
   const [scheduleDateModal, setScheduleDateModal] = useState<{ slug: string; status: JobStatus } | null>(null);
   const [scheduleDateInput, setScheduleDateInput] = useState("");
+  const [scheduleInstallerInput, setScheduleInstallerInput] = useState("");
 
   // Deposit amount modal state (list view)
   const [depositModal, setDepositModal] = useState<{ slug: string; suggestedAmount: number } | null>(null);
@@ -1094,7 +1095,7 @@ function QuotesDashboard({
   const [tierAcceptModal, setTierAcceptModal] = useState<{ slug: string; tiers: { name: string; price: number }[] } | null>(null);
   const [tierAcceptSelected, setTierAcceptSelected] = useState<string>("");
 
-  const handleStatusChange = async (slug: string, newStatus: JobStatus, quoteTotal?: number, depositPercent?: number, tierSummaries?: { name: string; price: number }[], pricingMode?: string) => {
+  const handleStatusChange = async (slug: string, newStatus: JobStatus, quoteTotal?: number, depositPercent?: number, tierSummaries?: { name: string; price: number }[], pricingMode?: string, existingInstaller?: string | null) => {
     // If moving to "accepted" for a tiered quote, prompt for tier selection
     if (newStatus === "accepted" && pricingMode !== "single" && tierSummaries && tierSummaries.length > 1) {
       setTierAcceptSelected("");
@@ -1104,6 +1105,7 @@ function QuotesDashboard({
     // If moving to "scheduled", prompt for a date first
     if (newStatus === "scheduled") {
       setScheduleDateInput("");
+      setScheduleInstallerInput(existingInstaller ?? "");
       setScheduleDateModal({ slug, status: newStatus });
       return;
     }
@@ -1174,6 +1176,7 @@ function QuotesDashboard({
         slug: scheduleDateModal.slug,
         jobStatus: scheduleDateModal.status,
         scheduledDate,
+        installerName: scheduleInstallerInput.trim() || null,
       });
       toast.success(`Status → Scheduled${scheduledDate ? " · " + formatAESTDate(scheduledDate, { day: "numeric", month: "short", year: "numeric" }) : ""}`);
       refetch();
@@ -1412,7 +1415,15 @@ function QuotesDashboard({
               type="date"
               value={scheduleDateInput}
               onChange={(e) => setScheduleDateInput(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-zinc-800/60 border border-white/10 text-white text-sm focus:outline-none focus:border-purple-400 transition-colors mb-4 [color-scheme:dark]"
+              className="w-full px-4 py-3 rounded-xl bg-zinc-800/60 border border-white/10 text-white text-sm focus:outline-none focus:border-purple-400 transition-colors mb-3 [color-scheme:dark]"
+            />
+            <label className="block text-xs text-white/40 mb-1.5">Installer name (shown to customer)</label>
+            <input
+              type="text"
+              value={scheduleInstallerInput}
+              onChange={(e) => setScheduleInstallerInput(e.target.value)}
+              placeholder="e.g. Dave"
+              className="w-full px-4 py-3 rounded-xl bg-zinc-800/60 border border-white/10 text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-purple-400 transition-colors mb-4"
             />
             <div className="flex gap-3">
               <button
@@ -2187,7 +2198,7 @@ function QuotesDashboard({
                         const nextStatus = ALL_STATUS_CONFIGS.find((s) => s.value === nextStatuses[0]);
                         return nextStatus ? (
                           <button
-                            onClick={(e) => { e.stopPropagation(); handleStatusChange(q.slug, nextStatus.value, q.acceptedTotal ?? undefined, q.depositPercent, q.tierSummaries, q.pricingMode); }}
+                            onClick={(e) => { e.stopPropagation(); handleStatusChange(q.slug, nextStatus.value, q.acceptedTotal ?? undefined, q.depositPercent, q.tierSummaries, q.pricingMode, q.installerName); }}
                             disabled={updateStatusMutation.isPending}
                             className={`w-full px-4 py-2 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors ${nextStatus.bg} ${nextStatus.color} hover:opacity-90 disabled:opacity-50 border-b border-white/10`}
                           >
@@ -2204,7 +2215,7 @@ function QuotesDashboard({
                             return config ? (
                               <button
                                 key={status}
-                                onClick={(e) => { e.stopPropagation(); handleStatusChange(q.slug, status, q.acceptedTotal ?? undefined, q.depositPercent, q.tierSummaries, q.pricingMode); }}
+                                onClick={(e) => { e.stopPropagation(); handleStatusChange(q.slug, status, q.acceptedTotal ?? undefined, q.depositPercent, q.tierSummaries, q.pricingMode, q.installerName); }}
                                 disabled={updateStatusMutation.isPending}
                                 className={`flex-1 px-3 py-2 text-xs font-semibold flex items-center justify-center gap-1 transition-colors ${config.bg} ${config.color} hover:opacity-90 disabled:opacity-50 rounded`}
                               >
@@ -2339,7 +2350,7 @@ function QuotesDashboard({
                         <StatusDropdown
                           currentStatus={q.jobStatus as JobStatus}
                           quoteType={q.quoteType}
-                          onSelect={(newStatus) => handleStatusChange(q.slug, newStatus, q.acceptedTotal ?? undefined, q.depositPercent, q.tierSummaries, q.pricingMode)}
+                          onSelect={(newStatus) => handleStatusChange(q.slug, newStatus, q.acceptedTotal ?? undefined, q.depositPercent, q.tierSummaries, q.pricingMode, q.installerName)}
                           disabled={updateStatusMutation.isPending}
                         />
                         <button
@@ -2568,6 +2579,7 @@ function QuoteEditor({
 
   const [editorScheduleModal, setEditorScheduleModal] = useState(false);
   const [editorScheduleDateInput, setEditorScheduleDateInput] = useState("");
+  const [editorScheduleInstallerInput, setEditorScheduleInstallerInput] = useState("");
   const [pendingScheduleStatus, setPendingScheduleStatus] = useState<string | null>(null);
 
   // DnD sensors for scope of works reordering — pointer (desktop) + touch (mobile)
@@ -2702,6 +2714,7 @@ function QuoteEditor({
     }
     if (nextStatus === "scheduled") {
       setEditorScheduleDateInput("");
+      setEditorScheduleInstallerInput(quoteData?.installerName ?? "");
       setPendingScheduleStatus(nextStatus);
       setEditorScheduleModal(true);
       return;
@@ -2730,6 +2743,7 @@ function QuoteEditor({
     }
     if (newStatus === "scheduled") {
       setEditorScheduleDateInput("");
+      setEditorScheduleInstallerInput(quoteData?.installerName ?? "");
       setPendingScheduleStatus(newStatus);
       setEditorScheduleModal(true);
       return;
@@ -2759,6 +2773,7 @@ function QuoteEditor({
         slug,
         jobStatus: pendingScheduleStatus as JobStatus,
         scheduledDate,
+        installerName: editorScheduleInstallerInput.trim() || null,
       });
       toast.success(`Status → Scheduled${scheduledDate ? " · " + formatAESTDate(scheduledDate, { day: "numeric", month: "short", year: "numeric" }) : ""}`);
       refetchQuote();
@@ -4189,7 +4204,15 @@ function QuoteEditor({
               type="date"
               value={editorScheduleDateInput}
               onChange={(e) => setEditorScheduleDateInput(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-zinc-800/60 border border-white/10 text-white text-sm focus:outline-none focus:border-purple-400 transition-colors mb-4 [color-scheme:dark]"
+              className="w-full px-4 py-3 rounded-xl bg-zinc-800/60 border border-white/10 text-white text-sm focus:outline-none focus:border-purple-400 transition-colors mb-3 [color-scheme:dark]"
+            />
+            <label className="block text-xs text-white/40 mb-1.5">Installer name (shown to customer)</label>
+            <input
+              type="text"
+              value={editorScheduleInstallerInput}
+              onChange={(e) => setEditorScheduleInstallerInput(e.target.value)}
+              placeholder="e.g. Dave"
+              className="w-full px-4 py-3 rounded-xl bg-zinc-800/60 border border-white/10 text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-purple-400 transition-colors mb-4"
             />
             <div className="flex gap-3">
               <button

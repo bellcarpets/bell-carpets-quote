@@ -109,6 +109,8 @@ export const quotes = mysqlTable("quotes", {
   scheduledDate: timestamp("scheduledDate"),
   /** Completion date — set when job status moves to "completed" */
   completedAt: timestamp("completedAt"),
+  /** Installer name — free text, set by admin when scheduling the installation; shown on the job tracker */
+  installerName: varchar("installerName", { length: 255 }),
   /** Property manager name at the agency (specific person, e.g. "Eliana") */
   agentPropertyManager: varchar("agentPropertyManager", { length: 255 }),
   /** Whether this is an insurance assessment only quote (no accept button) */
