@@ -8,6 +8,12 @@ import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
+import { startReminderCron } from "../reminderCron";
+import { startExpiryReminderCron } from "../expiryReminderCron";
+import { startFollowUpCron } from "../followUpCron";
+import { startOverdueInvoiceCron } from "../overdueInvoiceCron";
+import { startXeroPaymentCron } from "../xeroPaymentCron";
+import { startInstallationReminderCron } from "../installationReminderCron";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -60,6 +66,16 @@ async function startServer() {
 
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
+    
+    // Start background crons
+    if (process.env.NODE_ENV === "production" || process.env.RUN_CRONS === "true") {
+      startReminderCron();
+      startExpiryReminderCron();
+      startFollowUpCron();
+      startOverdueInvoiceCron();
+      startXeroPaymentCron();
+      startInstallationReminderCron();
+    }
   });
 }
 
