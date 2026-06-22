@@ -90,3 +90,34 @@ export async function getUserByOpenId(openId: string) {
 }
 
 // TODO: add feature queries here as your schema grows.
+
+/**
+ * Runs any pending schema changes that weren't applied via migration.
+ * Uses INFORMATION_SCHEMA to check before altering — safe to run on every boot.
+ */
+export async function runStartupMigrations(): Promise<void> {
+  if (!process.env.DATABASE_URL) return;
+  try {
+    const mysql2 = await import('mysql2/promise');
+    const conn = await mysql2.createConnection(process.env.DATABASE_URL);
+    try {
+      // Extract database name from the connection URL
+      const dbName = new URL(process.env.DATABASE_URL).pathname.replace('/', '');
+
+      // Check and add installationReminderSentAt if missing
+      const [rows] = await conn.execute(
+        `SELECT COUNT(*) as cnt FROM information_schema.COLUMNS
+         WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'quotes' AND COLUMN_NAME = 'installationReminderSentAt'`,
+        [dbName]
+      ) as any[];
+      if (rows[0].cnt === 0) {
+        await conn.execute(`ALTER TABLE \`quotes\` ADD COLUMN \`installationReminderSentAt\` timestamp NULL`);
+        console.log('[DB] Migration applied: added installationReminderSentAt column to quotes table');
+      }
+    } finally {
+      await conn.end();
+    }
+  } catch (err) {
+    console.error('[DB] Startup migration error (non-fatal):', err);
+  }
+}

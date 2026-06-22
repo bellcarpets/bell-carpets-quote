@@ -14,6 +14,7 @@ import { startFollowUpCron } from "../followUpCron";
 import { startOverdueInvoiceCron } from "../overdueInvoiceCron";
 import { startXeroPaymentCron } from "../xeroPaymentCron";
 import { startInstallationReminderCron } from "../installationReminderCron";
+import { runStartupMigrations } from "../db";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -35,6 +36,9 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 }
 
 async function startServer() {
+  // Apply any pending schema changes before accepting requests
+  await runStartupMigrations();
+
   const app = express();
   const server = createServer(app);
   // Configure body parser with larger size limit for file uploads
