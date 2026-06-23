@@ -163,10 +163,13 @@ export async function findOrCreateSaasuContact(params: {
 
   if (isCompany) {
     contactPayload.CompanyName = safeName;
+    // Saasu requires GivenName+FamilyName even for company contacts
+    contactPayload.GivenName = "Accounts";
+    contactPayload.FamilyName = safeName;
   } else {
     const nameParts = safeName.split(/\s+/);
     contactPayload.GivenName = nameParts[0] || safeName;
-    contactPayload.FamilyName = nameParts.slice(1).join(" ") || "";
+    contactPayload.FamilyName = nameParts.slice(1).join(" ") || safeName;
   }
 
   if (email) contactPayload.EmailAddress = email;
