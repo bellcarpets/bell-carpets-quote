@@ -519,6 +519,7 @@ export async function notifyCompleted(params: {
   balanceAmount?: number;
   quoteType: QuoteType;
   invoicePdfUrl?: string;
+  invoicePdfBuffer?: Buffer;
 }): Promise<void> {
   if (params.recipientEmail) {
     const html = buildCompletedEmail({
@@ -545,9 +546,14 @@ export async function notifyCompleted(params: {
       html,
     };
 
-    if (params.invoicePdfUrl) {
+    if (params.invoicePdfBuffer) {
       emailBody.attachments = [{
-        filename: `${params.quoteNumber}.pdf`,
+        filename: `${params.invoiceNumber || params.quoteNumber}.pdf`,
+        content: params.invoicePdfBuffer.toString('base64'),
+      }];
+    } else if (params.invoicePdfUrl) {
+      emailBody.attachments = [{
+        filename: `${params.invoiceNumber || params.quoteNumber}.pdf`,
         path: params.invoicePdfUrl,
       }];
     }
@@ -566,7 +572,7 @@ export async function notifyCompleted(params: {
           const errText = await res.text();
           console.error(`[Notification] Completed email failed to ${params.recipientEmail}:`, res.status, errText);
         } else {
-          console.log(`[Notification] Completed email sent to ${params.recipientEmail}${params.invoicePdfUrl ? " (with PDF attachment)" : ""}`);
+          console.log(`[Notification] Completed email sent to ${params.recipientEmail}${(params.invoicePdfBuffer || params.invoicePdfUrl) ? " (with PDF attachment)" : ""}`);
         }
         return ok;
       })

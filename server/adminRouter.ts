@@ -1528,6 +1528,7 @@ export const adminRouter = router({
         let depositAmount = 0;
         let invoiceId = 0;
         let invoicePdfUrl: string | undefined;
+        let invoicePdfBuffer: Buffer | undefined;
 
         try {
           const existingInv = await db.select().from(invoices).where(eq(invoices.quoteSlug, input.slug)).orderBy(desc(invoices.id)).limit(1);
@@ -1568,14 +1569,13 @@ export const adminRouter = router({
             const qNum = quoteRow.quoteNumber.replace(/^BC-/, '').replace(/^[A-Z]+-/, '');
             invoiceNumber = `INV-${qNum}`;
 
-            // Generate PDF (may fail, but invoice record should still be created)
+            // Generate PDF buffer (no upload — storagePut not available on Render)
             let pdfUrl = "";
             let pdfKey = "";
             try {
               const { generateInvoicePdf } = await import("./invoiceGenerator");
-              const { storagePut } = await import("./storage");
               const acceptedTier = config.tiers?.find(t => t.name === quoteRow.acceptedTier) || config.tiers?.[0];
-              const pdfBuffer = await generateInvoicePdf({
+              invoicePdfBuffer = await generateInvoicePdf({
                 quoteNumber: quoteRow.quoteNumber,
                 invoiceNumber,
                 issueDate: formatAESTDate(new Date(), { day: "2-digit", month: "short", year: "numeric" }),
@@ -1599,11 +1599,7 @@ export const adminRouter = router({
                 agentEmail: recipientEmail,
                 agentPhone: recipientPhone,
               });
-              const fileKeyVal = `invoices/${invoiceNumber}-${Date.now()}.pdf`;
-              const uploadResult = await storagePut(fileKeyVal, pdfBuffer, "application/pdf");
-              pdfUrl = uploadResult.url;
-              pdfKey = fileKeyVal;
-              invoicePdfUrl = pdfUrl;
+              console.log(`[Admin] PDF buffer generated for ${invoiceNumber} (${invoicePdfBuffer.length} bytes)`);
             } catch (pdfErr) {
               console.error(`[Admin] PDF generation failed for ${quoteRow.quoteNumber} (invoice will be created without PDF):`, pdfErr);
             }
@@ -1623,8 +1619,8 @@ export const adminRouter = router({
               totalAmount,
               depositAmount,
               paymentStatus: isHomeowner ? "balance_due" : "unpaid",
-              pdfUrl: pdfUrl || null,
-              pdfKey: pdfKey || null,
+              pdfUrl: null,
+              pdfKey: null,
             });
             console.log(`[Admin] Created ${quoteType} invoice ${invoiceNumber} for ${quoteRow.quoteNumber} on completion`);
 
@@ -1675,13 +1671,12 @@ export const adminRouter = router({
               }
             }
 
-            // If STILL no PDF, generate one now (covers invoices created without PDF)
-            if (!invoicePdfUrl && invoiceId > 0) {
+            // If STILL no PDF buffer, generate one now (covers invoices created without PDF)
+            if (!invoicePdfBuffer && !invoicePdfUrl && invoiceId > 0) {
               try {
                 const { generateInvoicePdf } = await import("./invoiceGenerator");
-                const { storagePut } = await import("./storage");
                 const acceptedTier = config.tiers?.find(t => t.name === quoteRow.acceptedTier) || config.tiers?.[0];
-                const pdfBuffer = await generateInvoicePdf({
+                invoicePdfBuffer = await generateInvoicePdf({
                   quoteNumber: quoteRow.quoteNumber,
                   invoiceNumber,
                   issueDate: formatAESTDate(new Date(), { day: "2-digit", month: "short", year: "numeric" }),
@@ -1705,14 +1700,7 @@ export const adminRouter = router({
                   agentEmail: recipientEmail,
                   agentPhone: recipientPhone,
                 });
-                const fileKeyVal = `invoices/${invoiceNumber}-${Date.now()}.pdf`;
-                const uploadResult = await storagePut(fileKeyVal, pdfBuffer, "application/pdf");
-                invoicePdfUrl = uploadResult.url;
-                // Update invoice record with the PDF
-                await db.update(invoices)
-                  .set({ pdfUrl: uploadResult.url, pdfKey: fileKeyVal })
-                  .where(eq(invoices.id, invoiceId));
-                console.log(`[Admin] Generated missing PDF for ${invoiceNumber}: ${invoicePdfUrl}`);
+                console.log(`[Admin] Generated PDF buffer for completion email of ${invoiceNumber} (${invoicePdfBuffer.length} bytes)`);
               } catch (pdfGenErr) {
                 console.error(`[Admin] Failed to generate PDF for completion email of ${quoteRow.quoteNumber}:`, pdfGenErr);
               }
@@ -1729,6 +1717,7 @@ export const adminRouter = router({
               balanceAmount: totalAmount - depositAmount,
               quoteType,
               invoicePdfUrl,
+              invoicePdfBuffer,
             });
             await db.update(quotes)
               .set({ completedNotificationSent: 1 })
