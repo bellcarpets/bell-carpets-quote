@@ -259,6 +259,7 @@ export const QUOTE_DATA = {
   terms: [
     "50% non-refundable deposit to secure booking",
     "Remaining 50% due upon practical completion",
+    "If your installation is scheduled within 7 business days, payment in full is required to secure your booking",
     "Quote valid for 10 days from issue date",
   ],
 
