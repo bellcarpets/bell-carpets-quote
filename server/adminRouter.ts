@@ -1662,7 +1662,7 @@ export const adminRouter = router({
         // ── Step D: Send completion email (independent, own try/catch) ──
         if (recipientEmail && !quoteRow.completedNotificationSent) {
           try {
-            // If we don't have PDF URL yet, try to fetch it from DB
+                        // If we don't have PDF URL yet, try to fetch it from DB
             if (!invoicePdfUrl && invoiceId > 0) {
               try {
                 const invRow = await db.select({ pdfUrl: invoices.pdfUrl })
@@ -1672,6 +1672,49 @@ export const adminRouter = router({
                 if (invRow[0]?.pdfUrl) invoicePdfUrl = invRow[0].pdfUrl;
               } catch (e) {
                 console.warn("[Admin] Could not fetch invoice PDF URL:", e);
+              }
+            }
+
+            // If STILL no PDF, generate one now (covers invoices created without PDF)
+            if (!invoicePdfUrl && invoiceId > 0) {
+              try {
+                const { generateInvoicePdf } = await import("./invoiceGenerator");
+                const { storagePut } = await import("./storage");
+                const acceptedTier = config.tiers?.find(t => t.name === quoteRow.acceptedTier) || config.tiers?.[0];
+                const pdfBuffer = await generateInvoicePdf({
+                  quoteNumber: quoteRow.quoteNumber,
+                  invoiceNumber,
+                  issueDate: formatAESTDate(new Date(), { day: "2-digit", month: "short", year: "numeric" }),
+                  validDays: config.validDays || 10,
+                  depositPercent: config.depositPercent || 50,
+                  clientName: recipientName || "Valued Client",
+                  clientType: config.client?.type || "",
+                  propertyAddress,
+                  tierName: usesSingleLayout ? (config.product?.productName || "Carpet") : (acceptedTier?.name || "Standard"),
+                  productName: usesSingleLayout ? (config.product?.productName || "") : (acceptedTier?.productName || ""),
+                  manufacturer: usesSingleLayout ? (config.product?.manufacturer || "") : (acceptedTier?.manufacturer || ""),
+                  fibre: usesSingleLayout ? (config.product?.fibre || "") : (acceptedTier?.fibre || ""),
+                  pileType: usesSingleLayout ? (config.product?.pileType || "") : (acceptedTier?.pileType || ""),
+                  colourName: quoteRow.acceptedColour || "",
+                  basePrice: usesSingleLayout ? (config.product?.price || 0) : (acceptedTier?.price || 0),
+                  addons: (config.addons || []).map(a => ({ title: a.title, price: a.price })),
+                  grandTotal: totalAmount,
+                  scopeOfWorks: config.scopeOfWorks || [],
+                  terms: config.terms || [],
+                  agentName: recipientName || "Valued Client",
+                  agentEmail: recipientEmail,
+                  agentPhone: recipientPhone,
+                });
+                const fileKeyVal = `invoices/${invoiceNumber}-${Date.now()}.pdf`;
+                const uploadResult = await storagePut(fileKeyVal, pdfBuffer, "application/pdf");
+                invoicePdfUrl = uploadResult.url;
+                // Update invoice record with the PDF
+                await db.update(invoices)
+                  .set({ pdfUrl: uploadResult.url, pdfKey: fileKeyVal })
+                  .where(eq(invoices.id, invoiceId));
+                console.log(`[Admin] Generated missing PDF for ${invoiceNumber}: ${invoicePdfUrl}`);
+              } catch (pdfGenErr) {
+                console.error(`[Admin] Failed to generate PDF for completion email of ${quoteRow.quoteNumber}:`, pdfGenErr);
               }
             }
 
