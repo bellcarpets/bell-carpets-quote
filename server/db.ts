@@ -114,6 +114,30 @@ export async function runStartupMigrations(): Promise<void> {
         await conn.execute(`ALTER TABLE \`quotes\` ADD COLUMN \`installationReminderSentAt\` timestamp NULL`);
         console.log('[DB] Migration applied: added installationReminderSentAt column to quotes table');
       }
+
+      // Create quote_views table if it doesn't exist
+      const [viewTableRows] = await conn.execute(
+        `SELECT COUNT(*) as cnt FROM information_schema.TABLES
+         WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'quote_views'`,
+        [dbName]
+      ) as any[];
+      if (viewTableRows[0].cnt === 0) {
+        await conn.execute(`
+          CREATE TABLE \`quote_views\` (
+            \`id\` int AUTO_INCREMENT NOT NULL,
+            \`quoteSlug\` varchar(64) NOT NULL,
+            \`viewedAt\` timestamp NOT NULL DEFAULT (now()),
+            \`userAgent\` varchar(512),
+            \`ipAddress\` varchar(64),
+            \`city\` varchar(128),
+            \`country\` varchar(8),
+            \`deviceType\` varchar(16),
+            \`isAdmin\` boolean DEFAULT false,
+            CONSTRAINT \`quote_views_id\` PRIMARY KEY(\`id\`)
+          )
+        `);
+        console.log('[DB] Migration applied: created quote_views table');
+      }
     } finally {
       await conn.end();
     }
