@@ -226,7 +226,7 @@ interface SaasuInvoiceResponse {
  * Single line item, amounts inc-GST, Terms: COD, Account: Income: Sales.
  */
 export async function createSaasuInvoice(params: {
-  contactId: number;
+  contactId?: number;
   summary: string;          // "Re: [property address]"
   purchaseOrderNumber: string; // BC-XXX quote reference
   date: string;             // YYYY-MM-DD
@@ -244,10 +244,9 @@ export async function createSaasuInvoice(params: {
   // Convert YYYY-MM-DD to ISO datetime string Saasu expects
   const toSaasuDate = (d: string) => d.includes("T") ? d : `${d}T00:00:00`;
 
-  const payload: SaasuInvoicePayload = {
+  const payload: Record<string, any> = {
     TransactionType: "S",
     Layout: "S",
-    BillingContactId: params.contactId, // Saasu uses BillingContactId
     TransactionDate: toSaasuDate(params.date),
     DueDate: toSaasuDate(params.dueDate),
     Summary: params.summary,
@@ -256,6 +255,9 @@ export async function createSaasuInvoice(params: {
     IsTaxInc: true,     // Saasu field name is IsTaxInc (not IsTaxInclusive)
     LineItems: [lineItem],
   };
+  if (params.contactId) {
+    payload.BillingContactId = params.contactId;
+  }
 
   const res = await saasuRequest<SaasuInvoiceResponse>("POST", "/Invoice", payload);
   const invoiceId = res.InsertedEntityId || res.Id;
@@ -426,14 +428,8 @@ export async function syncInvoiceToSaasu(invoiceId: number): Promise<{ success: 
       // fallback to recipientName and generic description
     }
 
-    // Find or create contact in Saasu
-    console.log(`[Saasu DEBUG] contactName resolved to: "${contactName}" | isAgency: ${isAgency} | recipientName: "${inv.recipientName}" | propertyAddress: "${inv.propertyAddress}"`);
-    const contact = await findOrCreateSaasuContact({
-      name: contactName,
-      email: inv.recipientEmail || undefined,
-      phone: inv.recipientPhone || undefined,
-      isCompany: isAgency,
-    });
+    // Skip contact creation — user assigns contact manually in Saasu
+    console.log(`[Saasu] Creating invoice without contact. Client: "${contactName}" | Property: "${inv.propertyAddress}"`);
 
     // Dates in AEST — use today as invoice date (completion date)
     const todayAEST = toAESTDateString(new Date());
@@ -456,7 +452,6 @@ export async function syncInvoiceToSaasu(invoiceId: number): Promise<{ success: 
     // inv.quoteNumber is the BC-XXX reference (e.g. "BC-020") — use as PurchaseOrderNumber
     const purchaseOrderNumber = inv.quoteNumber || inv.invoiceNumber;
     const saasuInv = await createSaasuInvoice({
-      contactId: contact.contactId,
       summary,
       purchaseOrderNumber,
       date: todayAEST,
@@ -470,7 +465,6 @@ export async function syncInvoiceToSaasu(invoiceId: number): Promise<{ success: 
       .update(invoices)
       .set({
         xeroInvoiceId: String(saasuInv.invoiceId),
-        xeroContactId: String(contact.contactId),
         xeroSyncedAt: new Date(),
         xeroSyncError: null,
       })
