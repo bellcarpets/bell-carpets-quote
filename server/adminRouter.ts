@@ -20,7 +20,7 @@ import { getDb } from "./db";
 import { quotes, invoices, quoteViews } from "../drizzle/schema";
 import { eq, desc, sql, isNull, and } from "drizzle-orm";
 import type { QuoteConfigData, QuoteType } from "../shared/quoteConfigTypes";
-import { routeNotificationsToAgent } from "../shared/quoteConfigTypes";
+import { routeNotificationsToAgent, usesHomeownerLayout } from "../shared/quoteConfigTypes";
 import { sendQuoteLinkSms, sendAcceptanceSmsToBellCarpets, sendSms, normaliseAuPhone } from "./smsHelper";
 import { logNotification } from "./notificationLog";
 import { formatAESTDate, todayAESTString, parseAESTDate, addDaysAEST } from "../shared/aestUtils";
@@ -1468,54 +1468,74 @@ export const adminRouter = router({
 
       }
 
-      // Handle job completion: invoice + notification + Xero balance sync
+      // Handle job completion: invoice + notification + Saasu sync
+      // ARCHITECTURE: Each step (invoice, Saasu, email) is independent.
+      // One failing must NOT prevent the others from running.
       if (input.jobStatus === "completed" && quoteRow) {
-        try {
-          const config = JSON.parse(quoteRow.configJson) as QuoteConfigData;
-          const quoteType = (quoteRow.quoteType as QuoteType) || "agent";
-          const propertyAddress = config.property?.fullAddress || config.property?.address || "";
+        const config = JSON.parse(quoteRow.configJson) as QuoteConfigData;
+        const quoteType = (quoteRow.quoteType as QuoteType) || "agent";
+        const propertyAddress = config.property?.fullAddress || config.property?.address || "";
+        const isHomeowner = quoteType === "homeowner";
+        const usesSingleLayout = usesHomeownerLayout(quoteType);
 
-          // Get recipient details
-          let recipientName = "";
-          let recipientEmail = "";
-          let recipientPhone = "";
-          if (routeNotificationsToAgent(quoteType)) {
-            // Agent/insurance: always use agentEmail/agentPhone (set at quote creation).
-            // NEVER fall back to acceptedAgentEmail/Phone — those are homeowner contact details
-            // filled in by the person who accepted the quote, not the agent.
-            recipientName = quoteRow.agentName || config.client.name || "";
-            recipientEmail = quoteRow.agentEmail || "";
-            recipientPhone = quoteRow.agentPhone || "";
+        // ── Step A: Compute recipient + derive acceptedTotal if missing ──
+        let recipientName = "";
+        let recipientEmail = "";
+        let recipientPhone = "";
+        if (routeNotificationsToAgent(quoteType)) {
+          recipientName = quoteRow.agentName || config.client?.name || "Valued Client";
+          recipientEmail = quoteRow.agentEmail || "";
+          recipientPhone = quoteRow.agentPhone || "";
+        } else {
+          recipientName = quoteRow.acceptedAgentName || config.client?.name || "Valued Client";
+          recipientEmail = quoteRow.acceptedAgentEmail || quoteRow.agentEmail || (config.client as Record<string, string>)?.email || "";
+          recipientPhone = quoteRow.acceptedAgentPhone || quoteRow.agentPhone || "";
+        }
+
+        // Auto-populate acceptedTotal if quote skipped acceptance flow
+        let effectiveTotal = quoteRow.acceptedTotal;
+        if (!effectiveTotal) {
+          // Derive from config: rooms total > product price > first tier price
+          if (usesSingleLayout && config.rooms && config.rooms.length > 0) {
+            effectiveTotal = config.rooms.reduce((sum: number, r: { price?: number }) => sum + (r.price || 0), 0);
+          } else if (usesSingleLayout && config.product?.price) {
+            effectiveTotal = config.product.price;
+          } else if (config.tiers && config.tiers.length > 0) {
+            effectiveTotal = config.tiers[0].price;
           } else {
-            // Homeowner: prefer contact details filled in at acceptance, but fall back to
-            // agentEmail (set at quote creation) and config.client.email if acceptance fields are empty.
-            // This handles quotes where the homeowner accepted without entering their email,
-            // or where the admin manually advanced the status.
-            recipientName = quoteRow.acceptedAgentName || config.client?.name || "";
-            recipientEmail = quoteRow.acceptedAgentEmail || quoteRow.agentEmail || (config.client as Record<string, string>)?.email || "";
-            recipientPhone = quoteRow.acceptedAgentPhone || quoteRow.agentPhone || "";
+            effectiveTotal = 0;
           }
+          // Add addons
+          if (config.addons) {
+            effectiveTotal += config.addons.reduce((sum: number, a: { price: number }) => sum + a.price, 0);
+          }
+          // Persist so future operations don't recalculate
+          if (effectiveTotal > 0) {
+            try {
+              await db.update(quotes)
+                .set({ acceptedTotal: effectiveTotal, acceptedAt: new Date() })
+                .where(eq(quotes.slug, input.slug));
+              console.log(`[Admin] Auto-populated acceptedTotal=${effectiveTotal} for ${quoteRow.quoteNumber} (acceptance skipped)`);
+            } catch (e) {
+              console.error(`[Admin] Failed to auto-populate acceptedTotal for ${quoteRow.quoteNumber}:`, e);
+            }
+          }
+        }
 
-          // BUSINESS RULES:
-          // ALL quote types now have an invoice created at acceptance.
-          // At completion: use the existing invoice, update paymentStatus to balance_due.
-          // Fallback: create invoice if somehow missing (e.g., old quotes before this fix).
-          // agency_single uses single product layout like homeowner, but agent payment terms (no deposit)
-          const isHomeowner = quoteType === "homeowner";
-          const usesSingleProductLayout = quoteType === "homeowner" || quoteType === "agency_single";
+        // ── Step B: Get or create invoice (own try/catch) ──
+        let invoiceNumber = "";
+        let totalAmount = effectiveTotal || 0;
+        let depositAmount = 0;
+        let invoiceId = 0;
+        let invoicePdfUrl: string | undefined;
 
-          // Look for existing invoice (all quote types will have one from acceptance)
+        try {
           const existingInv = await db.select().from(invoices).where(eq(invoices.quoteSlug, input.slug)).orderBy(desc(invoices.id)).limit(1);
-          let invoiceNumber: string;
-          let totalAmount: number;
-          let depositAmount: number;
-          let invoiceId: number;
 
-          // Build line items (used only as fallback for old quotes without acceptance invoice)
           const buildLineItems = () => {
             const items: { description: string; qty: number; unitPrice: number; total: number }[] = [];
-            if (usesSingleProductLayout && config.product) {
-              items.push({ description: `${config.product.manufacturer} — ${config.product.productName} (Supply & Install)`, qty: 1, unitPrice: config.product.price, total: config.product.price });
+            if (usesSingleLayout && config.product) {
+              items.push({ description: `${config.product.manufacturer || ""} — ${config.product.productName || "Carpet"} (Supply & Install)`, qty: 1, unitPrice: config.product.price || 0, total: config.product.price || 0 });
             } else if (config.tiers) {
               const tier = config.tiers.find(t => t.name === quoteRow.acceptedTier) || config.tiers[0];
               if (tier) items.push({ description: `${tier.name} — ${tier.manufacturer} ${tier.productName} (Supply & Install)`, qty: 1, unitPrice: tier.price, total: tier.price });
@@ -1527,69 +1547,73 @@ export const adminRouter = router({
           };
 
           if (existingInv.length > 0) {
-            // Invoice exists from acceptance — update to balance_due
             const inv = existingInv[0]!;
             invoiceNumber = inv.invoiceNumber;
-            totalAmount = quoteRow.acceptedTotal || inv.totalAmount;
-            // BUSINESS RULE: agent/insurance quotes have no deposit — full amount owed at completion.
-            // Force depositAmount=0 for agent quotes regardless of what is stored on the invoice
-            // (old invoices generated via invoiceRouter.generate may have had a nonzero deposit due to a bug).
+            totalAmount = effectiveTotal || inv.totalAmount;
             depositAmount = isHomeowner ? inv.depositAmount : 0;
             invoiceId = inv.id;
+            invoicePdfUrl = inv.pdfUrl || undefined;
             await db.update(invoices)
               .set({ paymentStatus: "balance_due" })
               .where(eq(invoices.id, inv.id));
             console.log(`[Admin] Invoice ${invoiceNumber} (${quoteType}) updated to balance_due on completion`);
           } else {
-            // Fallback: create invoice at completion for old quotes without acceptance invoice
+            // Fallback: create invoice at completion
             const lineItems = buildLineItems();
             const subtotal = lineItems.reduce((s, i) => s + i.total, 0);
             const gst = Math.round(subtotal / 11);
-            totalAmount = quoteRow.acceptedTotal || subtotal;
-            // No deposit for fallback (agent/insurance); homeowner fallback: use depositPercent
+            totalAmount = effectiveTotal || subtotal;
             depositAmount = isHomeowner ? Math.round(totalAmount * ((config.depositPercent || 50) / 100)) : 0;
 
-            // Derive invoice number from quote number (BC-007 → INV-007)
             const qNum = quoteRow.quoteNumber.replace(/^BC-/, '').replace(/^[A-Z]+-/, '');
             invoiceNumber = `INV-${qNum}`;
 
-            const { generateInvoicePdf } = await import("./invoiceGenerator");
-            const { storagePut } = await import("./storage");
-            const acceptedTier = config.tiers?.find(t => t.name === quoteRow.acceptedTier) || config.tiers?.[0];
-            const pdfBuffer = await generateInvoicePdf({
-              quoteNumber: quoteRow.quoteNumber,
-              invoiceNumber,
-              issueDate: formatAESTDate(new Date(), { day: "2-digit", month: "short", year: "numeric" }),
-              validDays: config.validDays || 10,
-              depositPercent: config.depositPercent || 50,
-              clientName: recipientName,
-              clientType: config.client?.type || "",
-              propertyAddress,
-              tierName: usesSingleProductLayout ? (config.product?.productName || "Carpet") : (acceptedTier?.name || "Standard"),
-              productName: usesSingleProductLayout ? (config.product?.productName || "") : (acceptedTier?.productName || ""),
-              manufacturer: usesSingleProductLayout ? (config.product?.manufacturer || "") : (acceptedTier?.manufacturer || ""),
-              fibre: usesSingleProductLayout ? (config.product?.fibre || "") : (acceptedTier?.fibre || ""),
-              pileType: usesSingleProductLayout ? (config.product?.pileType || "") : (acceptedTier?.pileType || ""),
-              colourName: quoteRow.acceptedColour || "",
-              basePrice: usesSingleProductLayout ? (config.product?.price || 0) : (acceptedTier?.price || 0),
-              addons: (config.addons || []).map(a => ({ title: a.title, price: a.price })),
-              grandTotal: totalAmount,
-              scopeOfWorks: config.scopeOfWorks || [],
-              terms: config.terms || [],
-              agentName: recipientName,
-              agentEmail: recipientEmail,
-              agentPhone: recipientPhone,
-            });
-
-            const fileKey = `invoices/${invoiceNumber}-${Date.now()}.pdf`;
-            const { url: pdfUrl } = await storagePut(fileKey, pdfBuffer, "application/pdf");
+            // Generate PDF (may fail, but invoice record should still be created)
+            let pdfUrl = "";
+            let pdfKey = "";
+            try {
+              const { generateInvoicePdf } = await import("./invoiceGenerator");
+              const { storagePut } = await import("./storage");
+              const acceptedTier = config.tiers?.find(t => t.name === quoteRow.acceptedTier) || config.tiers?.[0];
+              const pdfBuffer = await generateInvoicePdf({
+                quoteNumber: quoteRow.quoteNumber,
+                invoiceNumber,
+                issueDate: formatAESTDate(new Date(), { day: "2-digit", month: "short", year: "numeric" }),
+                validDays: config.validDays || 10,
+                depositPercent: config.depositPercent || 50,
+                clientName: recipientName || "Valued Client",
+                clientType: config.client?.type || "",
+                propertyAddress,
+                tierName: usesSingleLayout ? (config.product?.productName || "Carpet") : (acceptedTier?.name || "Standard"),
+                productName: usesSingleLayout ? (config.product?.productName || "") : (acceptedTier?.productName || ""),
+                manufacturer: usesSingleLayout ? (config.product?.manufacturer || "") : (acceptedTier?.manufacturer || ""),
+                fibre: usesSingleLayout ? (config.product?.fibre || "") : (acceptedTier?.fibre || ""),
+                pileType: usesSingleLayout ? (config.product?.pileType || "") : (acceptedTier?.pileType || ""),
+                colourName: quoteRow.acceptedColour || "",
+                basePrice: usesSingleLayout ? (config.product?.price || 0) : (acceptedTier?.price || 0),
+                addons: (config.addons || []).map(a => ({ title: a.title, price: a.price })),
+                grandTotal: totalAmount,
+                scopeOfWorks: config.scopeOfWorks || [],
+                terms: config.terms || [],
+                agentName: recipientName || "Valued Client",
+                agentEmail: recipientEmail,
+                agentPhone: recipientPhone,
+              });
+              const fileKeyVal = `invoices/${invoiceNumber}-${Date.now()}.pdf`;
+              const uploadResult = await storagePut(fileKeyVal, pdfBuffer, "application/pdf");
+              pdfUrl = uploadResult.url;
+              pdfKey = fileKeyVal;
+              invoicePdfUrl = pdfUrl;
+            } catch (pdfErr) {
+              console.error(`[Admin] PDF generation failed for ${quoteRow.quoteNumber} (invoice will be created without PDF):`, pdfErr);
+            }
 
             await db.insert(invoices).values({
               invoiceNumber,
               quoteSlug: input.slug,
               quoteNumber: quoteRow.quoteNumber,
               quoteType,
-              recipientName,
+              recipientName: recipientName || "Valued Client",
               recipientEmail,
               recipientPhone,
               propertyAddress,
@@ -1599,115 +1623,79 @@ export const adminRouter = router({
               totalAmount,
               depositAmount,
               paymentStatus: isHomeowner ? "balance_due" : "unpaid",
-              pdfUrl,
-              pdfKey: fileKey,
+              pdfUrl: pdfUrl || null,
+              pdfKey: pdfKey || null,
             });
             console.log(`[Admin] Created ${quoteType} invoice ${invoiceNumber} for ${quoteRow.quoteNumber} on completion`);
 
             const [newInv] = await db.select({ id: invoices.id }).from(invoices).where(eq(invoices.quoteSlug, input.slug)).orderBy(desc(invoices.id)).limit(1);
             invoiceId = newInv?.id ?? 0;
           }
-
-          // Sync to Saasu (fire-and-forget)
-          if (invoiceId > 0) {
-            try {
-              const { isSaasuConfigured, syncInvoiceToSaasu } = await import("./saasuService");
-              if (isSaasuConfigured()) {
-                const saasuResult = await syncInvoiceToSaasu(invoiceId);
-                if (saasuResult.success) {
-                  console.log(`[Saasu] Synced completion invoice for ${invoiceNumber} to Saasu`);
-                } else {
-                  console.warn(`[Saasu] Completion sync failed for ${invoiceNumber}: ${saasuResult.error}`);
-                }
-              }
-            } catch (saasuErr) {
-              console.error("[Saasu] Completion sync error (non-critical):", saasuErr);
-            }
-          }
-
-          // Guard: only send completed notification if not already sent (prevents duplicate on re-mark)
-          if (recipientEmail && !quoteRow.completedNotificationSent) {
-            const { notifyCompleted } = await import("./notificationService");
-            try {
-              // Resolve invoice PDF URL for attachment
-              // Prefer the stored pdfUrl from the invoice record (already in S3)
-              // If missing (old quotes), regenerate and upload to S3
-              let invoicePdfUrl: string | undefined;
-              try {
-                const invRow = await db.select({ pdfUrl: invoices.pdfUrl, pdfKey: invoices.pdfKey })
-                  .from(invoices)
-                  .where(eq(invoices.quoteSlug, input.slug))
-                  .orderBy(desc(invoices.id))
-                  .limit(1);
-                if (invRow[0]?.pdfUrl) {
-                  invoicePdfUrl = invRow[0].pdfUrl;
-                  console.log(`[Admin] Using existing invoice PDF for completion email: ${invoicePdfUrl}`);
-                } else {
-                  // Regenerate PDF for old quotes without stored pdfUrl
-                  const { generateInvoicePdf } = await import("./invoiceGenerator");
-                  const { storagePut } = await import("./storage");
-                  const acceptedTier = config.tiers?.find(t => t.name === quoteRow.acceptedTier) || config.tiers?.[0];
-                  const pdfBuffer = await generateInvoicePdf({
-                    quoteNumber: quoteRow.quoteNumber,
-                    invoiceNumber,
-                    issueDate: formatAESTDate(new Date(), { day: "2-digit", month: "short", year: "numeric" }),
-                    validDays: config.validDays || 10,
-                    depositPercent: config.depositPercent || 50,
-                    clientName: recipientName,
-                    clientType: config.client?.type || "",
-                    propertyAddress,
-                    tierName: usesSingleProductLayout ? (config.product?.productName || "Carpet") : (acceptedTier?.name || "Standard"),
-                    productName: usesSingleProductLayout ? (config.product?.productName || "") : (acceptedTier?.productName || ""),
-                    manufacturer: usesSingleProductLayout ? (config.product?.manufacturer || "") : (acceptedTier?.manufacturer || ""),
-                    fibre: usesSingleProductLayout ? (config.product?.fibre || "") : (acceptedTier?.fibre || ""),
-                    pileType: usesSingleProductLayout ? (config.product?.pileType || "") : (acceptedTier?.pileType || ""),
-                    colourName: quoteRow.acceptedColour || "",
-                    basePrice: usesSingleProductLayout ? (config.product?.price || 0) : (acceptedTier?.price || 0),
-                    addons: (config.addons || []).map(a => ({ title: a.title, price: a.price })),
-                    grandTotal: totalAmount,
-                    scopeOfWorks: config.scopeOfWorks || [],
-                    terms: config.terms || [],
-                    agentName: recipientName,
-                    agentEmail: recipientEmail,
-                    agentPhone: recipientPhone,
-                  });
-                  const fileKey = `invoices/${invoiceNumber}-completion-${Date.now()}.pdf`;
-                  const { url: regeneratedUrl } = await storagePut(fileKey, pdfBuffer, "application/pdf");
-                  invoicePdfUrl = regeneratedUrl;
-                  // Update invoice record with the new PDF URL
-                  await db.update(invoices)
-                    .set({ pdfUrl: regeneratedUrl, pdfKey: fileKey })
-                    .where(eq(invoices.quoteSlug, input.slug));
-                  console.log(`[Admin] Regenerated invoice PDF for completion email: ${invoicePdfUrl}`);
-                }
-              } catch (pdfErr) {
-                console.warn("[Admin] Could not resolve invoice PDF for completion email (non-critical):", pdfErr);
-              }
-
-              await notifyCompleted({
-                recipientName,
-                recipientEmail,
-                recipientPhone,
-                quoteNumber: quoteRow.quoteNumber,
-                invoiceNumber,
-                propertyAddress,
-                // For agent/insurance: full amount owed (no deposit). For homeowner: total minus deposit paid.
-                balanceAmount: totalAmount - depositAmount,
-                quoteType,
-                invoicePdfUrl,
-              });
-              await db.update(quotes)
-                .set({ completedNotificationSent: 1 })
-                .where(eq(quotes.slug, input.slug));
-              console.log(`[Admin] completedNotificationSent flag set for ${quoteRow.quoteNumber}`);
-            } catch (err) {
-              console.error("[Admin] notifyCompleted error:", err);
-            }
-          } else if (quoteRow.completedNotificationSent) {
-            console.log(`[Admin] Skipping completed notification for ${quoteRow.quoteNumber} — already sent`);
-          }
         } catch (invErr) {
-          console.error("[Admin] Completion handler error (non-critical):", invErr);
+          console.error(`[Admin] STEP B (invoice) failed for ${quoteRow.quoteNumber}:`, invErr);
+          // Derive invoiceNumber anyway for Saasu/email steps
+          if (!invoiceNumber) {
+            const qNum = quoteRow.quoteNumber.replace(/^BC-/, '').replace(/^[A-Z]+-/, '');
+            invoiceNumber = `INV-${qNum}`;
+          }
+        }
+
+        // ── Step C: Saasu sync (independent, own try/catch) ──
+        if (invoiceId > 0) {
+          try {
+            const { isSaasuConfigured, syncInvoiceToSaasu } = await import("./saasuService");
+            if (isSaasuConfigured()) {
+              const saasuResult = await syncInvoiceToSaasu(invoiceId);
+              if (saasuResult.success) {
+                console.log(`[Saasu] Synced completion invoice for ${invoiceNumber} to Saasu`);
+              } else {
+                console.warn(`[Saasu] Completion sync failed for ${invoiceNumber}: ${saasuResult.error}`);
+              }
+            }
+          } catch (saasuErr) {
+            console.error(`[Saasu] Completion sync error for ${quoteRow.quoteNumber} (non-critical):`, saasuErr);
+          }
+        } else {
+          console.warn(`[Admin] Skipping Saasu sync for ${quoteRow.quoteNumber} — no invoice ID available`);
+        }
+
+        // ── Step D: Send completion email (independent, own try/catch) ──
+        if (recipientEmail && !quoteRow.completedNotificationSent) {
+          try {
+            // If we don't have PDF URL yet, try to fetch it from DB
+            if (!invoicePdfUrl && invoiceId > 0) {
+              try {
+                const invRow = await db.select({ pdfUrl: invoices.pdfUrl })
+                  .from(invoices)
+                  .where(eq(invoices.id, invoiceId))
+                  .limit(1);
+                if (invRow[0]?.pdfUrl) invoicePdfUrl = invRow[0].pdfUrl;
+              } catch (e) {
+                console.warn("[Admin] Could not fetch invoice PDF URL:", e);
+              }
+            }
+
+            const { notifyCompleted } = await import("./notificationService");
+            await notifyCompleted({
+              recipientName: recipientName || "Valued Client",
+              recipientEmail,
+              recipientPhone,
+              quoteNumber: quoteRow.quoteNumber,
+              invoiceNumber,
+              propertyAddress,
+              balanceAmount: totalAmount - depositAmount,
+              quoteType,
+              invoicePdfUrl,
+            });
+            await db.update(quotes)
+              .set({ completedNotificationSent: 1 })
+              .where(eq(quotes.slug, input.slug));
+            console.log(`[Admin] completedNotificationSent flag set for ${quoteRow.quoteNumber}`);
+          } catch (emailErr) {
+            console.error(`[Admin] STEP D (completion email) failed for ${quoteRow.quoteNumber}:`, emailErr);
+          }
+        } else if (quoteRow.completedNotificationSent) {
+          console.log(`[Admin] Skipping completed notification for ${quoteRow.quoteNumber} — already sent`);
         }
       }
 
