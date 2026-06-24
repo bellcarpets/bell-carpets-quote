@@ -1049,6 +1049,7 @@ function QuotesDashboard({
   const markEmailedMutation = trpc.admin.markEmailed.useMutation();
   const requestReviewMutation = trpc.admin.requestReview.useMutation();
   const markReviewReceivedMutation = trpc.admin.markReviewReceived.useMutation();
+  const triggerAcceptanceEmailMutation = trpc.admin.triggerAcceptanceEmail.useMutation();
   const saveContactMutation = trpc.contacts.create.useMutation();
   const [creating, setCreating] = useState(false);
   const [search, setSearch] = useState("");
@@ -2253,6 +2254,28 @@ function QuotesDashboard({
                           })()}
                         />
                       </div>
+                      {/* Trigger Acceptance Email — for accepted quotes */}
+                      {q.jobStatus === "accepted" && q.acceptedAgentEmail && (
+                        <div className="px-4 py-2 border-t border-white/10">
+                          <button
+                            onClick={async () => {
+                              if (!confirm("Send acceptance email to " + (q.acceptedAgentName || q.clientName) + "?")) return;
+                              try {
+                                await triggerAcceptanceEmailMutation.mutateAsync({ password, slug: q.slug });
+                                toast.success("Acceptance email sent");
+                                refetch();
+                              } catch (err: any) {
+                                toast.error(err.message || "Failed to send acceptance email");
+                              }
+                            }}
+                            disabled={triggerAcceptanceEmailMutation.isPending}
+                            className="w-full py-2 rounded-lg text-xs font-medium bg-green-500/15 text-green-400 hover:bg-green-500/25 transition-colors flex items-center justify-center gap-1.5"
+                          >
+                            <Send className="w-3.5 h-3.5" />
+                            {triggerAcceptanceEmailMutation.isPending ? "Sending..." : "Send Acceptance Email"}
+                          </button>
+                        </div>
+                      )}
                       {/* Google Review Request — homeowner completed/paid_in_full only */}
                       {q.quoteType === "homeowner" && (q.jobStatus === "completed" || q.jobStatus === "paid_in_full") && (
                         <div className="px-4 py-2 border-t border-white/5">
@@ -2311,6 +2334,33 @@ function QuotesDashboard({
                           )}
                         </div>
                       )}
+                      {/* Reactivate Quote — for expired or cancelled quotes */}
+                      {(() => {
+                        const isExpired = q.expiresAt && new Date(q.expiresAt) < new Date();
+                        const isCancelled = q.jobStatus === "cancelled";
+                        if (!isExpired && !isCancelled) return null;
+                        return (
+                          <div className="px-4 py-2 border-t border-white/10">
+                            <button
+                              onClick={async () => {
+                                if (!confirm("Reactivate this quote? Expiry will be reset to 10 days from now.")) return;
+                                try {
+                                  const reactivateMutation = trpc.admin.reactivateQuote.useMutation();
+                                  await reactivateMutation.mutateAsync({ password, slug: q.slug });
+                                  toast.success("Quote reactivated");
+                                  refetch();
+                                } catch (err: any) {
+                                  toast.error(err.message || "Failed to reactivate quote");
+                                }
+                              }}
+                              className="w-full py-2 rounded-lg text-xs font-medium bg-blue-500/15 text-blue-400 hover:bg-blue-500/25 transition-colors flex items-center justify-center gap-1.5"
+                            >
+                              <RotateCcw className="w-3.5 h-3.5" />
+                              Reactivate Quote
+                            </button>
+                          </div>
+                        );
+                      })()}
                       <div className="px-4 py-2 flex items-center gap-2">
                         <button
                           onClick={() => onEditQuote(q.slug)}

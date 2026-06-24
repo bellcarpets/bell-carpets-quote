@@ -724,6 +724,8 @@ export const adminRouter = router({
           acceptedColour: quotes.acceptedColour,
           acceptedTotal: quotes.acceptedTotal,
           acceptedAgentName: quotes.acceptedAgentName,
+          acceptedAgentEmail: quotes.acceptedAgentEmail,
+          acceptedAgentPhone: quotes.acceptedAgentPhone,
           agentName: quotes.agentName,
           agentEmail: quotes.agentEmail,
           agentPhone: quotes.agentPhone,
@@ -806,6 +808,8 @@ export const adminRouter = router({
           acceptedTotal: row.acceptedTotal,
           depositPercent,
           acceptedAgentName: row.acceptedAgentName,
+          acceptedAgentEmail: row.acceptedAgentEmail,
+          acceptedAgentPhone: row.acceptedAgentPhone,
           agentName: row.agentName,
           agentEmail: row.agentEmail,
           agentPhone: row.agentPhone,
@@ -2403,7 +2407,9 @@ export const adminRouter = router({
     }),
 
   /**
-   * Reactivate a cancelled quote — reset status to draft and expiry to 10 days from now.
+   * Reactivate a cancelled or expired quote — reset expiry to 10 days from now.
+   * If cancelled, also resets jobStatus to 'quote_sent'.
+   * Clears expiryReminderSmsSentAt to prevent duplicate reminders.
    */
   reactivateQuote: publicProcedure
     .input(z.object({ password: z.string(), slug: z.string() }))
@@ -2414,15 +2420,88 @@ export const adminRouter = router({
 
       const rows = await db.select().from(quotes).where(and(eq(quotes.slug, input.slug), isNull(quotes.deletedAt))).limit(1);
       if (!rows[0]) throw new Error("Quote not found");
-      if (rows[0].jobStatus !== "cancelled") throw new Error("Only cancelled quotes can be reactivated");
+
+      const quote = rows[0];
+      const now = new Date();
+      const isExpired = quote.expiresAt && quote.expiresAt < now;
+      const isCancelled = quote.jobStatus === "cancelled";
+
+      if (!isExpired && !isCancelled) {
+        throw new Error("Quote must be expired or cancelled to reactivate");
+      }
 
       const newExpiry = addDaysAEST(parseAESTDate(todayAESTString()), 10);
+      const updateData: Record<string, unknown> = {
+        expiresAt: newExpiry,
+        expiryReminderSmsSentAt: null, // Clear SMS tracking so reminders don't re-fire
+      };
+
+      // If cancelled, restore to quote_sent status
+      if (isCancelled) {
+        updateData.jobStatus = "quote_sent";
+      }
 
       await db.update(quotes)
-        .set({ jobStatus: "draft", expiresAt: newExpiry })
+        .set(updateData)
         .where(eq(quotes.slug, input.slug));
 
       return { success: true };
+    }),
+
+  /**
+   * Trigger acceptance email for a quote (admin manual trigger).
+   * Use when the acceptance email wasn't sent automatically.
+   */
+  triggerAcceptanceEmail: publicProcedure
+    .input(z.object({ password: z.string(), slug: z.string() }))
+    .mutation(async ({ input }) => {
+      verifyAdmin(input.password);
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const rows = await db.select().from(quotes).where(and(eq(quotes.slug, input.slug), isNull(quotes.deletedAt))).limit(1);
+      if (!rows[0]) throw new Error("Quote not found");
+
+      const quoteRow = rows[0];
+      const config = JSON.parse(quoteRow.configJson) as QuoteConfigData;
+      const quoteType = quoteRow.quoteType as QuoteType;
+
+      // Determine recipient based on quote type
+      let recipientName = "";
+      let recipientEmail = "";
+      let recipientPhone = "";
+
+      if (routeNotificationsToAgent(quoteType)) {
+        // agent, real_estate, agency_single: use agent contact
+        recipientName = quoteRow.agentName || "";
+        recipientEmail = quoteRow.agentEmail || "";
+        recipientPhone = quoteRow.agentPhone || "";
+      } else {
+        // homeowner: prefer acceptance details, fall back to agent email
+        recipientName = quoteRow.acceptedAgentName || config.client.name || "";
+        recipientEmail = quoteRow.acceptedAgentEmail || quoteRow.agentEmail || (config.client as Record<string, string>)?.email || "";
+        recipientPhone = quoteRow.acceptedAgentPhone || quoteRow.agentPhone || "";
+      }
+
+      if (!recipientEmail) {
+        throw new Error("No recipient email found for this quote");
+      }
+
+      const { notifyQuoteAccepted } = await import("./notificationService");
+      await notifyQuoteAccepted({
+        recipientName,
+        recipientEmail,
+        recipientPhone,
+        quoteNumber: quoteRow.quoteNumber,
+        invoiceNumber: quoteRow.acceptedTotal ? quoteRow.quoteNumber : undefined,
+        propertyAddress: config.property?.fullAddress || config.property?.address || "",
+        quoteType,
+        depositAmount: quoteRow.acceptedTotal ? Math.round(quoteRow.acceptedTotal * ((config.depositPercent || 50) / 100)) : 0,
+        totalAmount: quoteRow.acceptedTotal || 0,
+        depositPercent: config.depositPercent || 50,
+      });
+
+      return { success: true, message: "Acceptance email sent" };
     }),
 
   /**
