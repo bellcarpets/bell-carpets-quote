@@ -233,9 +233,9 @@ function buildDepositPaidEmail(params: {
 
     <table width="100%" cellpadding="0" cellspacing="0" style="border-top:2px solid #111;margin-bottom:40px;">
       ${detailRow("Quote", params.quoteNumber)}
-      ${detailRow("Property", noAutoLink(params.propertyAddress))}
-      ${params.depositAmount ? detailRow("Deposit Received", formatPrice(params.depositAmount)) : ""}
-      ${params.remainingBalance ? detailRow("Remaining Balance", formatPrice(params.remainingBalance), true) : detailRow("Property", noAutoLink(params.propertyAddress), true).replace(detailRow("Property", noAutoLink(params.propertyAddress)), "")}
+      ${detailRow("Property", noAutoLink(params.propertyAddress), !params.depositAmount && !params.remainingBalance)}
+      ${params.depositAmount ? detailRow("Deposit Received", formatPrice(params.depositAmount), !params.remainingBalance) : ""}
+      ${params.remainingBalance ? detailRow("Remaining Balance", formatPrice(params.remainingBalance), true) : ""}
     </table>
 
     ${remainingSection}
