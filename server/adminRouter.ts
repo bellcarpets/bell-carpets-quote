@@ -771,7 +771,8 @@ export const adminRouter = router({
         let lowestPrice = 0;
         let highestPrice = 0;
         let depositPercent = 50;
-        let tierSummaries: { name: string; price: number }[] = [];
+        let tierSummaries: { name: string; price: number; productName: string; manufacturer: string }[] = [];
+        let productSummary: { productName: string; manufacturer: string } | null = null;
         try {
           const config = JSON.parse(row.configJson) as QuoteConfigData;
           clientName = (config.client?.name ?? '').substring(0, 255);
@@ -781,10 +782,19 @@ export const adminRouter = router({
           if (pricingMode !== 'single' && config.tiers?.length > 0) {
             lowestPrice = Math.min(...config.tiers.map((t) => t.price));
             highestPrice = Math.max(...config.tiers.map((t) => t.price));
-            tierSummaries = config.tiers.map((t) => ({ name: t.name, price: t.price }));
+            tierSummaries = config.tiers.map((t) => ({ 
+              name: t.name, 
+              price: t.price,
+              productName: t.productName,
+              manufacturer: t.manufacturer
+            }));
           } else if (config.product) {
             lowestPrice = config.product.price;
             highestPrice = config.product.price;
+            productSummary = {
+              productName: config.product.productName,
+              manufacturer: config.product.manufacturer
+            };
           }
         } catch { /* ignore parse errors */ }
 
@@ -803,6 +813,7 @@ export const adminRouter = router({
           lowestPrice,
           highestPrice,
           tierSummaries,
+          productSummary,
           acceptedTier: row.acceptedTier,
           acceptedColour: row.acceptedColour,
           acceptedTotal: row.acceptedTotal,

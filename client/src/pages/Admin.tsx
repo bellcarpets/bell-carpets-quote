@@ -629,21 +629,55 @@ const MESSAGE_TEMPLATES = [
 ];
 
 // ─── Email Template Button ──────────────────────────────────────────────────────
-function EmailTemplateButton({ clientName, quoteLink, propertyAddress, onCopied }: { clientName: string; quoteLink: string; propertyAddress?: string; onCopied?: () => void }) {
+function EmailTemplateButton({ 
+  clientName, 
+  quoteLink, 
+  propertyAddress, 
+  onCopied,
+  tiers = [],
+  product
+}: { 
+  clientName: string; 
+  quoteLink: string; 
+  propertyAddress?: string; 
+  onCopied?: () => void;
+  tiers?: { name: string; productName: string; manufacturer: string }[];
+  product?: { productName: string; manufacturer: string };
+}) {
   const [copied, setCopied] = useState(false);
   const firstName = (clientName || "there").split(" ")[0] || "there";
-  const addressLine = propertyAddress ? ` for ${propertyAddress}` : '';
+  
+  const slugify = (text: string) => {
+    return text
+      .toString()
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-')     // Replace spaces with -
+      .replace(/[^\w\-]+/g, '') // Remove all non-word chars
+      .replace(/\-\-+/g, '-');   // Replace multiple - with single -
+  };
+
+  const tierLinks = tiers.length > 0 
+    ? tiers.map(t => {
+        const fullName = `${t.manufacturer} ${t.productName}`;
+        const slug = slugify(fullName);
+        return `${t.name} Tier — ${t.productName}\nhttps://www.bellcarpets.com.au/products/${slug}`;
+      }).join('\n\n')
+    : product 
+      ? `${product.manufacturer} ${product.productName}\nhttps://www.bellcarpets.com.au/products/${slugify(`${product.manufacturer} ${product.productName}`)}`
+      : '';
+
   const emailBody = `Hi ${firstName},
 
-Your personalised quote${addressLine} is ready and can be viewed using the link below:
+Your personalised quote for ${propertyAddress || 'your property'} is ready and can be viewed using the link below:
 
 ${quoteLink}
 
-The quote includes full product specifications, underlay details, scope of works, and pricing. It can be approved with a single click.
+The quote includes full product specifications, underlay details, scope of works, and pricing.
 
-Once approved, we'll prioritise scheduling to minimise vacancy time and have your property tenant-ready as quickly as possible.
+${tierLinks}
 
-If you'd like to discuss anything or need any adjustments, I'm available on the number below.`;
+If you'd like to discuss anything, I'm available on the number below.`;
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation();
     navigator.clipboard.writeText(emailBody).then(() => {
@@ -2176,6 +2210,8 @@ function QuotesDashboard({
                             clientName={q.agentName || q.clientName}
                             quoteLink={`${window.location.origin}/quote/${q.slug}`}
                             propertyAddress={q.propertyAddress || undefined}
+                            tiers={q.tierSummaries}
+                            product={q.productSummary || undefined}
                             onCopied={() => {
                               markEmailedMutation.mutate({ password, slug: q.slug });
                               refetch();
@@ -3242,6 +3278,8 @@ function QuoteEditor({
                 clientName={agentFields.name || config.client.name}
                 quoteLink={`${window.location.origin}/quote/${slug}`}
                 propertyAddress={config.property?.address || undefined}
+                tiers={config.tiers}
+                product={config.product}
                 onCopied={() => {
                   markEmailedMutation.mutate({ password, slug });
                   refetchQuote();
