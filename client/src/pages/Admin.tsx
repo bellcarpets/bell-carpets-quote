@@ -1084,6 +1084,7 @@ function QuotesDashboard({
   const requestReviewMutation = trpc.admin.requestReview.useMutation();
   const markReviewReceivedMutation = trpc.admin.markReviewReceived.useMutation();
   const triggerAcceptanceEmailMutation = trpc.admin.triggerAcceptanceEmail.useMutation();
+  const reactivateQuoteMutation = trpc.admin.reactivateQuote.useMutation();
   const saveContactMutation = trpc.contacts.create.useMutation();
   const [creating, setCreating] = useState(false);
   const [search, setSearch] = useState("");
@@ -2381,8 +2382,7 @@ function QuotesDashboard({
                               onClick={async () => {
                                 if (!confirm("Reactivate this quote? Expiry will be reset to 10 days from now.")) return;
                                 try {
-                                  const reactivateMutation = trpc.admin.reactivateQuote.useMutation();
-                                  await reactivateMutation.mutateAsync({ password, slug: q.slug });
+                                  await reactivateQuoteMutation.mutateAsync({ password, slug: q.slug });
                                   toast.success("Quote reactivated");
                                   refetch();
                                 } catch (err: any) {
