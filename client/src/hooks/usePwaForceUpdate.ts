@@ -1,10 +1,15 @@
 /**
  * usePwaForceUpdate
  *
- * Registers the service worker and implements a two-layer force-update strategy:
- * 1. Service worker: on every SW update, immediately skip waiting → all clients reload.
- * 2. Version check: on app focus / visibility change, fetch /api/trpc/version.get
- *    and compare to the hash loaded at startup. If different → hard reload.
+ * Version-check force-update strategy:
+ * On app focus / visibility change, fetch /api/trpc/version.get and compare
+ * to the hash loaded at startup. If different → hard reload to pick up new assets.
+ *
+ * Note: service worker registration has been intentionally removed. This is a
+ * live-data quote system where offline caching is not needed. A broken service
+ * worker was intercepting all requests and causing white screen on preview pages.
+ * The /sw.js route on the server now returns a self-unregistering cleanup script
+ * so any previously cached service workers are removed on the next visit.
  */
 import { useEffect } from "react";
 import { trpc } from "@/lib/trpc";
@@ -13,46 +18,7 @@ import { trpc } from "@/lib/trpc";
 let LOADED_HASH: string | null = null;
 
 export function usePwaForceUpdate() {
-  // 1. Register service worker
-  useEffect(() => {
-    if (!("serviceWorker" in navigator)) return;
-
-    navigator.serviceWorker
-      .register("/sw.js", { updateViaCache: "none" })
-      .then((registration) => {
-        // Check for updates immediately on every page load
-        registration.update();
-
-        // When a new SW is waiting, tell it to skip waiting immediately
-        const activateWaiting = (sw: ServiceWorker) => {
-          sw.postMessage("SKIP_WAITING");
-        };
-
-        if (registration.waiting) {
-          activateWaiting(registration.waiting);
-        }
-
-        registration.addEventListener("updatefound", () => {
-          const newSw = registration.installing;
-          if (!newSw) return;
-          newSw.addEventListener("statechange", () => {
-            if (newSw.state === "installed" && registration.waiting) {
-              activateWaiting(registration.waiting);
-            }
-          });
-        });
-      })
-      .catch((err) => {
-        console.warn("[SW] Registration failed:", err);
-      });
-
-    // When the SW controller changes (new SW took over), reload the page
-    navigator.serviceWorker.addEventListener("controllerchange", () => {
-      window.location.reload();
-    });
-  }, []);
-
-  // 2. Version check on focus / visibility change
+  // Version check on focus / visibility change
   const versionQuery = trpc.version.get.useQuery(undefined, {
     // Don't run on mount — only run when we manually trigger via refetch
     enabled: false,
