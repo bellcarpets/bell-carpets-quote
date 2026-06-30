@@ -109,7 +109,7 @@ export default function JobStatusTracker({
                     className="absolute left-[15px] top-[36px] w-[2px] h-[calc(100%-20px)]"
                     style={{
                       background: stage.complete
-                        ? "linear-gradient(180deg, #D4AF37, #D4AF3780)"
+                        ? "linear-gradient(180deg, #EDE8DF, #EDE8DF80)"
                         : "rgba(255,255,255,0.08)",
                     }}
                   />
@@ -124,7 +124,7 @@ export default function JobStatusTracker({
                     transition={{ delay: idx * 0.2, duration: 0.4 }}
                     className={`relative z-10 w-[32px] h-[32px] rounded-full flex items-center justify-center shrink-0 ${
                       stage.complete
-                        ? "bg-[#D4AF37] shadow-[0_0_12px_rgba(212,175,55,0.3)]"
+                        ? "bg-[#EDE8DF] shadow-[0_0_12px_rgba(237,232,223,0.3)]"
                         : "bg-zinc-800 border border-white/10"
                     }`}
                   >

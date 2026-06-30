@@ -140,6 +140,16 @@ export interface QuoteConfigData {
   };
 
   scope: string;
+
+  /**
+   * Optional customer-facing description shown as a flowing, left-bordered block
+   * on the quote page (one entry per line). When present and non-empty, it is the
+   * source of truth for the scope shown to the customer and the titled
+   * "Scope of Works" list is hidden. When absent (legacy quotes), the page
+   * generates equivalent flowing lines from scope/scopeOfWorks/product/underlay.
+   */
+  description?: string[];
+
   scopeOfWorks: ScopeItemConfig[];
   addons: AddonConfig[];
 

@@ -4,6 +4,7 @@
  */
 
 import { motion } from "framer-motion";
+import { CREAM } from "@/lib/quoteDescription";
 
 interface ScopeItem {
   title: string;
@@ -35,7 +36,7 @@ export default function ScopeOfWorks({ items }: ScopeOfWorksProps) {
       {/* Timeline container */}
       <div className="relative pl-8">
         {/* Vertical timeline line */}
-        <div className="absolute left-3 top-2 bottom-0 w-px bg-gradient-to-b from-amber-400/40 via-amber-300/20 to-amber-400/10" />
+        <div className="absolute left-3 top-2 bottom-0 w-px" style={{ backgroundColor: `${CREAM}40` }} />
 
         {/* Scope items */}
         <div className="space-y-4">
@@ -49,8 +50,8 @@ export default function ScopeOfWorks({ items }: ScopeOfWorksProps) {
               className="relative"
             >
               {/* Numbered circle on timeline */}
-              <div className="absolute -left-8 top-0.5 w-6 h-6 rounded-full flex items-center justify-center bg-zinc-900 border border-amber-400/40 flex-shrink-0">
-                <span className="text-xs font-medium text-amber-300/80">{i + 1}</span>
+              <div className="absolute -left-8 top-0.5 w-6 h-6 rounded-full flex items-center justify-center bg-zinc-900 flex-shrink-0" style={{ border: `1px solid ${CREAM}66` }}>
+                <span className="text-xs font-medium" style={{ color: `${CREAM}CC` }}>{i + 1}</span>
               </div>
 
               {/* Item content */}

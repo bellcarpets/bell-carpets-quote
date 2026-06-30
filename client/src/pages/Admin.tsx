@@ -79,6 +79,7 @@ import type {
   HomeownerProductConfig,
 } from "../../../shared/quoteConfigTypes";
 import { formatAESTDate, formatAESTDateTime, nowAEST } from "../../../shared/aestUtils";
+import { generateDefaultDescription } from "@/lib/quoteDescription";
 import {
   DndContext,
   closestCenter,
@@ -3929,6 +3930,58 @@ function QuoteEditor({
         </Section>
 
         {/* Scope of Works */}
+        {/* Customer-facing Description — flowing scope text shown on the quote page.
+            When set, it REPLACES the titled "Scope of Works" list on the customer page. */}
+        <Section title="Customer Description" defaultOpen={true}>
+          <p className="text-white/40 text-xs mb-2">
+            Shown to the customer as a flowing description on the quote page. One line per row.
+            When filled in, this replaces the titled “Scope of Works” list on the customer-facing page.
+            Leave blank to fall back to the generated scope.
+          </p>
+          <textarea
+            value={(config.description ?? []).join("\n")}
+            onChange={(e) => {
+              const lines = e.target.value.split("\n");
+              updateConfig({ description: lines });
+              e.target.style.height = "auto";
+              e.target.style.height = `${e.target.scrollHeight}px`;
+            }}
+            ref={(el) => {
+              if (el) {
+                el.style.height = "auto";
+                el.style.height = `${el.scrollHeight}px`;
+              }
+            }}
+            placeholder={"e.g.\nSupply & Installation of new carpet to bedrooms, lounge and hallway.\nSupply & Installation on new Dunlop Springtred Ultimate underlay.\nUplift and disposal of existing carpet and underlay."}
+            rows={5}
+            className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-white focus:outline-none resize-none overflow-hidden placeholder:text-white/25"
+          />
+          <div className="flex items-center gap-2 mt-2">
+            <button
+              type="button"
+              onClick={() => {
+                const generated = generateDefaultDescription(config, {
+                  tiered: config.pricingMode !== "single"
+                    && (config.quoteType === "agent" || config.quoteType === "real_estate"),
+                });
+                updateConfig({ description: generated });
+              }}
+              className="px-3 py-1.5 rounded-lg text-xs bg-white/5 text-white/70 border border-white/15 hover:bg-white/10 hover:text-white transition-colors"
+            >
+              Generate from quote
+            </button>
+            {(config.description?.length ?? 0) > 0 && (
+              <button
+                type="button"
+                onClick={() => updateConfig({ description: [] })}
+                className="px-3 py-1.5 rounded-lg text-xs text-white/40 hover:text-white/70 transition-colors"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+        </Section>
+
         <Section title="Scope of Works">
           {/* Quick-pick library panel */}
           <ScopeLibraryPicker

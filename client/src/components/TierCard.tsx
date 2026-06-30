@@ -10,6 +10,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Shield, Leaf, Award, ZoomIn, X, FileText, ExternalLink } from "lucide-react";
 import type { Tier, ColourOption } from "@/lib/quoteData";
+import { CREAM } from "@/lib/quoteDescription";
 
 // ── Product Specs Data ──────────────────────────────────────────────────────
 
@@ -284,13 +285,14 @@ export default function TierCard({
         className="relative w-full"
       >
         <div
+          style={isSelected ? { borderColor: CREAM, boxShadow: `0 0 0 1px ${CREAM}55, 0 0 32px -4px rgba(237,232,223,0.18)` } : undefined}
           className={`
             relative w-full rounded-2xl overflow-hidden
             transition-all duration-500 ease-out
             bg-zinc-900 border
             ${
               isSelected
-                ? "border-white/40 shadow-[0_0_32px_-4px_rgba(255,255,255,0.12)] ring-1 ring-white/20"
+                ? "shadow-[0_0_32px_-4px_rgba(237,232,223,0.18)]"
                 : "border-white/10 hover:border-white/20 shadow-lg hover:shadow-xl"
             }
           `}
@@ -308,9 +310,10 @@ export default function TierCard({
               <div
                 className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
                   isSelected
-                    ? "bg-white text-black scale-110"
+                    ? "text-zinc-900 scale-110"
                     : "bg-white/[0.07] text-white/30 border border-white/10"
                 }`}
+                style={isSelected ? { backgroundColor: CREAM } : undefined}
               >
                 {isSelected ? (
                   <Check className="w-4 h-4" />
@@ -430,7 +433,7 @@ export default function TierCard({
                   {/* Step 2 — Colour selection */}
                   <div className="mb-3">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="w-5 h-5 rounded-full bg-white text-black text-[10px] font-bold flex items-center justify-center flex-shrink-0">2</span>
+                      <span className="w-5 h-5 rounded-full text-zinc-900 text-[10px] font-bold flex items-center justify-center flex-shrink-0" style={{ backgroundColor: CREAM }}>2</span>
                       <p className="text-xs uppercase tracking-[0.15em] text-white/60 font-medium">Pick your colour</p>
                     </div>
                     <p className="text-[11px] text-white/30 ml-7">
@@ -456,11 +459,13 @@ export default function TierCard({
                                 className={`
                                   w-13 h-13 sm:w-15 sm:h-15 rounded-full overflow-hidden
                                   transition-all duration-300
+                                
                                   ${isChosen
-                                    ? "scale-110 ring-2 ring-white/70 ring-offset-2 ring-offset-zinc-900"
+                                    ? "scale-110 ring-2 ring-offset-2 ring-offset-zinc-900"
                                     : "ring-1 ring-white/10 hover:scale-105 hover:ring-white/25"
                                   }
                                 `}
+                                style={isChosen ? { boxShadow: `0 0 0 2px ${CREAM}` } : undefined}
                               >
                                 <img
                                   src={colour.swatchImage}
@@ -523,7 +528,8 @@ export default function TierCard({
                           e.stopPropagation();
                           onAccept?.();
                         }}
-                        className="w-full py-4 rounded-xl text-sm font-semibold tracking-[0.12em] uppercase bg-white text-zinc-900 hover:bg-zinc-100 active:scale-[0.98] transition-all duration-200 shadow-lg"
+                        className="w-full py-4 rounded-xl text-sm font-semibold tracking-[0.12em] uppercase text-zinc-900 hover:opacity-90 active:scale-[0.98] transition-all duration-200 shadow-lg"
+                        style={{ backgroundColor: CREAM }}
                       >
                         Accept Quote
                       </button>

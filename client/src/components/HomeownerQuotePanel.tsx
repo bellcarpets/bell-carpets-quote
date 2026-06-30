@@ -5,12 +5,13 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ExternalLink, ArrowRight, User, Mail, Phone, Loader2, AlertCircle, CreditCard, Calendar, Download, Layers, Clock } from "lucide-react";
+import { Check, ExternalLink, ArrowRight, User, Mail, Phone, Loader2, AlertCircle, CreditCard, Calendar, Download, Clock } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import type { QuoteConfigData } from "../../../shared/quoteConfigTypes";
 import { usesAgentPaymentTerms } from "../../../shared/quoteConfigTypes";
 
 import { LOGO_WHITE_PNG } from "@/lib/logo";
+import { CREAM, getDescriptionLines } from "@/lib/quoteDescription";
 
 interface Addon {
   id: string;
@@ -115,6 +116,14 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
   const depositPercent = config.depositPercent ?? 50;
   const deposit = Math.round(grandTotal * (depositPercent / 100) * 100) / 100;
   const balance = grandTotal - deposit;
+
+  // Customer-facing flowing description (admin-edited, else generated from data).
+  const descriptionLines = getDescriptionLines(config, { tiered: false });
+  // One subtle spec line beneath the description.
+  const specLine = [product.manufacturer, product.fibre, product.pileType]
+    .filter((s) => s && String(s).trim())
+    .join("  \u00b7  ");
+  const underlayName = product.underlay && String(product.underlay).trim() ? String(product.underlay).trim() : "";
 
   const handleToggleAddon = (id: string) => {
     setSelectedAddonIds((prev) =>
@@ -244,65 +253,43 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
         )}
 
         <div className="p-0">
-          {/* ── CARPET SECTION ── */}
+          {/* ── PRODUCT + DESCRIPTION SECTION ── */}
           <div className="relative flex">
-            {/* Gold accent bar */}
-            <div className="w-[3px] flex-shrink-0 rounded-l-2xl bg-gradient-to-b from-amber-400/60 via-amber-300/40 to-amber-400/20" />
+            {/* Cream accent bar */}
+            <div className="w-[3px] flex-shrink-0 rounded-l-2xl" style={{ backgroundColor: CREAM, opacity: 0.5 }} />
 
             <div className="flex-1 px-6 py-6">
-              {/* Manufacturer */}
-              <p className="text-[10px] tracking-[0.2em] uppercase text-white/35 mb-1">
-                {product.manufacturer}
-              </p>
               {/* Product name */}
               <h3 className="text-2xl font-semibold text-white leading-tight mb-4">
                 {product.productName}
               </h3>
 
-              {/* Spec rows */}
-              <div className="space-y-2.5">
-                {product.fibre && (
-                  <div className="flex items-baseline gap-3">
-                    <span className="text-[10px] tracking-[0.15em] uppercase text-white/35 w-14 flex-shrink-0">Fibre</span>
-                    <span className="text-sm text-white/80">{product.fibre}</span>
-                  </div>
-                )}
-                {product.colourName && (
-                  <div className="flex items-baseline gap-3">
-                    <span className="text-[10px] tracking-[0.15em] uppercase text-white/35 w-14 flex-shrink-0">Colour</span>
-                    <span className={`text-sm ${product.colourName === "To be selected" ? "text-white/40 italic" : "text-white/80"}`}>
-                      {product.colourName}
-                    </span>
-                  </div>
-                )}
-              </div>
+              {/* Flowing description — scope of work in natural lines */}
+              {descriptionLines.length > 0 && (
+                <div className="space-y-2 mb-4">
+                  {descriptionLines.map((line, i) => (
+                    <p key={i} className="text-sm text-white/70 leading-relaxed">
+                      {line}
+                    </p>
+                  ))}
+                </div>
+              )}
+
+              {/* One subtle spec line: manufacturer · fibre · pile type */}
+              {specLine && (
+                <p className="text-xs text-white/40 tracking-wide">
+                  {specLine}
+                </p>
+              )}
+
+              {/* Underlay shown inline (no separate density-spec block) */}
+              {underlayName && (
+                <p className="text-xs text-white/40 tracking-wide mt-1.5">
+                  Includes {underlayName} underlay
+                </p>
+              )}
             </div>
           </div>
-
-          {/* ── UNDERLAY SECTION ── */}
-          {config.product?.underlay && (() => {
-            const underlaySpecs: Record<string, { name: string; specs: string }> = {
-                "Dunlop Springtred Protect": { name: "Dunlop Springtred Protect", specs: "10mm · 80 kg/m³" },
-              "Dunlop Springtred Ultimate": { name: "Dunlop Springtred Ultimate", specs: "10mm · 120 kg/m³" },
-              "Dunlop Springtred Extra": { name: "Dunlop Springtred Extra", specs: "95 kg/m³" },
-              "Dunlop Eureka": { name: "Dunlop Eureka", specs: "10mm · 80 kg/m³" },
-            };
-            const u = underlaySpecs[config.product!.underlay!];
-            if (!u) return null;
-            return (
-              <>
-                <div className="mx-6 h-px bg-white/[0.06]" />
-                <div className="px-6 py-5">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Layers className="w-3 h-3 text-white/25" />
-                    <span className="text-[10px] tracking-[0.2em] uppercase text-white/35">Underlay</span>
-                  </div>
-                  <p className="text-sm font-medium text-white/80 leading-tight">{u.name}</p>
-                  <p className="text-xs text-white/35 mt-1 tracking-wide">{u.specs}</p>
-                </div>
-              </>
-            );
-          })()}
 
           {/* Colour selector */}
           {product.colours && product.colours.length > 0 && (
@@ -321,8 +308,9 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
                     >
                       <div
                         className={`relative w-14 h-14 rounded-xl overflow-hidden transition-all duration-200 ${
-                          isSelected ? "ring-2 ring-black ring-offset-2" : "ring-1 ring-white/10"
+                          isSelected ? "ring-2 ring-offset-2 ring-offset-zinc-900" : "ring-1 ring-white/10"
                         }`}
+                        style={isSelected ? { boxShadow: `0 0 0 2px ${CREAM}` } : undefined}
                       >
                         {colour.swatchImage ? (
                           <img src={colour.swatchImage} alt={colour.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
@@ -425,9 +413,9 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
         transition={{ duration: 0.5, delay: 0.2 }}
         className="rounded-2xl overflow-hidden bg-white/[0.02] border border-white/10"
       >
-        {/* Gold accent bar — matches product card */}
+        {/* Cream accent bar — matches product card */}
         <div className="flex">
-          <div className="w-[3px] flex-shrink-0 bg-gradient-to-b from-amber-400/60 via-amber-300/40 to-amber-400/20" />
+          <div className="w-[3px] flex-shrink-0" style={{ backgroundColor: CREAM, opacity: 0.5 }} />
           <div className="flex-1 p-5">
 
         {/* Price summary */}
@@ -490,8 +478,8 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
         {!showConfirm && (step === "form" || step === "error") && (
           <div className="space-y-3">
             {isInsuranceAssessment ? (
-              <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 text-center space-y-3">
-                <p className="text-sm text-amber-300/90 font-medium">This quote has been prepared for insurance assessment purposes.</p>
+              <div className="rounded-xl border p-4 text-center space-y-3" style={{ borderColor: `${CREAM}33`, backgroundColor: `${CREAM}0D` }}>
+                <p className="text-sm font-medium" style={{ color: CREAM }}>This quote has been prepared for insurance assessment purposes.</p>
                 {linkedQuoteSlug && linkedQuoteNumber && (
                   <a
                     href={`/quote/${linkedQuoteSlug}`}
@@ -507,15 +495,16 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
                 {/* Validity badge — urgency at decision point */}
                 {validUntil && (
                   <div className="flex items-center gap-2 mb-1">
-                    <Clock className="w-3.5 h-3.5 text-amber-400/70 flex-shrink-0" />
-                    <span className="text-xs text-amber-300/70">
+                    <Clock className="w-3.5 h-3.5 flex-shrink-0" style={{ color: `${CREAM}B3` }} />
+                    <span className="text-xs" style={{ color: `${CREAM}B3` }}>
                       Valid until {validUntil}
                     </span>
                   </div>
                 )}
                 <button
                   onClick={() => setShowConfirm(true)}
-                  className="w-full py-3.5 rounded-xl font-semibold text-sm tracking-wide transition-all duration-200 active:scale-[0.98] bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 text-zinc-900 shadow-lg shadow-amber-400/20"
+                  className="w-full py-3.5 rounded-xl font-semibold text-sm tracking-wide transition-all duration-200 active:scale-[0.98] text-zinc-900 shadow-lg hover:opacity-90"
+                  style={{ backgroundColor: CREAM }}
                 >
                   Accept This Quote
                 </button>

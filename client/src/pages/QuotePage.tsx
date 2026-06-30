@@ -22,6 +22,7 @@ import AcceptModal from "@/components/AcceptModal";
 import JobStatusTracker from "@/components/JobStatusTracker";
 
 import { LOGO_WHITE_PNG } from "@/lib/logo";
+import { CREAM, getDescriptionLines, getUnderlayNote, hasCustomDescription } from "@/lib/quoteDescription";
 import { formatAESTDate } from "../../../shared/aestUtils";
 import { Shield, Volume2, Thermometer, Droplets, Layers, Wind } from "lucide-react";
 import type { UnderlayOption } from "../../../shared/quoteConfigTypes";
@@ -585,7 +586,7 @@ export default function QuotePage({ slug }: QuotePageProps) {
       </h2>
       <div className="rounded-xl overflow-hidden border border-white/10 bg-white/[0.02]">
         <div className="flex">
-          <div className="w-[3px] flex-shrink-0 bg-gradient-to-b from-amber-400/60 via-amber-300/40 to-amber-400/20" />
+          <div className="w-[3px] flex-shrink-0" style={{ backgroundColor: CREAM, opacity: 0.5 }} />
           <div className="flex items-start gap-3 px-4 py-3.5">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-white/[0.04]">
               <MapPin className="w-4 h-4 text-white/40" />
@@ -646,13 +647,18 @@ export default function QuotePage({ slug }: QuotePageProps) {
               linkedQuoteNumber={linkedQuoteNumber}
             />
           </div>
-          <div className="max-w-lg mx-auto">
-            <ScopeOfWorks items={config.scopeOfWorks} />
-          </div>
+          {/* Old titled Scope of Works is hidden when the new flowing description
+              drives the panel (admin-edited description present). Legacy quotes
+              keep showing the list. */}
+          {!hasCustomDescription(config) && (
+            <div className="max-w-lg mx-auto">
+              <ScopeOfWorks items={config.scopeOfWorks} />
+            </div>
+          )}
           {config.customerNotes && config.customerNotes.trim() && (
             <div className="max-w-lg mx-auto">
-              <div className="bg-amber-950/30 border border-amber-400/20 rounded-xl p-5 mt-1">
-                <h3 className="text-amber-300/80 text-xs font-semibold uppercase tracking-widest mb-2">Notes</h3>
+              <div className="rounded-xl p-5 mt-1" style={{ backgroundColor: `${CREAM}14`, border: `1px solid ${CREAM}33` }}>
+                <h3 className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: `${CREAM}CC` }}>Notes</h3>
                 <p className="text-white/70 text-sm leading-relaxed whitespace-pre-wrap">{config.customerNotes.trim()}</p>
               </div>
             </div>
@@ -712,6 +718,35 @@ export default function QuotePage({ slug }: QuotePageProps) {
               </ol>
             </div>
           </motion.div>
+
+          {/* Flowing description block — scope of work shown before the tier cards.
+              Admin-edited description wins; legacy quotes fall back to generated lines. */}
+          {(() => {
+            const descLines = getDescriptionLines(config, { tiered: true });
+            const underlayNote = getUnderlayNote(tiers[0]?.underlay);
+            if (descLines.length === 0 && !underlayNote) return null;
+            return (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.45 }}
+                className="mb-8 max-w-lg mx-auto"
+              >
+                <div className="flex">
+                  <div className="w-[3px] flex-shrink-0 rounded-full" style={{ backgroundColor: CREAM, opacity: 0.5 }} />
+                  <div className="flex-1 pl-4 space-y-2">
+                    {descLines.map((line, i) => (
+                      <p key={i} className="text-sm text-white/70 leading-relaxed">{line}</p>
+                    ))}
+                    {underlayNote && (
+                      <p className="text-sm text-white/50 leading-relaxed pt-1">{underlayNote}</p>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })()}
+
           <div className={`space-y-4 lg:grid lg:gap-5 lg:space-y-0 lg:items-start ${tiers.length === 2 ? 'lg:grid-cols-2 max-w-3xl mx-auto' : 'lg:grid-cols-3'}`}>
             {tiers.map((tier, i) => (
               <TierCard
@@ -749,13 +784,15 @@ export default function QuotePage({ slug }: QuotePageProps) {
 
 
 
-        <div className="max-w-lg mx-auto">
-          <ScopeOfWorks items={withUnderlayItem(config.scopeOfWorks, selectedTier?.underlay || tiers[0]?.underlay)} />
-        </div>
+        {!hasCustomDescription(config) && (
+          <div className="max-w-lg mx-auto">
+            <ScopeOfWorks items={withUnderlayItem(config.scopeOfWorks, selectedTier?.underlay || tiers[0]?.underlay)} />
+          </div>
+        )}
         {config.customerNotes && config.customerNotes.trim() && (
           <div className="max-w-lg mx-auto">
-            <div className="bg-amber-950/30 border border-amber-400/20 rounded-xl p-5 mt-1">
-              <h3 className="text-amber-300/80 text-xs font-semibold uppercase tracking-widest mb-2">Notes</h3>
+            <div className="rounded-xl p-5 mt-1" style={{ backgroundColor: `${CREAM}14`, border: `1px solid ${CREAM}33` }}>
+              <h3 className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: `${CREAM}CC` }}>Notes</h3>
               <p className="text-white/70 text-sm leading-relaxed whitespace-pre-wrap">{config.customerNotes.trim()}</p>
             </div>
           </div>
