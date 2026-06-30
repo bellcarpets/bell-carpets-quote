@@ -71,57 +71,68 @@ export function generateDefaultDescription(
   const lines: string[] = [];
   const tiered = opts?.tiered ?? false;
 
-  // Lead line: supply & install of the carpet (single product only).
-  if (!tiered && config.product) {
+  const pushUnique = (raw: string) => {
+    const s = raw.replace(/\s+/g, " ").trim();
+    if (!s) return;
+    // Ensure a single trailing full stop.
+    const sentence = /[.!?]$/.test(s) ? s : `${s}.`;
+    const norm = sentence.toLowerCase().replace(/[^a-z0-9]/g, "");
+    const dup = lines.some((l) => {
+      const ln = l.toLowerCase().replace(/[^a-z0-9]/g, "");
+      return ln === norm || ln.includes(norm) || norm.includes(ln);
+    });
+    if (!dup) lines.push(sentence);
+  };
+
+  const scopeText = config.scope?.trim() ?? "";
+  // The admin-entered `scope` is usually already a complete "Supply & Installation
+  // of ... to <area>" sentence. When it reads like one, use it verbatim as the
+  // lead line. Only synthesise a sentence from the product specs when scope is
+  // empty or is just a bare area fragment (e.g. "master bedroom").
+  const scopeIsSentence = /supply|install|provide|replace/i.test(scopeText);
+
+  if (scopeIsSentence) {
+    pushUnique(scopeText);
+  } else if (!tiered && config.product) {
     const p = config.product;
-    const parts = [
+    const lead = [
       "Supply & Installation of new",
-      p.manufacturer ? p.manufacturer : "",
-      p.productName ? p.productName : "",
-      p.colourName && p.colourName !== "To be selected" ? `colour ${p.colourName}` : "",
+      p.manufacturer,
+      p.productName,
+      p.colourName && p.colourName.trim() !== "To be selected" ? `colour ${p.colourName}` : "",
       p.pileType ? p.pileType.toLowerCase() : "",
     ]
       .filter(Boolean)
-      .join(" ")
-      .replace(/\s+/g, " ")
-      .trim();
-    const scopeArea = config.scope?.trim();
-    lines.push(scopeArea ? `${parts} to ${scopeArea}.` : `${parts}.`);
+      .join(" ");
+    pushUnique(scopeText ? `${lead} to ${scopeText}` : lead);
   } else {
-    // Tiered: keep it product-agnostic and use the scope text for the area.
-    const scopeArea = config.scope?.trim();
-    lines.push(
-      scopeArea
-        ? `Supply & Installation of new carpet and underlay to ${scopeArea}.`
-        : "Supply & Installation of new carpet and underlay throughout."
+    pushUnique(
+      scopeText
+        ? `Supply & Installation of new carpet and underlay to ${scopeText}`
+        : "Supply & Installation of new carpet and underlay throughout"
     );
   }
 
   // Underlay line (single product only; tiered uses the underlay note instead).
+  // Only add it if the underlay isn't already mentioned in a prior line.
   if (!tiered) {
-    const u = config.product?.underlay;
-    if (u && String(u).trim()) {
-      lines.push(`Supply & Installation on new ${String(u).trim()} underlay.`);
+    const u = config.product?.underlay ? String(config.product.underlay).trim() : "";
+    const underlayMentioned =
+      /underlay/i.test(scopeText) ||
+      (!!u && lines.some((l) => l.toLowerCase().includes(u.toLowerCase())));
+    if (u && !underlayMentioned) {
+      pushUnique(`Supply & Installation on new ${u} underlay`);
     }
   }
 
-  // Map the structured scopeOfWorks items into natural sentences, skipping the
-  // underlay/installation duplicates already covered above.
-  const skip = /underlay|installation|supply/i;
+  // Append the structured scopeOfWorks items as natural sentences, skipping any
+  // that duplicate what's already covered (supply/install/underlay leads).
   for (const item of config.scopeOfWorks ?? []) {
-    const title = item.title?.trim() ?? "";
     const desc = item.description?.trim() ?? "";
-    if (!title && !desc) continue;
-    if (skip.test(title) && (lines.length > 0)) {
-      // already covered by lead/underlay lines — skip obvious duplicates
-      if (/underlay|supply|installation/i.test(title)) continue;
-    }
-    // Prefer the description text; fall back to the title.
+    const title = item.title?.trim() ?? "";
     const sentence = desc || title;
-    if (sentence && !lines.some((l) => l.toLowerCase().includes(sentence.toLowerCase()))) {
-      lines.push(sentence.endsWith(".") ? sentence : `${sentence}.`);
-    }
+    if (sentence) pushUnique(sentence);
   }
 
-  return lines.filter((l) => l && l.trim().length > 0);
+  return lines;
 }

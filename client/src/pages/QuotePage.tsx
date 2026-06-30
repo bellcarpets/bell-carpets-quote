@@ -22,7 +22,7 @@ import AcceptModal from "@/components/AcceptModal";
 import JobStatusTracker from "@/components/JobStatusTracker";
 
 import { LOGO_WHITE_PNG } from "@/lib/logo";
-import { CREAM, getDescriptionLines, getUnderlayNote, hasCustomDescription } from "@/lib/quoteDescription";
+import { CREAM, getDescriptionLines, getUnderlayNote } from "@/lib/quoteDescription";
 import { formatAESTDate } from "../../../shared/aestUtils";
 import { Shield, Volume2, Thermometer, Droplets, Layers, Wind } from "lucide-react";
 import type { UnderlayOption } from "../../../shared/quoteConfigTypes";
@@ -458,6 +458,14 @@ export default function QuotePage({ slug }: QuotePageProps) {
     );
   }
 
+  // ─── Description-block presence ─────────────────────────────────────
+  // The flowing description block replaces the old titled "Scope of Works"
+  // whenever it renders — for BOTH admin-edited descriptions AND legacy quotes
+  // that fall back to a generated description. Compute once and reuse on both
+  // the single-product and tiered layouts so the scope never shows twice.
+  const singleDescLines = config ? getDescriptionLines(config, { tiered: false }) : [];
+  const tieredDescLines = config ? getDescriptionLines(config, { tiered: true }) : [];
+
   // ─── Expired state ──────────────────────────────────────────────────
   const isExpired = quoteData?.expiresAt ? new Date(quoteData.expiresAt) < new Date() : false;
 
@@ -595,9 +603,6 @@ export default function QuotePage({ slug }: QuotePageProps) {
               <p className="text-base font-medium text-white">
                 {config.property.address}
               </p>
-              <p className="text-sm mt-0.5 text-white/40">
-                {config.scope}
-              </p>
             </div>
           </div>
         </div>
@@ -647,10 +652,10 @@ export default function QuotePage({ slug }: QuotePageProps) {
               linkedQuoteNumber={linkedQuoteNumber}
             />
           </div>
-          {/* Old titled Scope of Works is hidden when the new flowing description
-              drives the panel (admin-edited description present). Legacy quotes
-              keep showing the list. */}
-          {!hasCustomDescription(config) && (
+          {/* Old titled Scope of Works is hidden whenever the flowing description
+              block renders (admin-edited OR generated fallback), so the scope is
+              never shown twice. Only shows if there is no description at all. */}
+          {singleDescLines.length === 0 && (
             <div className="max-w-lg mx-auto">
               <ScopeOfWorks items={config.scopeOfWorks} />
             </div>
@@ -722,7 +727,7 @@ export default function QuotePage({ slug }: QuotePageProps) {
           {/* Flowing description block — scope of work shown before the tier cards.
               Admin-edited description wins; legacy quotes fall back to generated lines. */}
           {(() => {
-            const descLines = getDescriptionLines(config, { tiered: true });
+            const descLines = tieredDescLines;
             const underlayNote = getUnderlayNote(tiers[0]?.underlay);
             if (descLines.length === 0 && !underlayNote) return null;
             return (
@@ -784,7 +789,7 @@ export default function QuotePage({ slug }: QuotePageProps) {
 
 
 
-        {!hasCustomDescription(config) && (
+        {tieredDescLines.length === 0 && (
           <div className="max-w-lg mx-auto">
             <ScopeOfWorks items={withUnderlayItem(config.scopeOfWorks, selectedTier?.underlay || tiers[0]?.underlay)} />
           </div>

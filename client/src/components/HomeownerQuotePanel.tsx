@@ -232,11 +232,6 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
 
   return (
     <div className="space-y-5 mt-2">
-      {/* Section heading */}
-      <h2 className="text-sm font-medium tracking-[0.2em] uppercase text-white/35 mb-4 mt-2">
-        Selected Products
-      </h2>
-
       {/* ─── Product card ─── */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
