@@ -91,48 +91,21 @@ export function generateDefaultDescription(
     if (!dup) lines.push(sentence);
   };
 
-  const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const stripTrailingPunctuation = (s: string) => s.replace(/[.!?]+$/g, "").trim();
-  const stripUnderlayMention = (raw: string): string => {
-    if (!raw) return "";
-    let cleaned = raw;
-
-    if (underlayName) {
-      const namedUnderlayPatterns = [
-        new RegExp(`\\s*(?:on|with)\\s+new\\s+${escapeRegExp(underlayName)}\\s+underlay`, "i"),
-        new RegExp(`\\s*(?:on|with)\\s+${escapeRegExp(underlayName)}\\s+underlay`, "i"),
-        new RegExp(`\\s*(?:and|&)\\s+new\\s+${escapeRegExp(underlayName)}\\s+underlay`, "i"),
-        new RegExp(`\\s*(?:and|&)\\s+${escapeRegExp(underlayName)}\\s+underlay`, "i"),
-      ];
-      for (const pattern of namedUnderlayPatterns) cleaned = cleaned.replace(pattern, "");
-    }
-
-    cleaned = cleaned
-      .replace(/\s*(?:on|with)\s+new\s+underlay/gi, "")
-      .replace(/\s*(?:and|&)\s+new\s+underlay/gi, "")
-      .replace(/\s*(?:on|with)\s+underlay/gi, "")
-      .replace(/\s*(?:and|&)\s+underlay/gi, "")
-      .replace(/\s+/g, " ")
-      .replace(/\s+([.,!?])/g, "$1")
-      .trim();
-
-    return stripTrailingPunctuation(cleaned);
+  const withRoomArea = (lead: string, area: string) => {
+    const a = area.trim();
+    return a ? `${lead} to ${a}` : lead;
   };
 
-  const withScopeArea = (lead: string, rawArea: string) => {
-    const area = stripTrailingPunctuation(rawArea).replace(/^to\s+/i, "").trim();
-    if (!area) return lead;
-    return /^throughout\b/i.test(area) ? `${lead} ${area}` : `${lead} to ${area}`;
-  };
-
-  const scopeText = config.scope?.trim() ?? "";
-  const scopeWithoutUnderlay = stripUnderlayMention(scopeText);
-  const scopeIsSentence = /supply|install|provide|replace/i.test(scopeWithoutUnderlay);
-  const scopeArea = scopeIsSentence
-    ? (scopeWithoutUnderlay.match(/\bto\b\s+(.+)$/i)?.[1]?.trim()
-        || scopeWithoutUnderlay.match(/\bthroughout\b.*$/i)?.[0]?.trim()
-        || scopeWithoutUnderlay)
-    : scopeWithoutUnderlay;
+  // Room/area text comes ONLY from the room-by-room itemisation, never from the
+  // free-text scope description (that field is a work-type phrase like
+  // "Supply and Installation", not a location). If no rooms are defined, the
+  // "to [rooms]" clause is omitted entirely.
+  const roomArea = (config.rooms ?? [])
+    .map((r) => r.name?.trim())
+    .filter((n): n is string => !!n)
+    .join(", ")
+    // Turn the final ", " into " and " for a natural reading list.
+    .replace(/,\s*([^,]+)$/, " and $1");
 
   if (!tiered && config.product) {
     const p = config.product;
@@ -144,13 +117,9 @@ export function generateDefaultDescription(
     ]
       .filter(Boolean)
       .join(" ");
-    pushUnique(withScopeArea(lead, scopeArea));
+    pushUnique(withRoomArea(lead, roomArea));
   } else {
-    pushUnique(
-      scopeArea
-        ? withScopeArea("Supply & Installation of new carpet", scopeArea)
-        : "Supply & Installation of new carpet throughout"
-    );
+    pushUnique(withRoomArea("Supply & Installation of new carpet", roomArea));
   }
 
   // Underlay line: separate from the carpet line and only shown when selected.
