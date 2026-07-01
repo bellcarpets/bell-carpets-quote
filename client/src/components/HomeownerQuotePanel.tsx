@@ -254,9 +254,9 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
             <div className="w-[3px] flex-shrink-0 rounded-l-2xl" style={{ backgroundColor: CREAM, opacity: 0.5 }} />
 
             <div className="flex-1 px-6 py-6">
-              {/* Product name */}
+              {/* Heading */}
               <h3 className="text-2xl font-semibold text-white leading-tight mb-4">
-                {product.productName}
+                Your Quote
               </h3>
 
               {/* Flowing description — scope of work in natural lines */}
