@@ -573,8 +573,21 @@ export default function QuotePage({ slug }: QuotePageProps) {
   );
 
   // ─── Shared greeting ────────────────────────────────────────────────
-  // For agent/real_estate/agency_single quotes: use agency name. For homeowner: use client name.
-  const greetingName = (quoteType === "agent" || quoteType === "real_estate" || quoteType === "agency_single") ? quoteData?.agentName : config.client?.name;
+  // Determine the name shown in the "Hi {name}" greeting and "Prepared for {name}".
+  //
+  // For agency-style quotes (agent / real_estate / agency_single) the quote is
+  // addressed to the AGENCY/CLIENT, not the individual contact person. Prefer the
+  // agency name held in `config.client.name`. For real_estate quotes the agency
+  // name is stored on `agentName` at create time (contact person goes to
+  // agentPropertyManager), so fall back to `agentName` when client.name is empty.
+  // For homeowner quotes use the client name directly.
+  const isAgencyStyle =
+    quoteType === "agent" || quoteType === "real_estate" || quoteType === "agency_single";
+  const agencyDisplayName =
+    (config.client?.name && config.client.name.trim()) ||
+    quoteData?.agentName ||
+    "";
+  const greetingName = isAgencyStyle ? agencyDisplayName : config.client?.name;
 
   const Greeting = () => (
     <motion.section
@@ -621,10 +634,10 @@ export default function QuotePage({ slug }: QuotePageProps) {
       </div>
 
       {/* Agency name — shown on agent, real_estate, and agency_single quotes */}
-      {(quoteType === "agent" || quoteType === "real_estate" || quoteType === "agency_single") && quoteData?.agentName && (
+      {isAgencyStyle && agencyDisplayName && (
         <div className="mt-3 flex items-center gap-2">
           <span className="text-xs text-white/25">Prepared for</span>
-          <span className="text-xs text-white/60 font-medium">{quoteData.agentName}</span>
+          <span className="text-xs text-white/60 font-medium">{agencyDisplayName}</span>
         </div>
       )}
     </motion.section>
@@ -826,7 +839,7 @@ export default function QuotePage({ slug }: QuotePageProps) {
         grandTotal={(selectedTier?.price ?? 0) + selectedAddons.reduce((s, a) => s + a.price, 0)}
         quoteNumber={config.quoteNumber}
         propertyAddress={config.property.address}
-        clientName={quoteData?.agentName ?? config.client?.name ?? ""}
+        clientName={agencyDisplayName || config.client?.name || ""}
         slug={slug}
         selectedAddons={selectedAddons}
         quoteType={quoteType}

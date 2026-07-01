@@ -70,6 +70,9 @@ export function generateDefaultDescription(
 ): string[] {
   const lines: string[] = [];
   const tiered = opts?.tiered ?? false;
+  const underlayName = !tiered && config.product?.underlay
+    ? String(config.product.underlay).trim()
+    : "";
 
   const pushUnique = (raw: string) => {
     const s = raw.replace(/\s+/g, " ").trim();
@@ -84,45 +87,71 @@ export function generateDefaultDescription(
     if (!dup) lines.push(sentence);
   };
 
-  const scopeText = config.scope?.trim() ?? "";
-  // The admin-entered `scope` is usually already a complete "Supply & Installation
-  // of ... to <area>" sentence. When it reads like one, use it verbatim as the
-  // lead line. Only synthesise a sentence from the product specs when scope is
-  // empty or is just a bare area fragment (e.g. "master bedroom").
-  const scopeIsSentence = /supply|install|provide|replace/i.test(scopeText);
+  const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const stripTrailingPunctuation = (s: string) => s.replace(/[.!?]+$/g, "").trim();
+  const stripUnderlayMention = (raw: string): string => {
+    if (!raw) return "";
+    let cleaned = raw;
 
-  if (scopeIsSentence) {
-    pushUnique(scopeText);
-  } else if (!tiered && config.product) {
+    if (underlayName) {
+      const namedUnderlayPatterns = [
+        new RegExp(`\\s*(?:on|with)\\s+new\\s+${escapeRegExp(underlayName)}\\s+underlay`, "i"),
+        new RegExp(`\\s*(?:on|with)\\s+${escapeRegExp(underlayName)}\\s+underlay`, "i"),
+        new RegExp(`\\s*(?:and|&)\\s+new\\s+${escapeRegExp(underlayName)}\\s+underlay`, "i"),
+        new RegExp(`\\s*(?:and|&)\\s+${escapeRegExp(underlayName)}\\s+underlay`, "i"),
+      ];
+      for (const pattern of namedUnderlayPatterns) cleaned = cleaned.replace(pattern, "");
+    }
+
+    cleaned = cleaned
+      .replace(/\s*(?:on|with)\s+new\s+underlay/gi, "")
+      .replace(/\s*(?:and|&)\s+new\s+underlay/gi, "")
+      .replace(/\s*(?:on|with)\s+underlay/gi, "")
+      .replace(/\s*(?:and|&)\s+underlay/gi, "")
+      .replace(/\s+/g, " ")
+      .replace(/\s+([.,!?])/g, "$1")
+      .trim();
+
+    return stripTrailingPunctuation(cleaned);
+  };
+
+  const withScopeArea = (lead: string, rawArea: string) => {
+    const area = stripTrailingPunctuation(rawArea).replace(/^to\s+/i, "").trim();
+    if (!area) return lead;
+    return /^throughout\b/i.test(area) ? `${lead} ${area}` : `${lead} to ${area}`;
+  };
+
+  const scopeText = config.scope?.trim() ?? "";
+  const scopeWithoutUnderlay = stripUnderlayMention(scopeText);
+  const scopeIsSentence = /supply|install|provide|replace/i.test(scopeWithoutUnderlay);
+  const scopeArea = scopeIsSentence
+    ? (scopeWithoutUnderlay.match(/\bto\b\s+(.+)$/i)?.[1]?.trim()
+        || scopeWithoutUnderlay.match(/\bthroughout\b.*$/i)?.[0]?.trim()
+        || scopeWithoutUnderlay)
+    : scopeWithoutUnderlay;
+
+  if (!tiered && config.product) {
     const p = config.product;
     const lead = [
       "Supply & Installation of new",
-      p.manufacturer,
       p.productName,
       p.colourName && p.colourName.trim() !== "To be selected" ? `colour ${p.colourName}` : "",
-      p.pileType ? p.pileType.toLowerCase() : "",
+      "carpet",
     ]
       .filter(Boolean)
       .join(" ");
-    pushUnique(scopeText ? `${lead} to ${scopeText}` : lead);
+    pushUnique(withScopeArea(lead, scopeArea));
   } else {
     pushUnique(
-      scopeText
-        ? `Supply & Installation of new carpet and underlay to ${scopeText}`
-        : "Supply & Installation of new carpet and underlay throughout"
+      scopeArea
+        ? withScopeArea("Supply & Installation of new carpet", scopeArea)
+        : "Supply & Installation of new carpet throughout"
     );
   }
 
-  // Underlay line (single product only; tiered uses the underlay note instead).
-  // Only add it if the underlay isn't already mentioned in a prior line.
-  if (!tiered) {
-    const u = config.product?.underlay ? String(config.product.underlay).trim() : "";
-    const underlayMentioned =
-      /underlay/i.test(scopeText) ||
-      (!!u && lines.some((l) => l.toLowerCase().includes(u.toLowerCase())));
-    if (u && !underlayMentioned) {
-      pushUnique(`Supply & Installation on new ${u} underlay`);
-    }
+  // Underlay line: separate from the carpet line and only shown when selected.
+  if (underlayName) {
+    pushUnique(`Supply & Installation on new ${underlayName} underlay`);
   }
 
   // Append the structured scopeOfWorks items as natural sentences, skipping any
