@@ -20,6 +20,7 @@ import { generateInvoicePdf, type InvoiceData } from "./invoiceGenerator";
 import { generateQuotePdfBuffer } from "./quotePdf";
 import type { QuoteConfigData, QuoteType } from "../shared/quoteConfigTypes";
 import { usesAgentPaymentTerms, routeNotificationsToAgent } from "../shared/quoteConfigTypes";
+import { getDescriptionLines } from "../shared/quoteDescription";
 import { formatAESTDate } from "../shared/aestUtils";
 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "bellcarpets2026";
@@ -384,6 +385,9 @@ export const invoiceRouter = router({
         agentName: recipientName,
         agentEmail: recipientEmail,
         agentPhone: recipientPhone,
+        descriptionLines: getDescriptionLines(config, { tiered: pricingMode !== "single" }),
+        quoteType,
+        isSingleProduct: pricingMode === "single",
       };
 
       // Generate PDF

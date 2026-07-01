@@ -3,6 +3,7 @@ import { and, eq, isNull } from "drizzle-orm";
 import { quotes } from "../drizzle/schema";
 import type { QuoteConfigData, QuoteType } from "../shared/quoteConfigTypes";
 import { usesAgentPaymentTerms } from "../shared/quoteConfigTypes";
+import { getDescriptionLines } from "../shared/quoteDescription";
 import { getDb } from "./db";
 import { generateInvoicePdf, type InvoiceData } from "./invoiceGenerator";
 
@@ -92,6 +93,12 @@ export async function generateQuotePdfBuffer(quoteSlug: string): Promise<{
     agentEmail: quote.agentEmail || "",
     agentPhone: quote.agentPhone || "",
     isAgent: usesAgentPaymentTerms(quote.quoteType),
+    // Flowing description lines: identical source to the web quote page, so the
+    // PDF and the site never drift (admin-written config.description wins, else
+    // generated from structured data via the shared helper).
+    descriptionLines: getDescriptionLines(config, { tiered: !isSingle }),
+    quoteType,
+    isSingleProduct: isSingle,
   };
 
   const pdfBuffer = await generateInvoicePdf(invoiceData);

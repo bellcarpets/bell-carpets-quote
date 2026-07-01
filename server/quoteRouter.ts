@@ -20,6 +20,7 @@ import { generateInvoicePdf, type InvoiceData } from "./invoiceGenerator";
 import { storagePut } from "./storage";
 import type { QuoteConfigData, QuoteType } from "../shared/quoteConfigTypes";
 import { usesAgentPaymentTerms, routeNotificationsToAgent } from "../shared/quoteConfigTypes";
+import { getDescriptionLines } from "../shared/quoteDescription";
 import { sendAcceptanceSmsToBellCarpets } from "./smsHelper";
 
 // Zod schema for the quote acceptance input
@@ -453,8 +454,12 @@ export const quoteRouter = router({
               agentName: input.agentName,
               agentEmail: input.agentEmail,
               agentPhone: input.agentPhone,
-              // Room itemisation — pass through for homeowner/agency_single quotes with room breakdown
+              // Room itemisation: pass through for homeowner/agency_single quotes with room breakdown
               rooms: (input.rooms && input.rooms.length > 0) ? input.rooms : (config.rooms && config.rooms.length > 0 ? config.rooms : undefined),
+              // Flowing description lines: same shared source as the web page + quote PDF.
+              descriptionLines: getDescriptionLines(config, { tiered: (config.pricingMode ?? "tiered") !== "single" }),
+              quoteType: config.quoteType,
+              isSingleProduct: (config.pricingMode ?? "tiered") === "single",
             };
 
             // Resolve fibre/pileType based on quote type

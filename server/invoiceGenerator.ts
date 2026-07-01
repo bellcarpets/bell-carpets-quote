@@ -64,6 +64,20 @@ export interface InvoiceData {
   agentPhone: string;
 
   isAgent?: boolean;
+
+  /**
+   * Flowing description lines shown on the quote (identical to the web page).
+   * When provided, the PDF renders these as natural sentences instead of the
+   * legacy labelled "SCOPE OF WORKS" rows. Source: shared getDescriptionLines
+   * (config.description if admin-written, else generateDefaultDescription).
+   */
+  descriptionLines?: string[];
+
+  /** Quote type, used to match the web page's heading + prepared-for logic. */
+  quoteType?: string;
+
+  /** True for single-product layouts (homeowner / agency_single). */
+  isSingleProduct?: boolean;
 }
 
 // ─── Palette: Pure B&W ─────────────────────────────────────────────
@@ -73,6 +87,8 @@ const MID = "#666666";
 const LIGHT = "#999999";
 const RULE = "#e0e0e0";
 const FAINT = "#f5f5f5";
+// Warm cream accent — matches the customer-facing quote page (#EDE8DF).
+const CREAM = "#EDE8DF";
 
 // Logo URL (black wordmark on white)
 const LOGO_URL = "https://quote.bellcarpets.com.au/images/logo.jpg";
@@ -238,18 +254,20 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
     doc.font(fontBold).fontSize(18).fillColor(BLACK);
     doc.text(docNumber, rightEdge - 160, y + 10, { width: 160, align: "right" });
 
-    // Left side: client details
+    // Left side: client details.
+    // Prepared-for name mirrors the web page: agency quotes use config.client.name
+    // (falling back to agentName), homeowner quotes use config.client.name. The
+    // unified fallback chain is correct for every quote type because agentName is
+    // only the raw contact person on agency_single, and client.name is set on all
+    // live quotes.
+    const preparedForName = data.clientName?.trim() || data.agentName || "";
     const detailStartY = y;
     doc.font(fontRegular).fontSize(9).fillColor(LIGHT);
     doc.text("PREPARED FOR", leftMargin, detailStartY);
     doc.font(fontRegular).fontSize(11).fillColor(DARK);
-    doc.text(data.agentName || data.clientName, leftMargin, detailStartY + 14);
-    if (data.clientName && data.clientName !== data.agentName) {
-      doc.font(fontRegular).fontSize(10).fillColor(MID);
-      doc.text(data.clientName, leftMargin, detailStartY + 28);
-    }
+    doc.text(preparedForName, leftMargin, detailStartY + 14);
 
-    y = detailStartY + 50;
+    y = detailStartY + 42;
 
     // Property address
     if (data.propertyAddress) {
@@ -277,74 +295,83 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
 
     y += 36;
 
-    // ─── Product Section ─────────────────────────────────────────
+    // ─── Heading + flowing description (matches the web quote page) ──────
+    // Single-product quotes show "Your Quote" (the product is named in the
+    // description line below). Tiered quotes show the product-agnostic heading
+    // and list the options in the pricing section, matching the web tier cards.
     doc.moveTo(leftMargin, y).lineTo(rightEdge, y)
       .strokeColor(RULE).lineWidth(0.5).stroke();
-    y += 16;
+    y += 20;
 
-    doc.font(fontRegular).fontSize(9).fillColor(LIGHT);
-    doc.text("PRODUCT", leftMargin, y);
-    y += 18;
+    const isTiered = !!(data.allTiers && data.allTiers.length > 1);
+    const heading = isTiered ? "Your Options" : "Your Quote";
+    doc.font(fontBold).fontSize(16).fillColor(BLACK);
+    doc.text(heading, leftMargin, y);
+    y += 26;
 
-    if (data.allTiers && data.allTiers.length > 1) {
-      // Multi-tier layout
-      for (const tier of data.allTiers) {
-        y = ensureSpace(50, y);
-        doc.font(fontBold).fontSize(11).fillColor(BLACK);
-        doc.text(tier.name, leftMargin, y);
-        y += 16;
-        doc.font(fontRegular).fontSize(10).fillColor(MID);
-        doc.text(`${tier.manufacturer} ${tier.productName}`, leftMargin + 12, y);
-        if (tier.fibre) {
-          doc.text(`  ·  ${tier.fibre}`, leftMargin + 12 + doc.widthOfString(`${tier.manufacturer} ${tier.productName}`), y);
+    // Flowing description lines: identical to the web page. These already
+    // include the carpet line, the separate underlay line, and the scope items
+    // as natural sentences. A cream accent bar mirrors the web page's left border.
+    const descLines = (data.descriptionLines ?? []).filter((l) => l && l.trim());
+    if (descLines.length > 0) {
+      const barTop = y;
+      const barX = leftMargin;
+      const textX = leftMargin + 14;
+      const textWidth = pageWidth - 14;
+      for (const line of descLines) {
+        doc.font(fontRegular).fontSize(11).fillColor(DARK);
+        const h = doc.heightOfString(line, { width: textWidth, lineGap: 2 });
+        // Page-break guard: draw the accent bar for the current segment, break,
+        // then continue on the next page.
+        if (y + h > SAFE_BOTTOM) {
+          doc.moveTo(barX, barTop).lineTo(barX, y - 4)
+            .strokeColor(CREAM).lineWidth(3).stroke();
+          drawPageFooter(pageCount);
+          doc.addPage();
+          pageCount++;
+          y = 60;
         }
-        y += 14;
-        doc.font(fontRegular).fontSize(10).fillColor(DARK);
-        doc.text(formatPrice(tier.price) + " inc GST", leftMargin + 12, y);
-        y += 22;
+        doc.font(fontRegular).fontSize(11).fillColor(DARK);
+        doc.text(line, textX, y, { width: textWidth, lineGap: 2 });
+        y += h + 8;
       }
+      // Cream accent bar down the left of the description block (final segment).
+      doc.moveTo(barX, barTop).lineTo(barX, y - 6)
+        .strokeColor(CREAM).lineWidth(3).stroke();
+      y += 6;
     } else {
-      // Single product
-      doc.font(fontBold).fontSize(12).fillColor(BLACK);
-      doc.text(`${data.manufacturer} ${data.productName}`, leftMargin, y);
-      y += 18;
+      // Fallback for legacy quotes with no description lines: keep the old
+      // labelled scope list so nothing is lost.
+      for (const item of data.scopeOfWorks) {
+        y = ensureSpace(20, y);
+        doc.font(fontRegular).fontSize(10).fillColor(DARK);
+        doc.text(item.title, leftMargin, y);
+        if (item.description) {
+          doc.font(fontRegular).fontSize(9).fillColor(MID);
+          doc.text(item.description, leftMargin + 160, y, { width: pageWidth - 160 });
+        }
+        y += 16;
+      }
+      y += 4;
+    }
 
-      const details: string[] = [];
-      if (data.fibre) details.push(data.fibre);
-      if (data.pileType) details.push(data.pileType);
-      if (data.colourName) details.push(data.colourName);
-
-      if (details.length > 0) {
-        doc.font(fontRegular).fontSize(10).fillColor(MID);
-        doc.text(details.join("  ·  "), leftMargin, y);
+    // Product specifications in small, subtle text (matches the web spec line).
+    if (!isTiered) {
+      const specParts: string[] = [];
+      const productLabel = [data.manufacturer, data.productName].filter(Boolean).join(" ").trim();
+      if (productLabel) specParts.push(productLabel);
+      if (data.fibre) specParts.push(data.fibre);
+      if (data.pileType) specParts.push(data.pileType);
+      if (data.colourName) specParts.push(data.colourName);
+      if (specParts.length > 0) {
+        y = ensureSpace(20, y);
+        doc.font(fontRegular).fontSize(8.5).fillColor(LIGHT);
+        doc.text(specParts.join("   ·   "), leftMargin, y, { width: pageWidth });
         y += 18;
       }
     }
 
     y += 8;
-
-    // ─── Scope of Works ──────────────────────────────────────────
-    y = ensureSpace(80, y);
-    doc.moveTo(leftMargin, y).lineTo(rightEdge, y)
-      .strokeColor(RULE).lineWidth(0.5).stroke();
-    y += 16;
-
-    doc.font(fontRegular).fontSize(9).fillColor(LIGHT);
-    doc.text("SCOPE OF WORKS", leftMargin, y);
-    y += 18;
-
-    for (const item of data.scopeOfWorks) {
-      y = ensureSpace(20, y);
-      doc.font(fontRegular).fontSize(10).fillColor(DARK);
-      doc.text(`${item.title}`, leftMargin, y, { continued: false });
-      if (item.description) {
-        doc.font(fontRegular).fontSize(9).fillColor(MID);
-        doc.text(item.description, leftMargin + 160, y, { width: pageWidth - 160 });
-      }
-      y += 16;
-    }
-
-    y += 12;
 
     // ─── Pricing ─────────────────────────────────────────────────
     y = ensureSpace(120, y);
@@ -361,7 +388,7 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
       for (const room of data.rooms) {
         y = ensureSpace(22, y);
         doc.font(fontRegular).fontSize(10).fillColor(DARK);
-        doc.text(`${room.name} — Supply & installation`, leftMargin, y, { width: pageWidth * 0.65 });
+        doc.text(`${room.name}: Supply & installation`, leftMargin, y, { width: pageWidth * 0.65 });
         doc.font(fontRegular).fontSize(10).fillColor(BLACK);
         doc.text(formatPrice(room.price), rightEdge - 100, y, { width: 100, align: "right" });
         y += 18;
@@ -374,7 +401,7 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
       for (const tier of data.allTiers) {
         y = ensureSpace(22, y);
         doc.font(fontRegular).fontSize(10).fillColor(DARK);
-        doc.text(`${tier.name} — Supply & installation`, leftMargin, y, { width: pageWidth * 0.65 });
+        doc.text(`${tier.name}: Supply & installation`, leftMargin, y, { width: pageWidth * 0.65 });
         doc.font(fontRegular).fontSize(10).fillColor(BLACK);
         doc.text(formatPrice(tier.price) + " inc GST", rightEdge - 140, y, { width: 140, align: "right" });
         y += 18;
@@ -552,7 +579,7 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
       {
         title: "Scheduling & Access",
         items: [
-          { label: "Lead Time", text: "Installation dates are subject to material availability. Typical lead time is 5–10 business days from deposit receipt." },
+          { label: "Lead Time", text: "Installation dates are subject to material availability. Typical lead time is 5 to 10 business days from deposit receipt." },
           { label: "Site Access", text: "Clear and safe access to the installation area must be provided. Furniture must be removed from the work area prior to the scheduled installation date unless a furniture removal add-on has been included in this quote." },
           { label: "Subfloor", text: "Subfloor must be structurally sound, dry, and level. Any remediation required beyond normal preparation (e.g. levelling compound, moisture barriers) will be quoted separately." },
         ],

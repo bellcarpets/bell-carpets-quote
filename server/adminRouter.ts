@@ -21,6 +21,7 @@ import { quotes, invoices, quoteViews } from "../drizzle/schema";
 import { eq, desc, sql, isNull, and } from "drizzle-orm";
 import type { QuoteConfigData, QuoteType } from "../shared/quoteConfigTypes";
 import { routeNotificationsToAgent, usesHomeownerLayout } from "../shared/quoteConfigTypes";
+import { getDescriptionLines } from "../shared/quoteDescription";
 import { sendQuoteLinkSms, sendAcceptanceSmsToBellCarpets, sendSms, normaliseAuPhone } from "./smsHelper";
 import { logNotification } from "./notificationLog";
 import { formatAESTDate, todayAESTString, parseAESTDate, addDaysAEST } from "../shared/aestUtils";
@@ -1613,6 +1614,9 @@ export const adminRouter = router({
                 agentName: recipientName || "Valued Client",
                 agentEmail: recipientEmail,
                 agentPhone: recipientPhone,
+                descriptionLines: getDescriptionLines(config, { tiered: !usesSingleLayout }),
+                quoteType,
+                isSingleProduct: usesSingleLayout,
               });
               console.log(`[Admin] PDF buffer generated for ${invoiceNumber} (${invoicePdfBuffer.length} bytes)`);
             } catch (pdfErr) {
@@ -1714,6 +1718,9 @@ export const adminRouter = router({
                   agentName: recipientName || "Valued Client",
                   agentEmail: recipientEmail,
                   agentPhone: recipientPhone,
+                  descriptionLines: getDescriptionLines(config, { tiered: !usesSingleLayout }),
+                  quoteType,
+                  isSingleProduct: usesSingleLayout,
                 });
                 console.log(`[Admin] Generated PDF buffer for completion email of ${invoiceNumber} (${invoicePdfBuffer.length} bytes)`);
               } catch (pdfGenErr) {
