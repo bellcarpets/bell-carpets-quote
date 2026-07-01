@@ -70,9 +70,13 @@ export function generateDefaultDescription(
 ): string[] {
   const lines: string[] = [];
   const tiered = opts?.tiered ?? false;
-  const underlayName = !tiered && config.product?.underlay
-    ? String(config.product.underlay).trim()
-    : "";
+  // Underlay source differs by layout: single quotes store it on the product,
+  // tiered quotes store it per-tier (all tiers share the same underlay, so the
+  // first tier is authoritative — this matches the "All options include..." note).
+  const rawUnderlay = tiered
+    ? config.tiers?.find((t) => t.underlay && String(t.underlay).trim())?.underlay
+    : config.product?.underlay;
+  const underlayName = rawUnderlay ? String(rawUnderlay).trim() : "";
 
   const pushUnique = (raw: string) => {
     const s = raw.replace(/\s+/g, " ").trim();
