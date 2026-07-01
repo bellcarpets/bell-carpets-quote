@@ -3668,7 +3668,7 @@ function QuoteEditor({
           />
           {/* Full Address removed — Property Address is the single source of truth */}
           <Field
-            label="Scope Description"
+            label="Areas"
             value={config.scope}
             onChange={(v) => updateConfig({ scope: v })}
           />

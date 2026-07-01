@@ -91,21 +91,15 @@ export function generateDefaultDescription(
     if (!dup) lines.push(sentence);
   };
 
-  const withRoomArea = (lead: string, area: string) => {
+  const withArea = (lead: string, area: string) => {
     const a = area.trim();
     return a ? `${lead} to ${a}` : lead;
   };
 
-  // Room/area text comes ONLY from the room-by-room itemisation, never from the
-  // free-text scope description (that field is a work-type phrase like
-  // "Supply and Installation", not a location). If no rooms are defined, the
-  // "to [rooms]" clause is omitted entirely.
-  const roomArea = (config.rooms ?? [])
-    .map((r) => r.name?.trim())
-    .filter((n): n is string => !!n)
-    .join(", ")
-    // Turn the final ", " into " and " for a natural reading list.
-    .replace(/,\s*([^,]+)$/, " and $1");
+  // The "Areas" field (config.scope) is typed by the admin as the room/area
+  // text for the carpet line (e.g. "master bedroom and bedroom 2").
+  // If empty, the "to [areas]" clause is omitted entirely.
+  const areaText = config.scope?.trim() ?? "";
 
   if (!tiered && config.product) {
     const p = config.product;
@@ -117,9 +111,9 @@ export function generateDefaultDescription(
     ]
       .filter(Boolean)
       .join(" ");
-    pushUnique(withRoomArea(lead, roomArea));
+    pushUnique(withArea(lead, areaText));
   } else {
-    pushUnique(withRoomArea("Supply & Installation of new carpet", roomArea));
+    pushUnique(withArea("Supply & Installation of new carpet", areaText));
   }
 
   // Underlay line: separate from the carpet line and only shown when selected.
