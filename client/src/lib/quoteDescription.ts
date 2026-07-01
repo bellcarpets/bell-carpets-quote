@@ -13,7 +13,7 @@ export {
   getUnderlayNote,
   getDescriptionLines,
   generateDefaultDescription,
-} from "../../../shared/quoteDescription";
+} from "@shared/quoteDescription";
 
 /** Warm cream accent used across the customer-facing quote page (replaces amber/gold). */
 export const CREAM = "#EDE8DF";
