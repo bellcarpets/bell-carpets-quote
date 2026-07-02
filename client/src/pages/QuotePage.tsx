@@ -270,13 +270,21 @@ export default function QuotePage({ slug }: QuotePageProps) {
       const byteArray = new Uint8Array(byteNumbers);
       const blob = new Blob([byteArray], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${result.quoteNumber}-Quote.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      // Mobile Safari ignores <a download> on blob URLs — open in new tab
+      // so Safari's built-in PDF viewer handles the file directly.
+      const isMobileSafari = /iP(hone|ad|od)/.test(navigator.userAgent);
+      if (isMobileSafari) {
+        window.open(url, "_blank");
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+      } else {
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${result.quoteNumber}-Quote.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
     } catch (err) {
       console.error("[Quote] PDF download failed:", err);
     } finally {

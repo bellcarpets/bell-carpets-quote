@@ -3131,12 +3131,24 @@ function QuoteEditor({
       const byteArray = new Uint8Array(byteNumbers);
       const blob = new Blob([byteArray], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${quoteData.quoteNumber}-Quote.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
-      toast.success("PDF downloaded");
+      // Mobile Safari ignores <a download> on blob URLs and opens the share
+      // sheet with the raw URL as text instead. Opening in a new tab lets
+      // Safari's built-in PDF viewer handle the file directly.
+      const isMobileSafari = /iP(hone|ad|od)/.test(navigator.userAgent);
+      if (isMobileSafari) {
+        window.open(url, "_blank");
+        // Delay revoke so Safari has time to read the blob before it's released
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+      } else {
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${quoteData.quoteNumber}-Quote.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+      toast.success("PDF opened");
     } catch (err) {
       console.error("PDF export error:", err);
       toast.error("Failed to export PDF");
