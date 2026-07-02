@@ -3120,8 +3120,16 @@ function QuoteEditor({
         })),
       };
       const result = await downloadPdfMutation.mutateAsync(input);
-      const pdfBuffer = Buffer.from(result.pdfBase64, "base64");
-      const blob = new Blob([pdfBuffer], { type: "application/pdf" });
+      // Decode base64 with browser-native APIs. `Buffer` is a Node global and is
+      // NOT available in the browser bundle, so Buffer.from() threw
+      // "Buffer is not defined" and surfaced as "Failed to export PDF".
+      const byteCharacters = atob(result.pdfBase64);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
