@@ -48,13 +48,16 @@ export async function setupVite(app: Express, server: Server) {
 }
 
 export function registerPdfRoute(app: Express) {
-  // GET /api/quote/:slug/pdf — streams the quote PDF with correct Content-Type
-  // so Safari opens it natively in its PDF viewer without any blob URL workaround.
+  /**
+   * GET /api/quote/:slug/pdf
+   * Smart PDF endpoint: returns an INVOICE PDF for accepted/post-acceptance quotes,
+   * and a QUOTE PDF for draft/quote_sent quotes. The invoiceGenerator already
+   * shows "INVOICE" vs "QUOTE" based on whether invoiceNumber is present in InvoiceData.
+   */
   app.get("/api/quote/:slug/pdf", async (req, res) => {
     try {
-      const { generateQuotePdfBuffer } = await import("../quotePdf.js");
-      const { pdfBuffer, quoteNumber } = await generateQuotePdfBuffer(req.params.slug);
-      const filename = `${quoteNumber}-Quote.pdf`;
+      const { generateInvoicePdfForSlug } = await import("../invoicePdfForSlug.js");
+      const { pdfBuffer, filename } = await generateInvoicePdfForSlug(req.params.slug);
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader("Content-Disposition", `inline; filename="${filename}"`);
       res.setHeader("Content-Length", pdfBuffer.length);
@@ -62,7 +65,7 @@ export function registerPdfRoute(app: Express) {
       res.end(pdfBuffer);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
-      if (msg.includes("not found")) {
+      if (msg.includes("not found") || msg.includes("Not found")) {
         res.status(404).type("text/plain").send("Quote not found");
       } else {
         console.error("[PDF route]", err);
