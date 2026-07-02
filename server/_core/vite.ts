@@ -79,8 +79,26 @@ export function serveStatic(app: Express) {
     );
   });
 
-  // fall through to index.html if the file doesn't exist
+  // Any request that looks like a static asset (has a file extension) but
+  // wasn't served by express.static above means the file does not exist.
+  // Return a real 404 instead of falling through to index.html. Without this,
+  // a stale browser requesting an old hashed asset (e.g. /assets/index-OLD.js)
+  // receives index.html (text/html) with a 200, the browser then tries to run
+  // HTML as JavaScript, throws "Unexpected token '<'", and the app white-screens
+  // before React can mount (so the ErrorBoundary never catches it).
+  const STATIC_FILE_RE = /\.[a-z0-9]+$/i;
+  app.use((req, res, next) => {
+    if (STATIC_FILE_RE.test(req.path)) {
+      res.status(404).type("text/plain").send("Not found");
+      return;
+    }
+    next();
+  });
+
+  // SPA client-side routing: serve index.html for all non-asset routes.
+  // no-store so browsers never hold a stale shell that points at old asset hashes.
   app.use("*", (_req, res) => {
+    res.setHeader("Cache-Control", "no-store");
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }
