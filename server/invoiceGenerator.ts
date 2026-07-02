@@ -285,7 +285,7 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
     doc.font(fontRegular).fontSize(10).fillColor(DARK);
     doc.text(data.issueDate, leftMargin + 80, y);
 
-    if (validUntil) {
+    if (validUntil && !data.invoiceNumber) {
       y += 16;
       doc.font(fontRegular).fontSize(9).fillColor(LIGHT);
       doc.text("VALID UNTIL", leftMargin, y);
@@ -304,7 +304,7 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
     y += 20;
 
     const isTiered = !!(data.allTiers && data.allTiers.length > 1);
-    const heading = isTiered ? "Your Options" : "Your Quote";
+    const heading = data.invoiceNumber ? "Your Invoice" : isTiered ? "Your Options" : "Your Quote";
     doc.font(fontBold).fontSize(16).fillColor(BLACK);
     doc.text(heading, leftMargin, y);
     y += 26;
