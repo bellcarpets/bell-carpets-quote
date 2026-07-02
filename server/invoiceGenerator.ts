@@ -544,7 +544,16 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
     // ═══════════════════════════════════════════════════════════════
     const depPct = data.depositPercent ?? 50;
     const balPct = 100 - depPct;
-    const financialCommitmentItems = data.isAgent
+    const isInvoiceDoc = !!data.invoiceNumber;
+    // Invoice PDFs use simple payment language; quote PDFs use the full quote-specific text.
+    const financialCommitmentItems = isInvoiceDoc
+      ? [
+          {
+            label: "Payment Terms",
+            text: "Payment of the remaining balance is due on completion of works. Payment is to be made by direct bank transfer.",
+          },
+        ]
+      : data.isAgent
       ? [
           {
             label: "Payment Terms",
@@ -604,7 +613,7 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
       {
         title: "General",
         items: [
-          { label: "Quote Validity", text: `This quote is valid for ${data.validDays} days from the issue date. After expiry, pricing may be subject to change.` },
+          ...(isInvoiceDoc ? [] : [{ label: "Quote Validity", text: `This quote is valid for ${data.validDays} days from the issue date. After expiry, pricing may be subject to change.` }]),
           { label: "Colour Variation", text: "Carpet and flooring products may vary slightly in colour from samples due to dye lot variations. This is normal and not a defect." },
           { label: "Governing Law", text: "This agreement is governed by the laws of Queensland, Australia." },
         ],
