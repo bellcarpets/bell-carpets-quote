@@ -525,14 +525,16 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
     );
     y += 12;
 
-    // Tax invoice note
-    const taxNote = data.isAgent
-      ? "This document is a quotation and does not constitute a tax invoice. A tax invoice will be issued upon completion of works."
-      : (data.depositPercent ?? 50) === 0
-      ? "This document is a quotation and does not constitute a tax invoice. A tax invoice will be issued upon completion of works."
-      : "This document is a quotation and does not constitute a tax invoice. A tax invoice will be issued upon receipt of deposit.";
-    doc.font(fontItalic).fontSize(7.5).fillColor(LIGHT);
-    doc.text(taxNote, leftMargin, y, { width: pageWidth, align: "center" });
+    // Tax invoice note — only shown on quotes, not on invoice PDFs
+    if (!data.invoiceNumber) {
+      const taxNote = data.isAgent
+        ? "This document is a quotation and does not constitute a tax invoice. A tax invoice will be issued upon completion of works."
+        : (data.depositPercent ?? 50) === 0
+        ? "This document is a quotation and does not constitute a tax invoice. A tax invoice will be issued upon completion of works."
+        : "This document is a quotation and does not constitute a tax invoice. A tax invoice will be issued upon receipt of deposit.";
+      doc.font(fontItalic).fontSize(7.5).fillColor(LIGHT);
+      doc.text(taxNote, leftMargin, y, { width: pageWidth, align: "center" });
+    }
 
     // Page 1 Footer
     drawPageFooter(pageCount);
