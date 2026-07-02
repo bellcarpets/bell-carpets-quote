@@ -262,29 +262,10 @@ export default function QuotePage({ slug }: QuotePageProps) {
         rooms: roomsPayload,
         allTiers: allTiersPayload,
       });
-      const byteCharacters = atob(result.pdfBase64);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: "application/pdf" });
-      const url = URL.createObjectURL(blob);
-      // Mobile Safari ignores <a download> on blob URLs — open in new tab
-      // so Safari's built-in PDF viewer handles the file directly.
-      const isMobileSafari = /iP(hone|ad|od)/.test(navigator.userAgent);
-      if (isMobileSafari) {
-        window.open(url, "_blank");
-        setTimeout(() => URL.revokeObjectURL(url), 10000);
-      } else {
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `${result.quoteNumber}-Quote.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }
+      // Open the PDF via the direct server endpoint — no blob URLs needed.
+      // The server streams the file with Content-Type: application/pdf so
+      // every browser (including mobile Safari) opens it natively.
+      window.open(`/api/quote/${slug}/pdf`, "_blank");
     } catch (err) {
       console.error("[Quote] PDF download failed:", err);
     } finally {

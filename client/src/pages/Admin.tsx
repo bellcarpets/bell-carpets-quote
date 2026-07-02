@@ -3119,35 +3119,11 @@ function QuoteEditor({
           depositPercent: config.depositPercent,
         })),
       };
-      const result = await downloadPdfMutation.mutateAsync(input);
-      // Decode base64 with browser-native APIs. `Buffer` is a Node global and is
-      // NOT available in the browser bundle, so Buffer.from() threw
-      // "Buffer is not defined" and surfaced as "Failed to export PDF".
-      const byteCharacters = atob(result.pdfBase64);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: "application/pdf" });
-      const url = URL.createObjectURL(blob);
-      // Mobile Safari ignores <a download> on blob URLs and opens the share
-      // sheet with the raw URL as text instead. Opening in a new tab lets
-      // Safari's built-in PDF viewer handle the file directly.
-      const isMobileSafari = /iP(hone|ad|od)/.test(navigator.userAgent);
-      if (isMobileSafari) {
-        window.open(url, "_blank");
-        // Delay revoke so Safari has time to read the blob before it's released
-        setTimeout(() => URL.revokeObjectURL(url), 10000);
-      } else {
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `${quoteData.quoteNumber}-Quote.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      }
+      // Open the PDF via the direct server endpoint — no blob URLs needed.
+      // The server streams the file with Content-Type: application/pdf and
+      // Content-Disposition: inline so every browser (including mobile Safari)
+      // opens it natively without showing a raw blob URL in the share sheet.
+      window.open(`/api/quote/${slug}/pdf`, "_blank");
       toast.success("PDF opened");
     } catch (err) {
       console.error("PDF export error:", err);

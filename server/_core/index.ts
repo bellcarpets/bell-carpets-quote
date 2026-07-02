@@ -7,7 +7,7 @@ import { registerOAuthRoutes } from "./oauth";
 import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
-import { serveStatic, setupVite } from "./vite";
+import { serveStatic, setupVite, registerPdfRoute } from "./vite";
 import { startReminderCron } from "../reminderCron";
 import { startExpiryReminderCron } from "../expiryReminderCron";
 import { startFollowUpCron } from "../followUpCron";
@@ -46,6 +46,8 @@ async function startServer() {
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   registerStorageProxy(app);
   registerOAuthRoutes(app);
+  // Direct PDF streaming endpoint (must be before tRPC and SPA catch-all)
+  registerPdfRoute(app);
   // tRPC API
   app.use(
     "/api/trpc",

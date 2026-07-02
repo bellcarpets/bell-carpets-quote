@@ -47,6 +47,31 @@ export async function setupVite(app: Express, server: Server) {
   });
 }
 
+export function registerPdfRoute(app: Express) {
+  // GET /api/quote/:slug/pdf — streams the quote PDF with correct Content-Type
+  // so Safari opens it natively in its PDF viewer without any blob URL workaround.
+  app.get("/api/quote/:slug/pdf", async (req, res) => {
+    try {
+      const { generateQuotePdfBuffer } = await import("../quotePdf.js");
+      const { pdfBuffer, quoteNumber } = await generateQuotePdfBuffer(req.params.slug);
+      const filename = `${quoteNumber}-Quote.pdf`;
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `inline; filename="${filename}"`);
+      res.setHeader("Content-Length", pdfBuffer.length);
+      res.setHeader("Cache-Control", "no-store");
+      res.end(pdfBuffer);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes("not found")) {
+        res.status(404).type("text/plain").send("Quote not found");
+      } else {
+        console.error("[PDF route]", err);
+        res.status(500).type("text/plain").send("PDF generation failed");
+      }
+    }
+  });
+}
+
 export function serveStatic(app: Express) {
   const distPath =
     process.env.NODE_ENV === "development"
