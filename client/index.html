@@ -3,6 +3,17 @@
 
   <head>
     <meta charset="UTF-8" />
+    <!-- Kill any stale service worker on load. A previously-registered SW could
+         serve a broken cached shell and cause a persistent white screen. -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function (registrations) {
+          registrations.forEach(function (registration) {
+            registration.unregister();
+          });
+        });
+      }
+    </script>
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1" />
