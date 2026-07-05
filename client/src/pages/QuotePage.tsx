@@ -112,6 +112,26 @@ const UNDERLAY_SPECS: Record<NonNullable<Exclude<UnderlayOption, "">>, {
       { icon: Shield, label: "10mm comfort underfoot" },
     ],
   },
+  "Dunlop Government Red": {
+    name: "Dunlop Government Red",
+    tagline: "General residential. Built to spec.",
+    specs: [
+      { icon: Layers, label: "8mm Thickness" },
+      { icon: Shield, label: "70 kg/m³ Density" },
+      { icon: Volume2, label: "28dB Acoustic Performance" },
+      { icon: Thermometer, label: "R 0.20 Thermal Insulation" },
+    ],
+    highlight: {
+      icon: Shield,
+      title: "General Residential — AS 4288-2003",
+      body: "Classified General Residential (GR) under the Australian Standard for carpet underlay",
+    },
+    benefits: [
+      { icon: Layers, label: "Re-bonded polyurethane foam" },
+      { icon: Volume2, label: "28dB acoustic rating" },
+      { icon: Shield, label: "Polypropylene mesh topside" },
+    ],
+  },
 };
 
 /** Map underlay option to a compact scope item for display in the Scope of Works list */
@@ -131,6 +151,10 @@ const UNDERLAY_SCOPE_ITEMS: Record<NonNullable<Exclude<UnderlayOption, "">>, { t
   "Dunlop Eureka": {
     title: "Premium Underlay",
     description: "Dunlop Eureka, 10mm, 80 kg/m\u00b3",
+  },
+  "Dunlop Government Red": {
+    title: "Underlay",
+    description: "Dunlop Government Red, 8mm, 70 kg/m\u00b3",
   },
 };
 

@@ -75,7 +75,7 @@ export interface TierConfig {
 }
 
 /** Underlay options available on single-product quotes */
-export type UnderlayOption = "Dunlop Springtred Protect" | "Dunlop Springtred Ultimate" | "Dunlop Springtred Extra" | "Dunlop Eureka" | "";
+export type UnderlayOption = "Dunlop Springtred Protect" | "Dunlop Springtred Ultimate" | "Dunlop Springtred Extra" | "Dunlop Eureka" | "Dunlop Government Red" | "";
 
 /**
  * Single product config — used for homeowner quotes and agency_single quotes.
