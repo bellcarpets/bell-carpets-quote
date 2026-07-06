@@ -1,13 +1,12 @@
 /**
- * Invoice PDF Generator — creates a premium branded Bell Carpets invoice/quote PDF.
- * Uses PDFKit for server-side generation.
+ * Invoice PDF Generator — Bell Carpets
  *
- * Design: Black & white, EB Garamond serif font, generous whitespace,
- * architectural firm aesthetic. No gold, no colour, no gradients.
+ * Layout: exactly 2 pages.
+ *   Page 1: Header, Prepared For, Property, Scope, Product, Pricing, Banking
+ *   Page 2: Terms & Conditions (condensed)
  *
- * Page 1: Header, prepared for, scope, product, pricing, banking
- * Page 2+: Full Terms & Conditions (auto-paginates)
- * Every page: minimal footer with Bell Carpets wordmark
+ * Design: EB Garamond serif, black & white, tight but generous whitespace.
+ * No colour, no gradients. Architectural firm aesthetic.
  */
 
 import PDFDocument from "pdfkit";
@@ -64,600 +63,419 @@ export interface InvoiceData {
   agentPhone: string;
 
   isAgent?: boolean;
-
-  /**
-   * Flowing description lines shown on the quote (identical to the web page).
-   * When provided, the PDF renders these as natural sentences instead of the
-   * legacy labelled "SCOPE OF WORKS" rows. Source: shared getDescriptionLines
-   * (config.description if admin-written, else generateDefaultDescription).
-   */
   descriptionLines?: string[];
-
-  /** Quote type, used to match the web page's heading + prepared-for logic. */
   quoteType?: string;
-
-  /** True for single-product layouts (homeowner / agency_single). */
   isSingleProduct?: boolean;
 }
 
-// ─── Palette: Pure B&W ─────────────────────────────────────────────
-const BLACK = "#000000";
-const DARK = "#1a1a1a";
-const MID = "#666666";
-const LIGHT = "#999999";
-const RULE = "#e0e0e0";
-const FAINT = "#f7f7f7";
+// ─── Palette ──────────────────────────────────────────────────────
+const BLACK  = "#000000";
+const DARK   = "#1a1a1a";
+const MID    = "#666666";
+const LIGHT  = "#999999";
+const RULE   = "#e0e0e0";
 
-// Logo — use local file first, fall back to URL
+// Local logo (served from server/fonts/)
 const LOGO_LOCAL = path.join(__dirname, "fonts", "logo.jpg");
-const LOGO_URL = "https://quote.bellcarpets.com.au/images/logo.jpg";
+const LOGO_URL   = "https://quote.bellcarpets.com.au/images/logo.jpg";
 
-// Font paths
-const FONT_DIR = path.join(__dirname, "fonts");
+const FONT_DIR     = path.join(__dirname, "fonts");
 const FONT_REGULAR = path.join(FONT_DIR, "EBGaramond-Variable.ttf");
-const FONT_ITALIC = path.join(FONT_DIR, "EBGaramond-Italic-Variable.ttf");
+const FONT_ITALIC  = path.join(FONT_DIR, "EBGaramond-Italic-Variable.ttf");
 
-function formatPrice(n: number): string {
-  return "$" + n.toLocaleString("en-AU", { minimumFractionDigits: 0 });
+function fmt(n: number): string {
+  return "$" + Math.round(n).toLocaleString("en-AU", { minimumFractionDigits: 0 });
 }
 
-function calculateValidUntil(issueDate: string, validDays: number): string {
+async function loadLogo(): Promise<Buffer | null> {
   try {
-    const d = new Date(issueDate);
-    if (isNaN(d.getTime())) {
-      const now = nowAEST();
-      now.setDate(now.getDate() + validDays);
-      return formatAESTDate(now, { day: "2-digit", month: "short", year: "numeric" });
-    }
-    d.setDate(d.getDate() + validDays);
-    return formatAESTDate(d, { day: "2-digit", month: "short", year: "numeric" });
+    if (fs.existsSync(LOGO_LOCAL)) return fs.readFileSync(LOGO_LOCAL);
+    return await new Promise((resolve, reject) => {
+      const client = LOGO_URL.startsWith("https") ? https : http;
+      client.get(LOGO_URL, (res) => {
+        if (res.statusCode && res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+          loadLogo().then(resolve).catch(reject);
+          return;
+        }
+        const chunks: Buffer[] = [];
+        res.on("data", (c: Buffer) => chunks.push(c));
+        res.on("end", () => resolve(Buffer.concat(chunks)));
+        res.on("error", reject);
+      }).on("error", reject);
+    });
   } catch {
-    return "";
+    return null;
   }
-}
-
-async function downloadImage(url: string): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    const client = url.startsWith("https") ? https : http;
-    client.get(url, (res) => {
-      if (res.statusCode && res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-        downloadImage(res.headers.location).then(resolve).catch(reject);
-        return;
-      }
-      const chunks: Buffer[] = [];
-      res.on("data", (chunk: Buffer) => chunks.push(chunk));
-      res.on("end", () => resolve(Buffer.concat(chunks)));
-      res.on("error", reject);
-    }).on("error", reject);
-  });
 }
 
 export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
-  // Load logo: prefer local file, fall back to download
-  let logoBuffer: Buffer | null = null;
-  try {
-    if (fs.existsSync(LOGO_LOCAL)) {
-      logoBuffer = fs.readFileSync(LOGO_LOCAL);
-    } else {
-      logoBuffer = await downloadImage(LOGO_URL);
-    }
-  } catch (e) {
-    console.warn("[InvoiceGenerator] Failed to load logo:", e);
-  }
-
-  // Check if custom fonts exist
-  const hasCustomFont = fs.existsSync(FONT_REGULAR);
-  const hasItalicFont = fs.existsSync(FONT_ITALIC);
+  const logoBuffer = await loadLogo();
+  const hasFont    = fs.existsSync(FONT_REGULAR);
+  const hasItalic  = fs.existsSync(FONT_ITALIC);
 
   return new Promise<Buffer>((resolve, reject) => {
+    // ── Document setup ────────────────────────────────────────────
     const doc = new PDFDocument({
       size: "A4",
-      margins: { top: 50, bottom: 50, left: 56, right: 56 },
+      margins: { top: 0, bottom: 0, left: 0, right: 0 },
       autoFirstPage: true,
       bufferPages: true,
       info: {
         Title: `Bell Carpets — ${data.invoiceNumber ?? data.quoteNumber}`,
         Author: "Bell Carpets",
-        Subject: `${data.invoiceNumber ? "Invoice" : "Quote"} ${data.invoiceNumber ?? data.quoteNumber}`,
       },
     });
 
-    // Register fonts
-    if (hasCustomFont) {
-      doc.registerFont("Garamond", FONT_REGULAR);
-    }
-    if (hasItalicFont) {
-      doc.registerFont("Garamond-Italic", FONT_ITALIC);
-    }
+    if (hasFont)   doc.registerFont("G",  FONT_REGULAR);
+    if (hasItalic) doc.registerFont("GI", FONT_ITALIC);
 
-    const fontRegular = hasCustomFont ? "Garamond" : "Helvetica";
-    const fontBold = hasCustomFont ? "Garamond" : "Helvetica-Bold";
-    const fontItalic = hasItalicFont ? "Garamond-Italic" : "Helvetica-Oblique";
+    const R  = hasFont   ? "G"  : "Helvetica";
+    const B  = hasFont   ? "G"  : "Helvetica-Bold";   // Garamond variable renders bold at larger sizes
+    const I  = hasItalic ? "GI" : "Helvetica-Oblique";
 
     const chunks: Buffer[] = [];
-    doc.on("data", (chunk: Buffer) => chunks.push(chunk));
-    doc.on("end", () => resolve(Buffer.concat(chunks)));
+    doc.on("data", (c: Buffer) => chunks.push(c));
+    doc.on("end",  () => resolve(Buffer.concat(chunks)));
     doc.on("error", reject);
 
-    const leftMargin = 56;
-    const pageWidth = doc.page.width - leftMargin * 2;
-    const rightEdge = leftMargin + pageWidth;
-    const pageHeight = doc.page.height;
-    const FOOTER_H = 40;
-    const SAFE_BOTTOM = pageHeight - FOOTER_H - 50;
+    // ── Page geometry ─────────────────────────────────────────────
+    const PW = doc.page.width;   // 595.28
+    const PH = doc.page.height;  // 841.89
+    const ML = 48;               // left margin
+    const MR = 48;               // right margin
+    const CW = PW - ML - MR;     // content width  ≈ 499
+    const RE = ML + CW;          // right edge
 
-    let pageCount = 1;
+    // ── Helpers ───────────────────────────────────────────────────
+    const hRule = (y: number, weight = 0.5, color = RULE) => {
+      doc.moveTo(ML, y).lineTo(RE, y).strokeColor(color).lineWidth(weight).stroke();
+    };
 
-    // ─── Helper: draw minimal footer ─────────────────────────────
-    function drawPageFooter(pageNum: number) {
-      const footerY = pageHeight - 40;
-      doc.moveTo(leftMargin, footerY - 8)
-        .lineTo(rightEdge, footerY - 8)
-        .strokeColor(RULE).lineWidth(0.5).stroke();
+    const label = (text: string, x: number, y: number, w = CW) => {
+      doc.font(R).fontSize(7).fillColor(LIGHT).text(text, x, y, { width: w });
+    };
 
-      doc.font(fontRegular).fontSize(7).fillColor(LIGHT);
-      doc.text(
-        "Bell Carpets",
-        leftMargin, footerY,
-        { width: pageWidth * 0.5, align: "left" }
-      );
-      doc.font(fontRegular).fontSize(7).fillColor(LIGHT);
-      doc.text(
-        `Page ${pageNum}`,
-        leftMargin + pageWidth * 0.5, footerY,
-        { width: pageWidth * 0.5, align: "right" }
-      );
-    }
+    const body = (text: string, x: number, y: number, w = CW, opts: object = {}) => {
+      doc.font(R).fontSize(9.5).fillColor(DARK).text(text, x, y, { width: w, ...opts });
+    };
 
-    // ─── Helper: check page break ────────────────────────────────
-    function ensureSpace(needed: number, y: number): number {
-      if (y + needed > SAFE_BOTTOM) {
-        drawPageFooter(pageCount);
-        doc.addPage();
-        pageCount++;
-        return 60;
-      }
-      return y;
-    }
+    const lineH = (text: string, size: number, x: number, y: number, w = CW, opts: object = {}) => {
+      doc.font(R).fontSize(size).fillColor(DARK).text(text, x, y, { width: w, ...opts });
+    };
 
-    // ═══════════════════════════════════════════════════════════════
-    // PAGE 1: Invoice / Quote
-    // ═══════════════════════════════════════════════════════════════
+    const priceRow = (desc: string, amount: string, y: number, bold = false) => {
+      doc.font(bold ? B : R).fontSize(bold ? 10.5 : 9.5).fillColor(bold ? BLACK : DARK);
+      doc.text(desc, ML, y, { width: CW * 0.65 });
+      doc.font(bold ? B : R).fontSize(bold ? 11 : 9.5).fillColor(BLACK);
+      doc.text(amount, RE - 90, y, { width: 90, align: "right" });
+    };
 
-    let y = 50;
+    const subtleRow = (desc: string, amount: string, y: number) => {
+      doc.font(R).fontSize(8.5).fillColor(MID);
+      doc.text(desc, ML, y, { width: CW * 0.65 });
+      doc.text(amount, RE - 90, y, { width: 90, align: "right" });
+    };
 
-    // ─── HEADER: Logo left, document info right ──────────────────
+    // ══════════════════════════════════════════════════════════════
+    // PAGE 1
+    // ══════════════════════════════════════════════════════════════
+    let y = 44;
+
+    // ── Logo ──────────────────────────────────────────────────────
     if (logoBuffer) {
-      try {
-        doc.image(logoBuffer, leftMargin, y, { height: 30 });
-      } catch {
-        doc.font(fontBold).fontSize(18).fillColor(BLACK);
-        doc.text("BELL CARPETS", leftMargin, y + 6);
-      }
+      try { doc.image(logoBuffer, ML, y, { height: 28 }); }
+      catch { doc.font(B).fontSize(16).fillColor(BLACK).text("BELL CARPETS", ML, y + 6); }
     } else {
-      doc.font(fontBold).fontSize(18).fillColor(BLACK);
-      doc.text("BELL CARPETS", leftMargin, y + 6);
+      doc.font(B).fontSize(16).fillColor(BLACK).text("BELL CARPETS", ML, y + 6);
     }
 
-    // Document label and number — top right
-    const docLabel = data.invoiceNumber ? "INVOICE" : "QUOTE";
+    // ── Doc type + number (top right) ─────────────────────────────
+    const docLabel  = data.invoiceNumber ? "INVOICE" : "QUOTE";
     const docNumber = data.invoiceNumber ?? data.quoteNumber;
+    doc.font(R).fontSize(7).fillColor(LIGHT).text(docLabel, RE - 130, y, { width: 130, align: "right" });
+    doc.font(B).fontSize(13).fillColor(BLACK).text(docNumber, RE - 130, y + 10, { width: 130, align: "right" });
+    doc.font(R).fontSize(8).fillColor(MID).text(data.issueDate, RE - 130, y + 26, { width: 130, align: "right" });
 
-    doc.font(fontRegular).fontSize(8).fillColor(LIGHT);
-    doc.text(docLabel, rightEdge - 140, y, { width: 140, align: "right" });
-    doc.font(fontBold).fontSize(14).fillColor(BLACK);
-    doc.text(docNumber, rightEdge - 140, y + 12, { width: 140, align: "right" });
-    doc.font(fontRegular).fontSize(8.5).fillColor(MID);
-    doc.text(data.issueDate, rightEdge - 140, y + 30, { width: 140, align: "right" });
+    y += 40;
 
-    y += 52;
+    // ── Company details line ───────────────────────────────────────
+    doc.font(R).fontSize(7).fillColor(LIGHT)
+      .text("Bell Spec Pty Ltd  |  ABN 74 613 299 773  |  Unit 1, 41 Olympic Circuit, Southport QLD 4215",
+        ML, y, { width: CW });
+    y += 12;
 
-    // Company details line
-    doc.font(fontRegular).fontSize(7.5).fillColor(LIGHT);
-    doc.text(
-      "Bell Spec Pty Ltd  |  ABN 74 613 299 773  |  Unit 1, 41 Olympic Circuit, Southport QLD 4215",
-      leftMargin, y, { width: pageWidth }
-    );
-
-    y += 18;
-
-    // Thick rule
-    doc.moveTo(leftMargin, y).lineTo(rightEdge, y)
-      .strokeColor(BLACK).lineWidth(1.5).stroke();
-
-    y += 24;
-
-    // ─── PREPARED FOR ────────────────────────────────────────────
-    const preparedForName = data.clientName?.trim() || data.agentName || "";
-
-    doc.font(fontRegular).fontSize(8).fillColor(LIGHT);
-    doc.text("PREPARED FOR", leftMargin, y);
+    // ── Heavy rule ────────────────────────────────────────────────
+    hRule(y, 1.5, BLACK);
     y += 14;
-    doc.font(fontBold).fontSize(12).fillColor(BLACK);
-    doc.text(preparedForName, leftMargin, y);
-    y += 18;
 
-    // Property address
+    // ── Two-column: Prepared For (left) | Property (right) ────────
+    const colW = CW * 0.48;
+    const col2 = ML + CW * 0.52;
+
+    const preparedFor = data.clientName?.trim() || data.agentName || "";
+    label("PREPARED FOR", ML, y);
+    if (data.propertyAddress) label("PROPERTY", col2, y);
+    y += 10;
+    doc.font(B).fontSize(11).fillColor(BLACK).text(preparedFor, ML, y, { width: colW });
     if (data.propertyAddress) {
-      doc.font(fontRegular).fontSize(9.5).fillColor(DARK);
-      doc.text(data.propertyAddress, leftMargin, y, { width: pageWidth * 0.7 });
-      y += 16;
+      doc.font(R).fontSize(9).fillColor(DARK).text(data.propertyAddress, col2, y, { width: colW });
     }
+    y += 20;
 
-    y += 16;
+    // ── Thin rule ─────────────────────────────────────────────────
+    hRule(y, 0.5);
+    y += 12;
 
-    // ─── SCOPE OF WORKS ──────────────────────────────────────────
-    doc.moveTo(leftMargin, y).lineTo(rightEdge, y)
-      .strokeColor(RULE).lineWidth(0.5).stroke();
-    y += 16;
+    // ── Scope of works ────────────────────────────────────────────
+    label("SCOPE OF WORKS", ML, y);
+    y += 10;
 
-    doc.font(fontRegular).fontSize(8).fillColor(LIGHT);
-    doc.text("SCOPE OF WORKS", leftMargin, y);
-    y += 16;
-
-    // Flowing description lines
-    const descLines = (data.descriptionLines ?? []).filter((l) => l && l.trim());
+    const descLines = (data.descriptionLines ?? []).filter(l => l?.trim());
     if (descLines.length > 0) {
       for (const line of descLines) {
-        y = ensureSpace(20, y);
-        doc.font(fontRegular).fontSize(10).fillColor(DARK);
-        const h = doc.heightOfString(line, { width: pageWidth, lineGap: 2 });
-        doc.text(line, leftMargin, y, { width: pageWidth, lineGap: 2 });
-        y += h + 6;
+        const h = doc.heightOfString(line, { width: CW, lineGap: 1 });
+        doc.font(R).fontSize(9.5).fillColor(DARK).text(line, ML, y, { width: CW, lineGap: 1 });
+        y += h + 4;
       }
     } else {
-      // Legacy fallback: structured scope items
       for (const item of data.scopeOfWorks) {
-        y = ensureSpace(20, y);
         const sentence = item.description?.trim() || item.title?.trim() || "";
-        if (sentence) {
-          doc.font(fontRegular).fontSize(10).fillColor(DARK);
-          doc.text(sentence, leftMargin, y, { width: pageWidth });
-          y += 14;
-        }
+        if (!sentence) continue;
+        const h = doc.heightOfString(sentence, { width: CW, lineGap: 1 });
+        doc.font(R).fontSize(9.5).fillColor(DARK).text(sentence, ML, y, { width: CW, lineGap: 1 });
+        y += h + 4;
+      }
+    }
+
+    // ── Product spec line ─────────────────────────────────────────
+    const isTiered = !!(data.allTiers && data.allTiers.length > 1);
+    if (!isTiered) {
+      const specParts: string[] = [];
+      const prodLabel = [data.manufacturer, data.productName].filter(Boolean).join(" ").trim();
+      if (prodLabel)    specParts.push(prodLabel);
+      if (data.fibre)   specParts.push(data.fibre);
+      if (data.pileType) specParts.push(data.pileType);
+      if (specParts.length > 0) {
+        y += 2;
+        doc.font(I).fontSize(8.5).fillColor(MID)
+          .text(specParts.join("  ·  "), ML, y, { width: CW });
+        y += 13;
+      }
+    }
+
+    y += 8;
+
+    // ── Pricing ───────────────────────────────────────────────────
+    hRule(y, 1, BLACK);
+    y += 12;
+    label("PRICING", ML, y);
+    y += 12;
+
+    if (data.rooms && data.rooms.length > 0) {
+      for (const room of data.rooms) {
+        priceRow(room.name, fmt(room.price), y);
+        y += 14;
+        hRule(y, 0.3);
+        y += 5;
+      }
+    } else if (isTiered) {
+      for (const tier of data.allTiers!) {
+        const spec = [tier.manufacturer, tier.productName].filter(Boolean).join(" ").trim();
+        priceRow(tier.name + (spec ? `  —  ${spec}` : ""), fmt(tier.price) + " inc GST", y);
+        y += 14;
+        hRule(y, 0.3);
+        y += 5;
+      }
+      y += 4;
+      doc.font(I).fontSize(8.5).fillColor(MID)
+        .text("Select one option to proceed. Prices include GST.", ML, y);
+      y += 14;
+    } else {
+      // Single product: show supply & install ex-GST
+      const exGst = Math.round(data.basePrice / 1.1);
+      priceRow("Supply & installation", fmt(exGst), y);
+      y += 14;
+      hRule(y, 0.3);
+      y += 5;
+    }
+
+    // Add-ons
+    for (const addon of data.addons) {
+      priceRow(addon.title, fmt(Math.round(addon.price / 1.1)), y);
+      y += 14;
+      hRule(y, 0.3);
+      y += 5;
+    }
+
+    // Subtotal / GST / Total
+    if (!isTiered) {
+      y += 4;
+      const subtotalEx = Math.round(data.grandTotal / 1.1);
+      const gstAmt     = data.grandTotal - subtotalEx;
+      subtleRow("Subtotal (ex GST)", fmt(subtotalEx), y);
+      y += 13;
+      subtleRow("GST (10%)", fmt(gstAmt), y);
+      y += 13;
+      hRule(y, 1, BLACK);
+      y += 8;
+      priceRow("Total (inc GST)", fmt(data.grandTotal), y, true);
+      y += 18;
+
+      // Deposit / balance
+      const depPct = data.depositPercent ?? 0;
+      if (depPct > 0) {
+        const dep = Math.round(data.grandTotal * (depPct / 100));
+        const bal = data.grandTotal - dep;
+        subtleRow(`Deposit (${depPct}%)`, fmt(dep), y);
+        y += 12;
+        subtleRow("Balance on completion", fmt(bal), y);
+        y += 14;
       }
     }
 
     y += 6;
 
-    // ─── PRODUCT LINE ────────────────────────────────────────────
-    const isTiered = !!(data.allTiers && data.allTiers.length > 1);
-    if (!isTiered) {
-      const specParts: string[] = [];
-      const productLabel = [data.manufacturer, data.productName].filter(Boolean).join(" ").trim();
-      if (productLabel) specParts.push(productLabel);
-      if (data.fibre) specParts.push(data.fibre);
-      if (data.pileType) specParts.push(data.pileType);
-      if (specParts.length > 0) {
-        y = ensureSpace(20, y);
-        doc.font(fontItalic).fontSize(9).fillColor(MID);
-        doc.text(specParts.join("  ·  "), leftMargin, y, { width: pageWidth });
-        y += 16;
-      }
+    // ── Payment terms ─────────────────────────────────────────────
+    doc.font(R).fontSize(8.5).fillColor(MID)
+      .text("Payment due on completion of works. Please send remittances to hello@bellcarpets.com.au",
+        ML, y, { width: CW });
+    y += 14;
+
+    // Tax invoice note (quotes only)
+    if (!data.invoiceNumber) {
+      const taxNote = (data.isAgent || (data.depositPercent ?? 50) === 0)
+        ? "This document is a quotation and does not constitute a tax invoice. A tax invoice will be issued upon completion of works."
+        : "This document is a quotation and does not constitute a tax invoice. A tax invoice will be issued upon receipt of deposit.";
+      doc.font(I).fontSize(7.5).fillColor(LIGHT).text(taxNote, ML, y, { width: CW, align: "center" });
+      y += 12;
+    }
+
+    // ── Page 1 footer ─────────────────────────────────────────────
+    const f1y = PH - 28;
+    hRule(f1y - 6, 0.5);
+    doc.font(R).fontSize(7).fillColor(LIGHT).text("Bell Carpets", ML, f1y, { width: CW * 0.5 });
+    doc.font(R).fontSize(7).fillColor(LIGHT).text("Page 1", ML, f1y, { width: CW, align: "right" });
+
+    // ══════════════════════════════════════════════════════════════
+    // PAGE 2: Banking + T&C
+    // ══════════════════════════════════════════════════════════════
+    doc.addPage();
+    y = 44;
+
+    // ── Page 2 logo + heading ─────────────────────────────────────
+    if (logoBuffer) {
+      try { doc.image(logoBuffer, ML, y, { height: 22 }); }
+      catch { doc.font(B).fontSize(13).fillColor(BLACK).text("BELL CARPETS", ML, y + 4); }
+    }
+    doc.font(R).fontSize(8).fillColor(MID)
+      .text("Terms & Conditions", RE - 130, y + 6, { width: 130, align: "right" });
+    doc.font(R).fontSize(7).fillColor(LIGHT)
+      .text(`Ref: ${docNumber}`, RE - 130, y + 18, { width: 130, align: "right" });
+
+    y += 36;
+    hRule(y, 0.5, BLACK);
+    y += 14;
+
+    // ── Banking details ───────────────────────────────────────────
+    label("BANKING DETAILS", ML, y);
+    y += 10;
+
+    const bankRows: [string, string][] = [
+      ["Account Name",   "Bell Spec Pty Ltd"],
+      ["BSB",            "124 022"],
+      ["Account Number", "22496442"],
+      ["Reference",      docNumber],
+    ];
+
+    // Two-column banking layout
+    const bLabelW = 90;
+    for (const [lbl, val] of bankRows) {
+      doc.font(R).fontSize(8.5).fillColor(MID).text(lbl, ML, y, { width: bLabelW });
+      doc.font(R).fontSize(9).fillColor(DARK).text(val, ML + bLabelW, y, { width: CW - bLabelW });
+      y += 13;
     }
 
     y += 10;
-
-    // ─── PRICING ─────────────────────────────────────────────────
-    y = ensureSpace(140, y);
-    doc.moveTo(leftMargin, y).lineTo(rightEdge, y)
-      .strokeColor(BLACK).lineWidth(1).stroke();
-    y += 16;
-
-    doc.font(fontRegular).fontSize(8).fillColor(LIGHT);
-    doc.text("PRICING", leftMargin, y);
-    y += 18;
-
-    if (data.rooms && data.rooms.length > 0) {
-      // Room itemisation
-      for (const room of data.rooms) {
-        y = ensureSpace(24, y);
-        doc.font(fontRegular).fontSize(10).fillColor(DARK);
-        doc.text(room.name, leftMargin, y, { width: pageWidth * 0.65 });
-        doc.font(fontRegular).fontSize(10).fillColor(BLACK);
-        doc.text(formatPrice(room.price), rightEdge - 100, y, { width: 100, align: "right" });
-        y += 18;
-        doc.moveTo(leftMargin, y).lineTo(rightEdge, y)
-          .strokeColor(RULE).lineWidth(0.3).stroke();
-        y += 8;
-      }
-    } else if (isTiered) {
-      // Multi-tier pricing
-      for (const tier of data.allTiers!) {
-        y = ensureSpace(24, y);
-        const tierSpec = [tier.manufacturer, tier.productName].filter(Boolean).join(" ").trim();
-        doc.font(fontRegular).fontSize(10).fillColor(DARK);
-        doc.text(tier.name + (tierSpec ? ` — ${tierSpec}` : ""), leftMargin, y, { width: pageWidth * 0.6 });
-        doc.font(fontRegular).fontSize(10).fillColor(BLACK);
-        doc.text(formatPrice(tier.price) + " inc GST", rightEdge - 140, y, { width: 140, align: "right" });
-        y += 18;
-        doc.moveTo(leftMargin, y).lineTo(rightEdge, y)
-          .strokeColor(RULE).lineWidth(0.3).stroke();
-        y += 8;
-      }
-      // Note for multi-tier
-      y += 4;
-      doc.font(fontItalic).fontSize(9).fillColor(MID);
-      doc.text("Select one option to proceed. Prices include GST.", leftMargin, y);
-      y += 20;
-    } else {
-      // Single product pricing — show ex-GST subtotal
-      const exGst = Math.round(data.basePrice / 1.1);
-      doc.font(fontRegular).fontSize(10).fillColor(DARK);
-      doc.text("Supply & installation", leftMargin, y, { width: pageWidth * 0.65 });
-      doc.font(fontRegular).fontSize(10).fillColor(BLACK);
-      doc.text(formatPrice(exGst), rightEdge - 100, y, { width: 100, align: "right" });
-      y += 18;
-      doc.moveTo(leftMargin, y).lineTo(rightEdge, y)
-        .strokeColor(RULE).lineWidth(0.3).stroke();
-      y += 8;
-    }
-
-    // Add-ons
-    for (const addon of data.addons) {
-      y = ensureSpace(24, y);
-      doc.font(fontRegular).fontSize(10).fillColor(DARK);
-      doc.text(addon.title, leftMargin, y, { width: pageWidth * 0.65 });
-      doc.font(fontRegular).fontSize(10).fillColor(BLACK);
-      doc.text(formatPrice(Math.round(addon.price / 1.1)), rightEdge - 100, y, { width: 100, align: "right" });
-      y += 18;
-      doc.moveTo(leftMargin, y).lineTo(rightEdge, y)
-        .strokeColor(RULE).lineWidth(0.3).stroke();
-      y += 8;
-    }
-
-    // Subtotal / GST / Total (for single-tier / rooms only)
-    if (!isTiered) {
-      y += 6;
-
-      // Subtotal (ex GST)
-      const subtotalExGst = Math.round(data.grandTotal / 1.1);
-      doc.font(fontRegular).fontSize(9).fillColor(MID);
-      doc.text("Subtotal (ex GST)", leftMargin, y, { width: pageWidth * 0.65 });
-      doc.text(formatPrice(subtotalExGst), rightEdge - 100, y, { width: 100, align: "right" });
-      y += 16;
-
-      // GST
-      const gstAmount = data.grandTotal - subtotalExGst;
-      doc.font(fontRegular).fontSize(9).fillColor(MID);
-      doc.text("GST (10%)", leftMargin, y, { width: pageWidth * 0.65 });
-      doc.text(formatPrice(gstAmount), rightEdge - 100, y, { width: 100, align: "right" });
-      y += 18;
-
-      // Total line
-      doc.moveTo(leftMargin, y).lineTo(rightEdge, y)
-        .strokeColor(BLACK).lineWidth(1).stroke();
-      y += 12;
-      doc.font(fontBold).fontSize(13).fillColor(BLACK);
-      doc.text("Total (inc GST)", leftMargin, y, { width: pageWidth * 0.65 });
-      doc.font(fontBold).fontSize(14).fillColor(BLACK);
-      doc.text(formatPrice(data.grandTotal), rightEdge - 120, y, { width: 120, align: "right" });
-      y += 26;
-
-      // Deposit / Balance breakdown
-      const summaryDepositPct = data.depositPercent ?? 0;
-      if (summaryDepositPct > 0) {
-        const deposit = Math.round(data.grandTotal * (summaryDepositPct / 100));
-        const balance = data.grandTotal - deposit;
-
-        y += 4;
-        doc.font(fontRegular).fontSize(9).fillColor(MID);
-        doc.text(`Deposit (${summaryDepositPct}%)`, leftMargin, y, { width: pageWidth * 0.65 });
-        doc.text(formatPrice(deposit), rightEdge - 100, y, { width: 100, align: "right" });
-        y += 14;
-        doc.text("Balance on completion", leftMargin, y, { width: pageWidth * 0.65 });
-        doc.text(formatPrice(balance), rightEdge - 100, y, { width: 100, align: "right" });
-        y += 20;
-      }
-    }
-
-    // ─── BANKING DETAILS ─────────────────────────────────────────
-    y += 8;
-    y = ensureSpace(120, y);
-    doc.moveTo(leftMargin, y).lineTo(rightEdge, y)
-      .strokeColor(RULE).lineWidth(0.5).stroke();
-    y += 16;
-
-    doc.font(fontRegular).fontSize(8).fillColor(LIGHT);
-    doc.text("BANKING DETAILS", leftMargin, y);
-    y += 18;
-
-    const bankRows: [string, string][] = [
-      ["Account Name", "Bell Spec Pty Ltd"],
-      ["BSB", "124 022"],
-      ["Account Number", "22496442"],
-      ["Reference", data.invoiceNumber ?? data.quoteNumber],
-    ];
-
-    for (const [label, value] of bankRows) {
-      doc.font(fontRegular).fontSize(9).fillColor(MID);
-      doc.text(label, leftMargin, y, { width: 110 });
-      doc.font(fontRegular).fontSize(9.5).fillColor(DARK);
-      doc.text(value, leftMargin + 110, y);
-      y += 15;
-    }
-
+    hRule(y, 0.5);
     y += 14;
 
-    // Payment terms — unified for all invoice types
-    const paymentNote = "Payment due on completion of works. Please send remittances to hello@bellcarpets.com.au";
-    doc.font(fontRegular).fontSize(9).fillColor(MID);
-    doc.text(paymentNote, leftMargin, y, { width: pageWidth });
-    y += 20;
-
-    // Tax invoice note — only shown on quotes, not on invoice PDFs
-    if (!data.invoiceNumber) {
-      const taxNote = data.isAgent
-        ? "This document is a quotation and does not constitute a tax invoice. A tax invoice will be issued upon completion of works."
-        : (data.depositPercent ?? 50) === 0
-        ? "This document is a quotation and does not constitute a tax invoice. A tax invoice will be issued upon completion of works."
-        : "This document is a quotation and does not constitute a tax invoice. A tax invoice will be issued upon receipt of deposit.";
-      doc.font(fontItalic).fontSize(7.5).fillColor(LIGHT);
-      doc.text(taxNote, leftMargin, y, { width: pageWidth, align: "center" });
-    }
-
-    // Page 1 Footer
-    drawPageFooter(pageCount);
-
-    // ═══════════════════════════════════════════════════════════════
-    // T&C PAGES
-    // ═══════════════════════════════════════════════════════════════
+    // ── T&C sections — condensed ──────────────────────────────────
+    const isInvoiceDoc = !!data.invoiceNumber;
     const depPct = data.depositPercent ?? 50;
     const balPct = 100 - depPct;
-    const isInvoiceDoc = !!data.invoiceNumber;
 
-    const financialCommitmentItems = isInvoiceDoc
-      ? [
-          {
-            label: "Payment Terms",
-            text: "Payment of the remaining balance is due on completion of works. Payment is to be made by direct bank transfer.",
-          },
-        ]
+    const financialItems = isInvoiceDoc
+      ? [{ label: "Payment Terms", text: "Payment of the remaining balance is due on completion of works. Payment is to be made by direct bank transfer." }]
       : data.isAgent
       ? [
-          {
-            label: "Payment Terms",
-            text: "Full payment of the invoice total is strictly due upon practical completion of the installation on the scheduled day. Materials will not be ordered until written acceptance of this quotation is received.",
-          },
-          {
-            label: "Invoicing",
-            text: "A tax invoice will be issued upon completion of works. Payment is to be made by direct bank transfer within 7 days of invoice date.",
-          },
+          { label: "Payment Terms", text: "Full payment is strictly due upon practical completion of the installation on the scheduled day. Materials will not be ordered until written acceptance is received." },
+          { label: "Invoicing",     text: "A tax invoice will be issued upon completion of works. Payment is to be made by direct bank transfer within 7 days of invoice date." },
         ]
       : depPct === 0
-      ? [
-          {
-            label: "Payment Terms",
-            text: "Full payment is due upon practical completion of the installation. A tax invoice will be issued upon completion of works.",
-          },
-        ]
+      ? [{ label: "Payment Terms", text: "Full payment is due upon practical completion of the installation. A tax invoice will be issued upon completion of works." }]
       : [
-          {
-            label: "Deposit",
-            text: `A non-refundable deposit of ${depPct}% of the total quoted amount is required to confirm your booking and order materials. Materials will not be ordered until the deposit is received.`,
-          },
-          {
-            label: "Balance",
-            text: `The remaining ${balPct}% is due upon practical completion of the installation on the scheduled day.`,
-          },
+          { label: "Deposit", text: `A non-refundable deposit of ${depPct}% is required to confirm your booking and order materials.` },
+          { label: "Balance", text: `The remaining ${balPct}% is due upon practical completion of the installation on the scheduled day.` },
         ];
 
     const tcSections = [
-      {
-        title: "Financial Commitment",
-        items: financialCommitmentItems,
-      },
-      {
-        title: "Scheduling & Access",
-        items: [
-          { label: "Lead Time", text: "Installation dates are subject to material availability. Typical lead time is 5 to 10 business days from deposit receipt." },
-          { label: "Site Access", text: "Clear and safe access to the installation area must be provided. Furniture must be removed from the work area prior to the scheduled installation date unless a furniture removal add-on has been included in this quote." },
-          { label: "Subfloor", text: "Subfloor must be structurally sound, dry, and level. Any remediation required beyond normal preparation (e.g. levelling compound, moisture barriers) will be quoted separately." },
-        ],
-      },
-      {
-        title: "Variations & Cancellations",
-        items: [
-          { label: "Variations", text: "Any changes to the scope of works after acceptance must be agreed in writing. Additional costs will be quoted and confirmed before proceeding." },
+      { title: "Financial Commitment", items: financialItems },
+      { title: "Scheduling & Access", items: [
+          { label: "Lead Time",   text: "Installation dates are subject to material availability. Typical lead time is 5–10 business days from deposit receipt." },
+          { label: "Site Access", text: "Clear and safe access must be provided. Furniture must be removed from the work area prior to the installation date unless a furniture removal add-on is included." },
+          { label: "Subfloor",   text: "Subfloor must be structurally sound, dry, and level. Any remediation required beyond normal preparation will be quoted separately." },
+        ]},
+      { title: "Variations & Cancellations", items: [
+          { label: "Variations",   text: "Any changes to the scope of works after acceptance must be agreed in writing. Additional costs will be quoted and confirmed before proceeding." },
           { label: "Cancellation", text: "If you cancel after materials have been ordered, you forfeit the deposit. If materials have been cut or customised, the full material cost is non-refundable." },
-        ],
-      },
-      {
-        title: "Warranty & Liability",
-        items: [
+        ]},
+      { title: "Warranty & Liability", items: [
           { label: "Installation Guarantee", text: "All installations are guaranteed for life against installation defects. This does not cover damage caused by misuse, flooding, or failure to follow manufacturer care instructions." },
-          { label: "Manufacturer Warranty", text: "Product warranties are provided by the manufacturer and are separate from our installation guarantee. Warranty documentation will be provided upon completion." },
-          { label: "Limitation", text: "Our liability is limited to the quoted amount. We are not liable for consequential loss, loss of use, or damage to existing fixtures unless caused by our negligence." },
-        ],
-      },
-      {
-        title: "General",
-        items: [
-          ...(isInvoiceDoc ? [] : [{ label: "Quote Validity", text: `This quote is valid for ${data.validDays} days from the issue date. After expiry, pricing may be subject to change.` }]),
+          { label: "Manufacturer Warranty", text: "Product warranties are provided by the manufacturer and are separate from our installation guarantee." },
+          { label: "Limitation",            text: "Our liability is limited to the quoted amount. We are not liable for consequential loss or damage to existing fixtures unless caused by our negligence." },
+        ]},
+      { title: "General", items: [
+          ...(isInvoiceDoc ? [] : [{ label: "Quote Validity", text: `This quote is valid for ${data.validDays} days from the issue date.` }]),
           { label: "Colour Variation", text: "Carpet and flooring products may vary slightly in colour from samples due to dye lot variations. This is normal and not a defect." },
-          { label: "Governing Law", text: "This agreement is governed by the laws of Queensland, Australia." },
-        ],
-      },
+          { label: "Governing Law",    text: "This agreement is governed by the laws of Queensland, Australia." },
+        ]},
     ];
 
-    // Start T&C on new page
-    drawPageFooter(pageCount);
-    doc.addPage();
-    pageCount++;
-    y = 50;
-
-    // T&C header
-    if (logoBuffer) {
-      try {
-        doc.image(logoBuffer, leftMargin, y, { height: 22 });
-      } catch {
-        doc.font(fontBold).fontSize(14).fillColor(BLACK);
-        doc.text("BELL CARPETS", leftMargin, y + 4);
-      }
-    }
-
-    doc.font(fontRegular).fontSize(8).fillColor(MID);
-    doc.text("Terms and Conditions", rightEdge - 140, y + 6, { width: 140, align: "right" });
-    doc.font(fontRegular).fontSize(7.5).fillColor(LIGHT);
-    doc.text(`Reference: ${data.invoiceNumber ?? data.quoteNumber}`, rightEdge - 140, y + 18, { width: 140, align: "right" });
-
-    y += 40;
-    doc.moveTo(leftMargin, y).lineTo(rightEdge, y)
-      .strokeColor(BLACK).lineWidth(0.5).stroke();
-    y += 20;
-
-    // Render T&C sections
+    // Render T&C in a compact two-column label/text style
     for (const section of tcSections) {
-      y = ensureSpace(60, y);
-      if (y <= 60) {
-        if (logoBuffer) {
-          try { doc.image(logoBuffer, leftMargin, 50, { height: 18 }); } catch {}
-        }
-        y = 80;
-      }
-
-      doc.font(fontBold).fontSize(10).fillColor(BLACK);
-      doc.text(section.title, leftMargin, y);
-      y += 18;
+      // Section heading
+      doc.font(B).fontSize(8.5).fillColor(BLACK).text(section.title, ML, y);
+      y += 11;
 
       for (const item of section.items) {
-        y = ensureSpace(40, y);
-        if (y <= 60) {
-          if (logoBuffer) {
-            try { doc.image(logoBuffer, leftMargin, 50, { height: 18 }); } catch {}
-          }
-          y = 80;
-        }
+        const labelW2 = 100;
+        const textW2  = CW - labelW2;
+        const textH   = doc.heightOfString(item.text, { width: textW2, lineGap: 0.5 });
+        const rowH    = Math.max(11, textH);
 
-        doc.font(fontBold).fontSize(9).fillColor(DARK);
-        doc.text(item.label, leftMargin, y);
-        y += 13;
-        doc.font(fontRegular).fontSize(9).fillColor(MID);
-        const textHeight = doc.heightOfString(item.text, { width: pageWidth - 12 });
-        doc.text(item.text, leftMargin + 12, y, { width: pageWidth - 12 });
-        y += textHeight + 10;
+        doc.font(B).fontSize(8).fillColor(DARK).text(item.label, ML, y, { width: labelW2 });
+        doc.font(R).fontSize(8).fillColor(MID).text(item.text, ML + labelW2, y, { width: textW2, lineGap: 0.5 });
+        y += rowH + 3;
       }
-
-      y += 8;
+      y += 6;
     }
 
-    // Custom terms from quote config
+    // Custom terms
     if (data.terms && data.terms.length > 0) {
-      y = ensureSpace(40, y);
-      doc.font(fontBold).fontSize(10).fillColor(BLACK);
-      doc.text("Additional Terms", leftMargin, y);
-      y += 18;
-
+      doc.font(B).fontSize(8.5).fillColor(BLACK).text("Additional Terms", ML, y);
+      y += 11;
       for (const term of data.terms) {
-        y = ensureSpace(24, y);
-        doc.font(fontRegular).fontSize(9).fillColor(MID);
-        doc.text(`·  ${term}`, leftMargin + 12, y, { width: pageWidth - 12 });
-        y += 16;
+        const h = doc.heightOfString(`·  ${term}`, { width: CW - 12, lineGap: 0.5 });
+        doc.font(R).fontSize(8).fillColor(MID).text(`·  ${term}`, ML + 12, y, { width: CW - 12, lineGap: 0.5 });
+        y += h + 4;
       }
     }
 
-    // Final footer on last page
-    drawPageFooter(pageCount);
+    // ── Page 2 footer ─────────────────────────────────────────────
+    const f2y = PH - 28;
+    hRule(f2y - 6, 0.5);
+    doc.font(R).fontSize(7).fillColor(LIGHT).text("Bell Carpets", ML, f2y, { width: CW * 0.5 });
+    doc.font(R).fontSize(7).fillColor(LIGHT).text("Page 2", ML, f2y, { width: CW, align: "right" });
 
     doc.end();
   });
