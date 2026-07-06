@@ -335,6 +335,11 @@ export const invoiceRouter = router({
       let tier = config.tiers?.find((t) => t.name === acceptedTierName);
       if (!tier && config.tiers?.length) tier = config.tiers[0];
 
+      // PDF "Prepared For" name: use config.client.name which is the agency/company
+      // name for agent-style quotes, or the customer name for homeowner quotes.
+      // recipientName is for email routing (may be the contact person, not the company).
+      const pdfClientName = config.client?.name || recipientName;
+
       const invoiceData: InvoiceData = {
         quoteNumber: quote.quoteNumber,
         invoiceNumber,
@@ -345,7 +350,7 @@ export const invoiceRouter = router({
         }),
         validDays: paymentTermsDays,
         depositPercent: config.depositPercent || 50,
-        clientName: recipientName,
+        clientName: pdfClientName,
         clientType: config.client?.type || "",
         propertyAddress,
         tierName:
@@ -385,6 +390,7 @@ export const invoiceRouter = router({
         agentName: recipientName,
         agentEmail: recipientEmail,
         agentPhone: recipientPhone,
+        isAgent: usesAgentPaymentTerms(quoteType),
         descriptionLines: getDescriptionLines(config, { tiered: pricingMode !== "single" }),
         quoteType,
         isSingleProduct: pricingMode === "single",

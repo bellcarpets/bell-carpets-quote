@@ -72,7 +72,16 @@ export function generateDefaultDescription(
     const norm = sentence.toLowerCase().replace(/[^a-z0-9]/g, "");
     const dup = lines.some((l) => {
       const ln = l.toLowerCase().replace(/[^a-z0-9]/g, "");
-      return ln === norm || ln.includes(norm) || norm.includes(ln);
+      // Exact match or substring containment
+      if (ln === norm || ln.includes(norm) || norm.includes(ln)) return true;
+      // Both lines start with "supply & installation" — treat as duplicates.
+      // This catches the case where the product-specific line (e.g. "Supply &
+      // Installation of new Victoria Carpets Lemar Twist carpet to bedrooms")
+      // and a generic scope item ("Supply & Installation of new carpet to bedrooms")
+      // would otherwise both appear because neither fully contains the other.
+      const supplyPrefix = "supplyinstallation";
+      if (ln.startsWith(supplyPrefix) && norm.startsWith(supplyPrefix)) return true;
+      return false;
     });
     if (!dup) lines.push(sentence);
   };

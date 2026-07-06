@@ -1,11 +1,11 @@
 /**
- * Invoice PDF Generator — creates a luxury branded Bell Carpets quote PDF
+ * Invoice PDF Generator — creates a premium branded Bell Carpets invoice/quote PDF.
  * Uses PDFKit for server-side generation.
  *
  * Design: Black & white, EB Garamond serif font, generous whitespace,
  * architectural firm aesthetic. No gold, no colour, no gradients.
  *
- * Page 1: Quote details, product, pricing, banking
+ * Page 1: Header, prepared for, scope, product, pricing, banking
  * Page 2+: Full Terms & Conditions (auto-paginates)
  * Every page: minimal footer with Bell Carpets wordmark
  */
@@ -86,14 +86,13 @@ const DARK = "#1a1a1a";
 const MID = "#666666";
 const LIGHT = "#999999";
 const RULE = "#e0e0e0";
-const FAINT = "#f5f5f5";
-// Warm cream accent — matches the customer-facing quote page (#EDE8DF).
-const CREAM = "#EDE8DF";
+const FAINT = "#f7f7f7";
 
-// Logo URL (black wordmark on white)
+// Logo — use local file first, fall back to URL
+const LOGO_LOCAL = path.join(__dirname, "fonts", "logo.jpg");
 const LOGO_URL = "https://quote.bellcarpets.com.au/images/logo.jpg";
 
-// Font paths — relative to this file's directory
+// Font paths
 const FONT_DIR = path.join(__dirname, "fonts");
 const FONT_REGULAR = path.join(FONT_DIR, "EBGaramond-Variable.ttf");
 const FONT_ITALIC = path.join(FONT_DIR, "EBGaramond-Italic-Variable.ttf");
@@ -134,27 +133,32 @@ async function downloadImage(url: string): Promise<Buffer> {
 }
 
 export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
+  // Load logo: prefer local file, fall back to download
   let logoBuffer: Buffer | null = null;
   try {
-    logoBuffer = await downloadImage(LOGO_URL);
+    if (fs.existsSync(LOGO_LOCAL)) {
+      logoBuffer = fs.readFileSync(LOGO_LOCAL);
+    } else {
+      logoBuffer = await downloadImage(LOGO_URL);
+    }
   } catch (e) {
-    console.warn("[InvoiceGenerator] Failed to download logo:", e);
+    console.warn("[InvoiceGenerator] Failed to load logo:", e);
   }
 
-  // Check if custom fonts exist, fall back to Helvetica if not
+  // Check if custom fonts exist
   const hasCustomFont = fs.existsSync(FONT_REGULAR);
   const hasItalicFont = fs.existsSync(FONT_ITALIC);
 
   return new Promise<Buffer>((resolve, reject) => {
     const doc = new PDFDocument({
       size: "A4",
-      margins: { top: 60, bottom: 0, left: 60, right: 60 },
+      margins: { top: 50, bottom: 50, left: 56, right: 56 },
       autoFirstPage: true,
       bufferPages: true,
       info: {
         Title: `Bell Carpets — ${data.invoiceNumber ?? data.quoteNumber}`,
         Author: "Bell Carpets",
-        Subject: `Quote ${data.invoiceNumber ?? data.quoteNumber}`,
+        Subject: `${data.invoiceNumber ? "Invoice" : "Quote"} ${data.invoiceNumber ?? data.quoteNumber}`,
       },
     });
 
@@ -175,33 +179,33 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
     doc.on("end", () => resolve(Buffer.concat(chunks)));
     doc.on("error", reject);
 
-    const pageWidth = doc.page.width - 120; // 60 left + 60 right
-    const leftMargin = 60;
+    const leftMargin = 56;
+    const pageWidth = doc.page.width - leftMargin * 2;
     const rightEdge = leftMargin + pageWidth;
     const pageHeight = doc.page.height;
-    const FOOTER_H = 50;
-    const SAFE_BOTTOM = pageHeight - FOOTER_H - 60;
+    const FOOTER_H = 40;
+    const SAFE_BOTTOM = pageHeight - FOOTER_H - 50;
 
     let pageCount = 1;
 
     // ─── Helper: draw minimal footer ─────────────────────────────
     function drawPageFooter(pageNum: number) {
-      const footerY = pageHeight - 50;
-      doc.moveTo(leftMargin, footerY - 6)
-        .lineTo(rightEdge, footerY - 6)
+      const footerY = pageHeight - 40;
+      doc.moveTo(leftMargin, footerY - 8)
+        .lineTo(rightEdge, footerY - 8)
         .strokeColor(RULE).lineWidth(0.5).stroke();
 
       doc.font(fontRegular).fontSize(7).fillColor(LIGHT);
       doc.text(
-        "Bell Carpets  ·  Established 1987",
-        leftMargin, footerY + 2,
-        { width: pageWidth * 0.6, align: "left" }
+        "Bell Carpets",
+        leftMargin, footerY,
+        { width: pageWidth * 0.5, align: "left" }
       );
       doc.font(fontRegular).fontSize(7).fillColor(LIGHT);
       doc.text(
         `Page ${pageNum}`,
-        leftMargin + pageWidth * 0.6, footerY + 2,
-        { width: pageWidth * 0.4, align: "right" }
+        leftMargin + pageWidth * 0.5, footerY,
+        { width: pageWidth * 0.5, align: "right" }
       );
     }
 
@@ -217,178 +221,139 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // PAGE 1: Quote
+    // PAGE 1: Invoice / Quote
     // ═══════════════════════════════════════════════════════════════
 
-    let y = 60;
+    let y = 50;
 
-    // Logo
+    // ─── HEADER: Logo left, document info right ──────────────────
     if (logoBuffer) {
       try {
-        doc.image(logoBuffer, leftMargin, y, { height: 32 });
+        doc.image(logoBuffer, leftMargin, y, { height: 30 });
       } catch {
-        doc.font(fontBold).fontSize(20).fillColor(BLACK);
+        doc.font(fontBold).fontSize(18).fillColor(BLACK);
         doc.text("BELL CARPETS", leftMargin, y + 6);
       }
     } else {
-      doc.font(fontBold).fontSize(20).fillColor(BLACK);
+      doc.font(fontBold).fontSize(18).fillColor(BLACK);
       doc.text("BELL CARPETS", leftMargin, y + 6);
     }
 
-    y += 56;
+    // Document label and number — top right
+    const docLabel = data.invoiceNumber ? "INVOICE" : "QUOTE";
+    const docNumber = data.invoiceNumber ?? data.quoteNumber;
 
-    // Thin rule below logo
+    doc.font(fontRegular).fontSize(8).fillColor(LIGHT);
+    doc.text(docLabel, rightEdge - 140, y, { width: 140, align: "right" });
+    doc.font(fontBold).fontSize(14).fillColor(BLACK);
+    doc.text(docNumber, rightEdge - 140, y + 12, { width: 140, align: "right" });
+    doc.font(fontRegular).fontSize(8.5).fillColor(MID);
+    doc.text(data.issueDate, rightEdge - 140, y + 30, { width: 140, align: "right" });
+
+    y += 52;
+
+    // Company details line
+    doc.font(fontRegular).fontSize(7.5).fillColor(LIGHT);
+    doc.text(
+      "Bell Spec Pty Ltd  |  ABN 74 613 299 773  |  Unit 1, 41 Olympic Circuit, Southport QLD 4215",
+      leftMargin, y, { width: pageWidth }
+    );
+
+    y += 18;
+
+    // Thick rule
     doc.moveTo(leftMargin, y).lineTo(rightEdge, y)
-      .strokeColor(BLACK).lineWidth(1).stroke();
+      .strokeColor(BLACK).lineWidth(1.5).stroke();
 
     y += 24;
 
-    // QUOTE number and dates — right aligned
-    const docLabel = data.invoiceNumber ? "INVOICE" : "QUOTE";
-    const docNumber = data.invoiceNumber ?? data.quoteNumber;
-    const validUntil = calculateValidUntil(data.issueDate, data.validDays);
-
-    doc.font(fontRegular).fontSize(9).fillColor(LIGHT);
-    doc.text(docLabel, rightEdge - 160, y, { width: 160, align: "right" });
-    y += 2;
-    doc.font(fontBold).fontSize(18).fillColor(BLACK);
-    doc.text(docNumber, rightEdge - 160, y + 10, { width: 160, align: "right" });
-
-    // Left side: client details.
-    // Prepared-for name mirrors the web page: agency quotes use config.client.name
-    // (falling back to agentName), homeowner quotes use config.client.name. The
-    // unified fallback chain is correct for every quote type because agentName is
-    // only the raw contact person on agency_single, and client.name is set on all
-    // live quotes.
+    // ─── PREPARED FOR ────────────────────────────────────────────
     const preparedForName = data.clientName?.trim() || data.agentName || "";
-    const detailStartY = y;
-    doc.font(fontRegular).fontSize(9).fillColor(LIGHT);
-    doc.text("PREPARED FOR", leftMargin, detailStartY);
-    doc.font(fontRegular).fontSize(11).fillColor(DARK);
-    doc.text(preparedForName, leftMargin, detailStartY + 14);
 
-    y = detailStartY + 42;
+    doc.font(fontRegular).fontSize(8).fillColor(LIGHT);
+    doc.text("PREPARED FOR", leftMargin, y);
+    y += 14;
+    doc.font(fontBold).fontSize(12).fillColor(BLACK);
+    doc.text(preparedForName, leftMargin, y);
+    y += 18;
 
     // Property address
     if (data.propertyAddress) {
-      doc.font(fontRegular).fontSize(9).fillColor(LIGHT);
-      doc.text("PROPERTY", leftMargin, y);
-      doc.font(fontRegular).fontSize(10).fillColor(DARK);
-      doc.text(data.propertyAddress, leftMargin, y + 14);
-      y += 36;
-    }
-
-    // Dates
-    y += 8;
-    doc.font(fontRegular).fontSize(9).fillColor(LIGHT);
-    doc.text("ISSUED", leftMargin, y);
-    doc.font(fontRegular).fontSize(10).fillColor(DARK);
-    doc.text(data.issueDate, leftMargin + 80, y);
-
-    if (validUntil && !data.invoiceNumber) {
+      doc.font(fontRegular).fontSize(9.5).fillColor(DARK);
+      doc.text(data.propertyAddress, leftMargin, y, { width: pageWidth * 0.7 });
       y += 16;
-      doc.font(fontRegular).fontSize(9).fillColor(LIGHT);
-      doc.text("VALID UNTIL", leftMargin, y);
-      doc.font(fontRegular).fontSize(10).fillColor(DARK);
-      doc.text(validUntil, leftMargin + 80, y);
     }
 
-    y += 36;
+    y += 16;
 
-    // ─── Heading + flowing description (matches the web quote page) ──────
-    // Single-product quotes show "Your Quote" (the product is named in the
-    // description line below). Tiered quotes show the product-agnostic heading
-    // and list the options in the pricing section, matching the web tier cards.
+    // ─── SCOPE OF WORKS ──────────────────────────────────────────
     doc.moveTo(leftMargin, y).lineTo(rightEdge, y)
       .strokeColor(RULE).lineWidth(0.5).stroke();
-    y += 20;
+    y += 16;
 
-    const isTiered = !!(data.allTiers && data.allTiers.length > 1);
-    const heading = data.invoiceNumber ? "Your Invoice" : isTiered ? "Your Options" : "Your Quote";
-    doc.font(fontBold).fontSize(16).fillColor(BLACK);
-    doc.text(heading, leftMargin, y);
-    y += 26;
+    doc.font(fontRegular).fontSize(8).fillColor(LIGHT);
+    doc.text("SCOPE OF WORKS", leftMargin, y);
+    y += 16;
 
-    // Flowing description lines: identical to the web page. These already
-    // include the carpet line, the separate underlay line, and the scope items
-    // as natural sentences. A cream accent bar mirrors the web page's left border.
+    // Flowing description lines
     const descLines = (data.descriptionLines ?? []).filter((l) => l && l.trim());
     if (descLines.length > 0) {
-      const barTop = y;
-      const barX = leftMargin;
-      const textX = leftMargin + 14;
-      const textWidth = pageWidth - 14;
       for (const line of descLines) {
-        doc.font(fontRegular).fontSize(11).fillColor(DARK);
-        const h = doc.heightOfString(line, { width: textWidth, lineGap: 2 });
-        // Page-break guard: draw the accent bar for the current segment, break,
-        // then continue on the next page.
-        if (y + h > SAFE_BOTTOM) {
-          doc.moveTo(barX, barTop).lineTo(barX, y - 4)
-            .strokeColor(CREAM).lineWidth(3).stroke();
-          drawPageFooter(pageCount);
-          doc.addPage();
-          pageCount++;
-          y = 60;
-        }
-        doc.font(fontRegular).fontSize(11).fillColor(DARK);
-        doc.text(line, textX, y, { width: textWidth, lineGap: 2 });
-        y += h + 8;
-      }
-      // Cream accent bar down the left of the description block (final segment).
-      doc.moveTo(barX, barTop).lineTo(barX, y - 6)
-        .strokeColor(CREAM).lineWidth(3).stroke();
-      y += 6;
-    } else {
-      // Fallback for legacy quotes with no description lines: keep the old
-      // labelled scope list so nothing is lost.
-      for (const item of data.scopeOfWorks) {
         y = ensureSpace(20, y);
         doc.font(fontRegular).fontSize(10).fillColor(DARK);
-        doc.text(item.title, leftMargin, y);
-        if (item.description) {
-          doc.font(fontRegular).fontSize(9).fillColor(MID);
-          doc.text(item.description, leftMargin + 160, y, { width: pageWidth - 160 });
-        }
-        y += 16;
+        const h = doc.heightOfString(line, { width: pageWidth, lineGap: 2 });
+        doc.text(line, leftMargin, y, { width: pageWidth, lineGap: 2 });
+        y += h + 6;
       }
-      y += 4;
+    } else {
+      // Legacy fallback: structured scope items
+      for (const item of data.scopeOfWorks) {
+        y = ensureSpace(20, y);
+        const sentence = item.description?.trim() || item.title?.trim() || "";
+        if (sentence) {
+          doc.font(fontRegular).fontSize(10).fillColor(DARK);
+          doc.text(sentence, leftMargin, y, { width: pageWidth });
+          y += 14;
+        }
+      }
     }
 
-    // Product specifications in small, subtle text (matches the web spec line).
+    y += 6;
+
+    // ─── PRODUCT LINE ────────────────────────────────────────────
+    const isTiered = !!(data.allTiers && data.allTiers.length > 1);
     if (!isTiered) {
       const specParts: string[] = [];
       const productLabel = [data.manufacturer, data.productName].filter(Boolean).join(" ").trim();
       if (productLabel) specParts.push(productLabel);
       if (data.fibre) specParts.push(data.fibre);
       if (data.pileType) specParts.push(data.pileType);
-      if (data.colourName) specParts.push(data.colourName);
       if (specParts.length > 0) {
         y = ensureSpace(20, y);
-        doc.font(fontRegular).fontSize(8.5).fillColor(LIGHT);
-        doc.text(specParts.join("   ·   "), leftMargin, y, { width: pageWidth });
-        y += 18;
+        doc.font(fontItalic).fontSize(9).fillColor(MID);
+        doc.text(specParts.join("  ·  "), leftMargin, y, { width: pageWidth });
+        y += 16;
       }
     }
 
-    y += 8;
+    y += 10;
 
-    // ─── Pricing ─────────────────────────────────────────────────
-    y = ensureSpace(120, y);
+    // ─── PRICING ─────────────────────────────────────────────────
+    y = ensureSpace(140, y);
     doc.moveTo(leftMargin, y).lineTo(rightEdge, y)
-      .strokeColor(BLACK).lineWidth(0.75).stroke();
+      .strokeColor(BLACK).lineWidth(1).stroke();
     y += 16;
 
-    doc.font(fontRegular).fontSize(9).fillColor(LIGHT);
+    doc.font(fontRegular).fontSize(8).fillColor(LIGHT);
     doc.text("PRICING", leftMargin, y);
-    y += 20;
+    y += 18;
 
     if (data.rooms && data.rooms.length > 0) {
       // Room itemisation
       for (const room of data.rooms) {
-        y = ensureSpace(22, y);
+        y = ensureSpace(24, y);
         doc.font(fontRegular).fontSize(10).fillColor(DARK);
-        doc.text(`${room.name}: Supply & installation`, leftMargin, y, { width: pageWidth * 0.65 });
+        doc.text(room.name, leftMargin, y, { width: pageWidth * 0.65 });
         doc.font(fontRegular).fontSize(10).fillColor(BLACK);
         doc.text(formatPrice(room.price), rightEdge - 100, y, { width: 100, align: "right" });
         y += 18;
@@ -396,12 +361,13 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
           .strokeColor(RULE).lineWidth(0.3).stroke();
         y += 8;
       }
-    } else if (data.allTiers && data.allTiers.length > 1) {
+    } else if (isTiered) {
       // Multi-tier pricing
-      for (const tier of data.allTiers) {
-        y = ensureSpace(22, y);
+      for (const tier of data.allTiers!) {
+        y = ensureSpace(24, y);
+        const tierSpec = [tier.manufacturer, tier.productName].filter(Boolean).join(" ").trim();
         doc.font(fontRegular).fontSize(10).fillColor(DARK);
-        doc.text(`${tier.name}: Supply & installation`, leftMargin, y, { width: pageWidth * 0.65 });
+        doc.text(tier.name + (tierSpec ? ` — ${tierSpec}` : ""), leftMargin, y, { width: pageWidth * 0.6 });
         doc.font(fontRegular).fontSize(10).fillColor(BLACK);
         doc.text(formatPrice(tier.price) + " inc GST", rightEdge - 140, y, { width: 140, align: "right" });
         y += 18;
@@ -415,11 +381,12 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
       doc.text("Select one option to proceed. Prices include GST.", leftMargin, y);
       y += 20;
     } else {
-      // Single product pricing
+      // Single product pricing — show ex-GST subtotal
+      const exGst = Math.round(data.basePrice / 1.1);
       doc.font(fontRegular).fontSize(10).fillColor(DARK);
-      doc.text("Carpet supply & installation", leftMargin, y, { width: pageWidth * 0.65 });
+      doc.text("Supply & installation", leftMargin, y, { width: pageWidth * 0.65 });
       doc.font(fontRegular).fontSize(10).fillColor(BLACK);
-      doc.text(formatPrice(Math.round(data.basePrice / 1.1)), rightEdge - 100, y, { width: 100, align: "right" });
+      doc.text(formatPrice(exGst), rightEdge - 100, y, { width: 100, align: "right" });
       y += 18;
       doc.moveTo(leftMargin, y).lineTo(rightEdge, y)
         .strokeColor(RULE).lineWidth(0.3).stroke();
@@ -428,7 +395,7 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
 
     // Add-ons
     for (const addon of data.addons) {
-      y = ensureSpace(22, y);
+      y = ensureSpace(24, y);
       doc.font(fontRegular).fontSize(10).fillColor(DARK);
       doc.text(addon.title, leftMargin, y, { width: pageWidth * 0.65 });
       doc.font(fontRegular).fontSize(10).fillColor(BLACK);
@@ -439,58 +406,61 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
       y += 8;
     }
 
-    // Total (for single-tier / rooms only)
-    if (!data.allTiers || data.allTiers.length <= 1) {
-      y += 4;
-      // GST line
+    // Subtotal / GST / Total (for single-tier / rooms only)
+    if (!isTiered) {
+      y += 6;
+
+      // Subtotal (ex GST)
+      const subtotalExGst = Math.round(data.grandTotal / 1.1);
+      doc.font(fontRegular).fontSize(9).fillColor(MID);
+      doc.text("Subtotal (ex GST)", leftMargin, y, { width: pageWidth * 0.65 });
+      doc.text(formatPrice(subtotalExGst), rightEdge - 100, y, { width: 100, align: "right" });
+      y += 16;
+
+      // GST
+      const gstAmount = data.grandTotal - subtotalExGst;
       doc.font(fontRegular).fontSize(9).fillColor(MID);
       doc.text("GST (10%)", leftMargin, y, { width: pageWidth * 0.65 });
-      doc.text(formatPrice(Math.round(data.grandTotal / 11)), rightEdge - 100, y, { width: 100, align: "right" });
+      doc.text(formatPrice(gstAmount), rightEdge - 100, y, { width: 100, align: "right" });
       y += 18;
 
-      // Total
+      // Total line
       doc.moveTo(leftMargin, y).lineTo(rightEdge, y)
-        .strokeColor(BLACK).lineWidth(0.75).stroke();
-      y += 10;
-      doc.font(fontBold).fontSize(12).fillColor(BLACK);
+        .strokeColor(BLACK).lineWidth(1).stroke();
+      y += 12;
+      doc.font(fontBold).fontSize(13).fillColor(BLACK);
       doc.text("Total (inc GST)", leftMargin, y, { width: pageWidth * 0.65 });
       doc.font(fontBold).fontSize(14).fillColor(BLACK);
       doc.text(formatPrice(data.grandTotal), rightEdge - 120, y, { width: 120, align: "right" });
-      y += 28;
-    }
+      y += 26;
 
-    // ─── Deposit / Payment Terms ─────────────────────────────────
-    if (!data.isAgent) {
-      y = ensureSpace(50, y);
-      const summaryTotal = (data.allTiers && data.allTiers.length > 1)
-        ? data.allTiers[0]!.price
-        : data.grandTotal;
-      const summaryDepositPct = (data.allTiers && data.allTiers.length > 1)
-        ? data.allTiers[0]!.depositPercent
-        : data.depositPercent;
-      const deposit = Math.round(summaryTotal * (summaryDepositPct / 100));
-      const balance = summaryTotal - deposit;
-
+      // Deposit / Balance breakdown
+      const summaryDepositPct = data.depositPercent ?? 0;
       if (summaryDepositPct > 0) {
+        const deposit = Math.round(data.grandTotal * (summaryDepositPct / 100));
+        const balance = data.grandTotal - deposit;
+
+        y += 4;
         doc.font(fontRegular).fontSize(9).fillColor(MID);
-        doc.text(`${summaryDepositPct}% non-refundable deposit`, leftMargin, y);
+        doc.text(`Deposit (${summaryDepositPct}%)`, leftMargin, y, { width: pageWidth * 0.65 });
         doc.text(formatPrice(deposit), rightEdge - 100, y, { width: 100, align: "right" });
-        y += 16;
-        doc.text("Balance on practical completion", leftMargin, y);
+        y += 14;
+        doc.text("Balance on completion", leftMargin, y, { width: pageWidth * 0.65 });
         doc.text(formatPrice(balance), rightEdge - 100, y, { width: 100, align: "right" });
-        y += 24;
+        y += 20;
       }
     }
 
-    // ─── Banking Details ─────────────────────────────────────────
-    y = ensureSpace(100, y);
+    // ─── BANKING DETAILS ─────────────────────────────────────────
+    y += 8;
+    y = ensureSpace(120, y);
     doc.moveTo(leftMargin, y).lineTo(rightEdge, y)
       .strokeColor(RULE).lineWidth(0.5).stroke();
     y += 16;
 
-    doc.font(fontRegular).fontSize(9).fillColor(LIGHT);
+    doc.font(fontRegular).fontSize(8).fillColor(LIGHT);
     doc.text("BANKING DETAILS", leftMargin, y);
-    y += 20;
+    y += 18;
 
     const bankRows: [string, string][] = [
       ["Account Name", "Bell Spec Pty Ltd"],
@@ -501,29 +471,19 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
 
     for (const [label, value] of bankRows) {
       doc.font(fontRegular).fontSize(9).fillColor(MID);
-      doc.text(label, leftMargin, y, { width: 120 });
-      doc.font(fontRegular).fontSize(10).fillColor(DARK);
-      doc.text(value, leftMargin + 120, y);
-      y += 16;
+      doc.text(label, leftMargin, y, { width: 110 });
+      doc.font(fontRegular).fontSize(9.5).fillColor(DARK);
+      doc.text(value, leftMargin + 110, y);
+      y += 15;
     }
 
-    y += 12;
+    y += 14;
 
-    // Payment note
-    const paymentNote = data.isAgent
-      ? "Full payment is due upon practical completion. Please send remittances to hello@bellcarpets.com.au"
-      : `Payment due within ${data.validDays} days. Please send remittances to hello@bellcarpets.com.au`;
+    // Payment terms — unified for all invoice types
+    const paymentNote = "Payment due on completion of works. Please send remittances to hello@bellcarpets.com.au";
     doc.font(fontRegular).fontSize(9).fillColor(MID);
     doc.text(paymentNote, leftMargin, y, { width: pageWidth });
-    y += 24;
-
-    // ABN
-    doc.font(fontRegular).fontSize(7.5).fillColor(LIGHT);
-    doc.text(
-      "Bell Spec Pty Ltd  ·  ABN 74 613 299 773  ·  Unit 1, 41 Olympic Circuit, Southport QLD 4215",
-      leftMargin, y, { width: pageWidth, align: "center" }
-    );
-    y += 12;
+    y += 20;
 
     // Tax invoice note — only shown on quotes, not on invoice PDFs
     if (!data.invoiceNumber) {
@@ -545,7 +505,7 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
     const depPct = data.depositPercent ?? 50;
     const balPct = 100 - depPct;
     const isInvoiceDoc = !!data.invoiceNumber;
-    // Invoice PDFs use simple payment language; quote PDFs use the full quote-specific text.
+
     const financialCommitmentItems = isInvoiceDoc
       ? [
           {
@@ -624,24 +584,24 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
     drawPageFooter(pageCount);
     doc.addPage();
     pageCount++;
-    y = 60;
+    y = 50;
 
     // T&C header
     if (logoBuffer) {
       try {
-        doc.image(logoBuffer, leftMargin, y, { height: 24 });
+        doc.image(logoBuffer, leftMargin, y, { height: 22 });
       } catch {
         doc.font(fontBold).fontSize(14).fillColor(BLACK);
         doc.text("BELL CARPETS", leftMargin, y + 4);
       }
     }
 
-    doc.font(fontRegular).fontSize(9).fillColor(MID);
-    doc.text("Terms and Conditions", rightEdge - 160, y + 8, { width: 160, align: "right" });
-    doc.font(fontRegular).fontSize(8).fillColor(LIGHT);
-    doc.text(`Reference: ${data.invoiceNumber ?? data.quoteNumber}`, rightEdge - 160, y + 20, { width: 160, align: "right" });
+    doc.font(fontRegular).fontSize(8).fillColor(MID);
+    doc.text("Terms and Conditions", rightEdge - 140, y + 6, { width: 140, align: "right" });
+    doc.font(fontRegular).fontSize(7.5).fillColor(LIGHT);
+    doc.text(`Reference: ${data.invoiceNumber ?? data.quoteNumber}`, rightEdge - 140, y + 18, { width: 140, align: "right" });
 
-    y += 44;
+    y += 40;
     doc.moveTo(leftMargin, y).lineTo(rightEdge, y)
       .strokeColor(BLACK).lineWidth(0.5).stroke();
     y += 20;
@@ -650,11 +610,10 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
     for (const section of tcSections) {
       y = ensureSpace(60, y);
       if (y <= 60) {
-        // New page — add mini header
         if (logoBuffer) {
-          try { doc.image(logoBuffer, leftMargin, 60, { height: 20 }); } catch {}
+          try { doc.image(logoBuffer, leftMargin, 50, { height: 18 }); } catch {}
         }
-        y = 90;
+        y = 80;
       }
 
       doc.font(fontBold).fontSize(10).fillColor(BLACK);
@@ -665,9 +624,9 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
         y = ensureSpace(40, y);
         if (y <= 60) {
           if (logoBuffer) {
-            try { doc.image(logoBuffer, leftMargin, 60, { height: 20 }); } catch {}
+            try { doc.image(logoBuffer, leftMargin, 50, { height: 18 }); } catch {}
           }
-          y = 90;
+          y = 80;
         }
 
         doc.font(fontBold).fontSize(9).fillColor(DARK);
