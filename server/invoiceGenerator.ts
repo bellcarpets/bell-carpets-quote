@@ -231,20 +231,12 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
     y += 10;
 
     const descLines = (data.descriptionLines ?? []).filter(l => l?.trim());
-    if (descLines.length > 0) {
-      for (const line of descLines) {
-        const h = doc.heightOfString(line, { width: CW, lineGap: 1 });
-        doc.font(R).fontSize(9.5).fillColor(DARK).text(line, ML, y, { width: CW, lineGap: 1 });
-        y += h + 4;
-      }
-    } else {
-      for (const item of data.scopeOfWorks) {
-        const sentence = item.description?.trim() || item.title?.trim() || "";
-        if (!sentence) continue;
-        const h = doc.heightOfString(sentence, { width: CW, lineGap: 1 });
-        doc.font(R).fontSize(9.5).fillColor(DARK).text(sentence, ML, y, { width: CW, lineGap: 1 });
-        y += h + 4;
-      }
+    const scopeLines = descLines.length > 0
+      ? descLines
+      : (data.scopeOfWorks ?? []).map(i => i.description?.trim() || i.title?.trim() || "").filter(Boolean);
+    for (const line of scopeLines) {
+      doc.font(R).fontSize(9.5).fillColor(DARK).text(line, ML, y, { width: CW, lineGap: 0 });
+      y += 14;
     }
 
     // ── Product spec line ─────────────────────────────────────────
@@ -335,6 +327,27 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
 
     y += 6;
 
+    // ── Banking details (page 1) ──────────────────────────────────
+    hRule(y, 0.5);
+    y += 12;
+    label("BANKING DETAILS", ML, y);
+    y += 10;
+
+    const bankRows: [string, string][] = [
+      ["Account Name",   "Bell Spec Pty Ltd"],
+      ["BSB",            "124 022"],
+      ["Account Number", "22496442"],
+      ["Reference",      docNumber],
+    ];
+    const bLabelW = 90;
+    for (const [lbl, val] of bankRows) {
+      doc.font(R).fontSize(8.5).fillColor(MID).text(lbl, ML, y, { width: bLabelW });
+      doc.font(R).fontSize(9).fillColor(DARK).text(val, ML + bLabelW, y, { width: CW - bLabelW });
+      y += 13;
+    }
+
+    y += 10;
+
     // ── Payment terms ─────────────────────────────────────────────
     doc.font(R).fontSize(8.5).fillColor(MID)
       .text("Payment due on completion of works. Please send remittances to hello@bellcarpets.com.au",
@@ -357,7 +370,7 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
     doc.font(R).fontSize(7).fillColor(LIGHT).text("Page 1", ML, f1y, { width: CW, align: "right" });
 
     // ══════════════════════════════════════════════════════════════
-    // PAGE 2: Banking + T&C
+    // PAGE 2: T&C only
     // ══════════════════════════════════════════════════════════════
     doc.addPage();
     y = 44;
@@ -374,29 +387,6 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
 
     y += 36;
     hRule(y, 0.5, BLACK);
-    y += 14;
-
-    // ── Banking details ───────────────────────────────────────────
-    label("BANKING DETAILS", ML, y);
-    y += 10;
-
-    const bankRows: [string, string][] = [
-      ["Account Name",   "Bell Spec Pty Ltd"],
-      ["BSB",            "124 022"],
-      ["Account Number", "22496442"],
-      ["Reference",      docNumber],
-    ];
-
-    // Two-column banking layout
-    const bLabelW = 90;
-    for (const [lbl, val] of bankRows) {
-      doc.font(R).fontSize(8.5).fillColor(MID).text(lbl, ML, y, { width: bLabelW });
-      doc.font(R).fontSize(9).fillColor(DARK).text(val, ML + bLabelW, y, { width: CW - bLabelW });
-      y += 13;
-    }
-
-    y += 10;
-    hRule(y, 0.5);
     y += 14;
 
     // ── T&C sections — condensed ──────────────────────────────────
