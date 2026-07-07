@@ -7,6 +7,10 @@
  *
  * Design: EB Garamond serif, black & white, tight but generous whitespace.
  * No colour, no gradients. Architectural firm aesthetic.
+ *
+ * Vertical rhythm: content is distributed evenly across each page so that
+ * sections breathe and the page feels intentionally designed — not crammed
+ * at the top with empty space below.
  */
 
 import PDFDocument from "pdfkit";
@@ -177,9 +181,19 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
     };
 
     // ══════════════════════════════════════════════════════════════
-    // PAGE 1
+    // PAGE 1 — generous vertical distribution
     // ══════════════════════════════════════════════════════════════
-    let y = 44;
+
+    // Section gaps — these are the breathing spaces between major sections.
+    // Tuned so content fills the page vertically like a luxury architectural doc.
+    const S1 = 36;   // after header block (logo + company line + rule) → client details
+    const S2 = 30;   // after client details → scope section
+    const S3 = 28;   // after scope → pricing
+    const S4 = 28;   // after pricing → banking
+    const S5 = 20;   // after banking → payment note
+    const SCOPE_LINE_GAP = 20;  // between scope description lines (was 14)
+
+    let y = 52;
 
     // ── Logo ──────────────────────────────────────────────────────
     if (logoBuffer) {
@@ -196,17 +210,17 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
     doc.font(B).fontSize(13).fillColor(BLACK).text(docNumber, RE - 130, y + 10, { width: 130, align: "right" });
     doc.font(R).fontSize(8).fillColor(MID).text(data.issueDate, RE - 130, y + 26, { width: 130, align: "right" });
 
-    y += 40;
+    y += 44;
 
     // ── Company details line ───────────────────────────────────────
     doc.font(R).fontSize(7).fillColor(LIGHT)
       .text("Bell Spec Pty Ltd  |  ABN 74 613 299 773  |  Unit 1, 41 Olympic Circuit, Southport QLD 4215",
         ML, y, { width: CW });
-    y += 12;
+    y += 14;
 
     // ── Heavy rule ────────────────────────────────────────────────
     hRule(y, 1.5, BLACK);
-    y += 14;
+    y += S1;
 
     // ── Two-column: Prepared For (left) | Property (right) ────────
     const colW = CW * 0.48;
@@ -215,28 +229,28 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
     const preparedFor = data.clientName?.trim() || data.agentName || "";
     label("PREPARED FOR", ML, y);
     if (data.propertyAddress) label("PROPERTY", col2, y);
-    y += 10;
+    y += 12;
     doc.font(B).fontSize(11).fillColor(BLACK).text(preparedFor, ML, y, { width: colW });
     if (data.propertyAddress) {
-      doc.font(R).fontSize(9).fillColor(DARK).text(data.propertyAddress, col2, y, { width: colW });
+      doc.font(R).fontSize(9.5).fillColor(DARK).text(data.propertyAddress, col2, y, { width: colW });
     }
-    y += 20;
+    y += 24;
 
     // ── Thin rule ─────────────────────────────────────────────────
     hRule(y, 0.5);
-    y += 12;
+    y += S2;
 
     // ── Scope of works ────────────────────────────────────────────
     label("SCOPE OF WORKS", ML, y);
-    y += 10;
+    y += 14;
 
     const descLines = (data.descriptionLines ?? []).filter(l => l?.trim());
     const scopeLines = descLines.length > 0
       ? descLines
       : (data.scopeOfWorks ?? []).map(i => i.description?.trim() || i.title?.trim() || "").filter(Boolean);
     for (const line of scopeLines) {
-      doc.font(R).fontSize(9.5).fillColor(DARK).text(line, ML, y, { width: CW, lineGap: 0 });
-      y += 14;
+      doc.font(R).fontSize(9.5).fillColor(DARK).text(line, ML, y, { width: CW, lineGap: 1 });
+      y += SCOPE_LINE_GAP;
     }
 
     // ── Product spec line ─────────────────────────────────────────
@@ -248,70 +262,70 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
       if (data.fibre)   specParts.push(data.fibre);
       if (data.pileType) specParts.push(data.pileType);
       if (specParts.length > 0) {
-        y += 2;
+        y += 6;
         doc.font(I).fontSize(8.5).fillColor(MID)
           .text(specParts.join("  ·  "), ML, y, { width: CW });
-        y += 13;
+        y += 16;
       }
     }
 
-    y += 8;
+    y += S3;
 
     // ── Pricing ───────────────────────────────────────────────────
     hRule(y, 1, BLACK);
-    y += 12;
+    y += 16;
     label("PRICING", ML, y);
-    y += 12;
+    y += 16;
 
     if (data.rooms && data.rooms.length > 0) {
       for (const room of data.rooms) {
         priceRow(room.name, fmt(room.price), y);
-        y += 14;
+        y += 18;
         hRule(y, 0.3);
-        y += 5;
+        y += 8;
       }
     } else if (isTiered) {
       for (const tier of data.allTiers!) {
         const spec = [tier.manufacturer, tier.productName].filter(Boolean).join(" ").trim();
         priceRow(tier.name + (spec ? `  —  ${spec}` : ""), fmt(tier.price) + " inc GST", y);
-        y += 14;
+        y += 18;
         hRule(y, 0.3);
-        y += 5;
+        y += 8;
       }
-      y += 4;
+      y += 6;
       doc.font(I).fontSize(8.5).fillColor(MID)
         .text("Select one option to proceed. Prices include GST.", ML, y);
-      y += 14;
+      y += 18;
     } else {
       // Single product: show supply & install ex-GST
       const exGst = Math.round(data.basePrice / 1.1);
       priceRow("Supply & installation", fmt(exGst), y);
-      y += 14;
+      y += 18;
       hRule(y, 0.3);
-      y += 5;
+      y += 8;
     }
 
     // Add-ons
     for (const addon of data.addons) {
       priceRow(addon.title, fmt(Math.round(addon.price / 1.1)), y);
-      y += 14;
+      y += 18;
       hRule(y, 0.3);
-      y += 5;
+      y += 8;
     }
 
     // Subtotal / GST / Total
     if (!isTiered) {
-      y += 4;
+      y += 8;
       const subtotalEx = Math.round(data.grandTotal / 1.1);
       const gstAmt     = data.grandTotal - subtotalEx;
       subtleRow("Subtotal (ex GST)", fmt(subtotalEx), y);
-      y += 13;
+      y += 16;
       subtleRow("GST (10%)", fmt(gstAmt), y);
-      y += 13;
+      y += 16;
       hRule(y, 1, BLACK);
-      y += 8;
+      y += 10;
       priceRow("Total (inc GST)", fmt(data.grandTotal), y, true);
-      y += 18;
+      y += 22;
 
       // Deposit / balance
       const depPct = data.depositPercent ?? 0;
@@ -319,19 +333,19 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
         const dep = Math.round(data.grandTotal * (depPct / 100));
         const bal = data.grandTotal - dep;
         subtleRow(`Deposit (${depPct}%)`, fmt(dep), y);
-        y += 12;
-        subtleRow("Balance on completion", fmt(bal), y);
         y += 14;
+        subtleRow("Balance on completion", fmt(bal), y);
+        y += 18;
       }
     }
 
-    y += 6;
+    y += S4;
 
     // ── Banking details (page 1) ──────────────────────────────────
     hRule(y, 0.5);
-    y += 12;
+    y += 16;
     label("BANKING DETAILS", ML, y);
-    y += 10;
+    y += 14;
 
     const bankRows: [string, string][] = [
       ["Account Name",   "Bell Spec Pty Ltd"],
@@ -339,20 +353,20 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
       ["Account Number", "22496442"],
       ["Reference",      docNumber],
     ];
-    const bLabelW = 90;
+    const bLabelW = 100;
     for (const [lbl, val] of bankRows) {
       doc.font(R).fontSize(8.5).fillColor(MID).text(lbl, ML, y, { width: bLabelW });
-      doc.font(R).fontSize(9).fillColor(DARK).text(val, ML + bLabelW, y, { width: CW - bLabelW });
-      y += 13;
+      doc.font(R).fontSize(9.5).fillColor(DARK).text(val, ML + bLabelW, y, { width: CW - bLabelW });
+      y += 18;
     }
 
-    y += 10;
+    y += S5;
 
     // ── Payment terms ─────────────────────────────────────────────
     doc.font(R).fontSize(8.5).fillColor(MID)
       .text("Payment due on completion of works. Please send remittances to hello@bellcarpets.com.au",
         ML, y, { width: CW });
-    y += 14;
+    y += 20;
 
     // Tax invoice note (quotes only)
     if (!data.invoiceNumber) {
@@ -370,10 +384,10 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
     doc.font(R).fontSize(7).fillColor(LIGHT).text("Page 1", ML, f1y, { width: CW, align: "right" });
 
     // ══════════════════════════════════════════════════════════════
-    // PAGE 2: T&C only
+    // PAGE 2: T&C — distributed vertically to fill the page
     // ══════════════════════════════════════════════════════════════
     doc.addPage();
-    y = 44;
+    y = 52;
 
     // ── Page 2 logo + heading ─────────────────────────────────────
     if (logoBuffer) {
@@ -385,11 +399,11 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
     doc.font(R).fontSize(7).fillColor(LIGHT)
       .text(`Ref: ${docNumber}`, RE - 130, y + 18, { width: 130, align: "right" });
 
-    y += 36;
+    y += 40;
     hRule(y, 0.5, BLACK);
-    y += 14;
+    y += 28;
 
-    // ── T&C sections — condensed ──────────────────────────────────
+    // ── T&C sections — generous spacing ───────────────────────────
     const isInvoiceDoc = !!data.invoiceNumber;
     const depPct = data.depositPercent ?? 50;
     const balPct = 100 - depPct;
@@ -431,33 +445,46 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
         ]},
     ];
 
+    // T&C spacing constants — generous to fill the page
+    const TC_SECTION_GAP = 28;     // space between sections (was 6)
+    const TC_TITLE_GAP = 16;       // space after section title before first item (was 11)
+    const TC_ITEM_GAP = 14;        // extra space after each item (was 3)
+    const TC_LINE_GAP = 2;         // lineGap within text blocks (was 0.5)
+
     // Render T&C in a compact two-column label/text style
-    for (const section of tcSections) {
+    for (let si = 0; si < tcSections.length; si++) {
+      const section = tcSections[si];
+
       // Section heading
-      doc.font(B).fontSize(8.5).fillColor(BLACK).text(section.title, ML, y);
-      y += 11;
+      doc.font(B).fontSize(9).fillColor(BLACK).text(section.title, ML, y);
+      y += TC_TITLE_GAP;
 
       for (const item of section.items) {
-        const labelW2 = 100;
+        const labelW2 = 110;
         const textW2  = CW - labelW2;
-        const textH   = doc.heightOfString(item.text, { width: textW2, lineGap: 0.5 });
-        const rowH    = Math.max(11, textH);
+        const textH   = doc.heightOfString(item.text, { width: textW2, lineGap: TC_LINE_GAP });
+        const rowH    = Math.max(13, textH);
 
-        doc.font(B).fontSize(8).fillColor(DARK).text(item.label, ML, y, { width: labelW2 });
-        doc.font(R).fontSize(8).fillColor(MID).text(item.text, ML + labelW2, y, { width: textW2, lineGap: 0.5 });
-        y += rowH + 3;
+        doc.font(B).fontSize(8.5).fillColor(DARK).text(item.label, ML, y, { width: labelW2 });
+        doc.font(R).fontSize(8.5).fillColor(MID).text(item.text, ML + labelW2, y, { width: textW2, lineGap: TC_LINE_GAP });
+        y += rowH + TC_ITEM_GAP;
       }
-      y += 6;
+
+      // Add section gap (except after last section)
+      if (si < tcSections.length - 1) {
+        y += TC_SECTION_GAP;
+      }
     }
 
     // Custom terms
     if (data.terms && data.terms.length > 0) {
-      doc.font(B).fontSize(8.5).fillColor(BLACK).text("Additional Terms", ML, y);
-      y += 11;
+      y += TC_SECTION_GAP;
+      doc.font(B).fontSize(9).fillColor(BLACK).text("Additional Terms", ML, y);
+      y += TC_TITLE_GAP;
       for (const term of data.terms) {
-        const h = doc.heightOfString(`·  ${term}`, { width: CW - 12, lineGap: 0.5 });
-        doc.font(R).fontSize(8).fillColor(MID).text(`·  ${term}`, ML + 12, y, { width: CW - 12, lineGap: 0.5 });
-        y += h + 4;
+        const h = doc.heightOfString(`·  ${term}`, { width: CW - 12, lineGap: TC_LINE_GAP });
+        doc.font(R).fontSize(8.5).fillColor(MID).text(`·  ${term}`, ML + 12, y, { width: CW - 12, lineGap: TC_LINE_GAP });
+        y += h + TC_ITEM_GAP;
       }
     }
 
