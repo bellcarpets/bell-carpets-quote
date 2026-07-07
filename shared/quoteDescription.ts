@@ -79,8 +79,12 @@ export function generateDefaultDescription(
       // Installation of new Victoria Carpets Lemar Twist carpet to bedrooms")
       // and a generic scope item ("Supply & Installation of new carpet to bedrooms")
       // would otherwise both appear because neither fully contains the other.
+      // NOTE: We MUST NOT deduplicate if one is carpet and the other is underlay.
       const supplyPrefix = "supplyinstallation";
-      if (ln.startsWith(supplyPrefix) && norm.startsWith(supplyPrefix)) return true;
+      if (ln.startsWith(supplyPrefix) && norm.startsWith(supplyPrefix)) {
+        const isUnderlay = (str: string) => str.includes("underlay");
+        if (isUnderlay(ln) === isUnderlay(norm)) return true;
+      }
       return false;
     });
     if (!dup) lines.push(sentence);
