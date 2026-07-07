@@ -31,7 +31,13 @@ function verifyPassword(password: string) {
   }
 }
 
-/** Generate the next sequential invoice number like INV-001 */
+/** Derive invoice number from quote number: BC-066 → INV-066 */
+function deriveInvoiceNumber(quoteNumber: string): string {
+  const num = quoteNumber.replace(/^BC-/, '').replace(/^[A-Z]+-/, '');
+  return `INV-${num}`;
+}
+
+/** Generate a sequential invoice number as fallback (for standalone invoices without a quote) */
 async function getNextInvoiceNumber(): Promise<string> {
   const db = await getDb();
   if (!db) return "INV-001";
@@ -323,8 +329,8 @@ export const invoiceRouter = router({
         ? Math.round(totalAmount * ((config.depositPercent || 50) / 100))
         : 0;
 
-      // Generate invoice number
-      const invoiceNumber = await getNextInvoiceNumber();
+      // Generate invoice number from quote number (BC-066 → INV-066)
+      const invoiceNumber = deriveInvoiceNumber(quote.quoteNumber);
 
       // Payment terms: use per-quote value, fallback to config, then 30 days
       const paymentTermsDays = quote.paymentTermsDays ?? config.validDays ?? 30;

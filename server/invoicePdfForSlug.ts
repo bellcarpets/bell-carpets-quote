@@ -126,13 +126,9 @@ export async function generateInvoicePdfForSlug(quoteSlug: string): Promise<{
     if (invRows.length > 0) {
       invoiceNumber = invRows[0]!.invoiceNumber;
     } else {
-      // No invoice record yet — generate a display number without saving to DB.
-      // This is an edge case; normally the invoice is created at acceptance.
-      const countRows = await db
-        .select({ count: sql<number>`COUNT(*)` })
-        .from(invoices);
-      const count = countRows[0]?.count ?? 0;
-      invoiceNumber = `INV-${String(count + 1).padStart(3, "0")}`;
+      // No invoice record yet — derive from quote number (BC-066 → INV-066)
+      const qNum = quote.quoteNumber.replace(/^BC-/, '').replace(/^[A-Z]+-/, '');
+      invoiceNumber = `INV-${qNum}`;
     }
   }
 
