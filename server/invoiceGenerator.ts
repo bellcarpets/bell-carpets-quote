@@ -9,7 +9,7 @@
  * No colour, no gradients. Architectural firm aesthetic.
  *
  * Vertical rhythm: content is distributed evenly across each page so that
- * sections breathe and the page feels intentionally designed — not crammed
+ * sections breathe and the page feels intentionally designed, not crammed
  * at the top with empty space below.
  */
 
@@ -184,14 +184,14 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
     // PAGE 1 — generous vertical distribution
     // ══════════════════════════════════════════════════════════════
 
-    // Section gaps — these are the breathing spaces between major sections.
-    // Tuned so content fills the page vertically like a luxury architectural doc.
-    const S1 = 36;   // after header block (logo + company line + rule) → client details
-    const S2 = 30;   // after client details → scope section
-    const S3 = 28;   // after scope → pricing
-    const S4 = 28;   // after pricing → banking
-    const S5 = 20;   // after banking → payment note
-    const SCOPE_LINE_GAP = 20;  // between scope description lines (was 14)
+    // Section gaps — tuned so content fills the full page height.
+    // A4 usable: y=52 to footer at ~808 = ~756pt available.
+    const S1 = 48;   // after header block (logo + company line + rule) → client details
+    const S2 = 40;   // after client details → scope section
+    const S3 = 40;   // after scope → pricing
+    const S4 = 40;   // after pricing → banking
+    const S5 = 28;   // after banking → payment note
+    const SCOPE_LINE_GAP = 24;  // between scope description lines
 
     let y = 52;
 
@@ -229,12 +229,12 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
     const preparedFor = data.clientName?.trim() || data.agentName || "";
     label("PREPARED FOR", ML, y);
     if (data.propertyAddress) label("PROPERTY", col2, y);
-    y += 12;
+    y += 14;
     doc.font(B).fontSize(11).fillColor(BLACK).text(preparedFor, ML, y, { width: colW });
     if (data.propertyAddress) {
       doc.font(R).fontSize(9.5).fillColor(DARK).text(data.propertyAddress, col2, y, { width: colW });
     }
-    y += 24;
+    y += 28;
 
     // ── Thin rule ─────────────────────────────────────────────────
     hRule(y, 0.5);
@@ -242,7 +242,7 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
 
     // ── Scope of works ────────────────────────────────────────────
     label("SCOPE OF WORKS", ML, y);
-    y += 14;
+    y += 16;
 
     const descLines = (data.descriptionLines ?? []).filter(l => l?.trim());
     const scopeLines = descLines.length > 0
@@ -262,10 +262,10 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
       if (data.fibre)   specParts.push(data.fibre);
       if (data.pileType) specParts.push(data.pileType);
       if (specParts.length > 0) {
-        y += 6;
+        y += 8;
         doc.font(I).fontSize(8.5).fillColor(MID)
           .text(specParts.join("  ·  "), ML, y, { width: CW });
-        y += 16;
+        y += 18;
       }
     }
 
@@ -273,59 +273,59 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
 
     // ── Pricing ───────────────────────────────────────────────────
     hRule(y, 1, BLACK);
-    y += 16;
+    y += 18;
     label("PRICING", ML, y);
-    y += 16;
+    y += 18;
 
     if (data.rooms && data.rooms.length > 0) {
       for (const room of data.rooms) {
         priceRow(room.name, fmt(room.price), y);
-        y += 18;
+        y += 22;
         hRule(y, 0.3);
-        y += 8;
+        y += 10;
       }
     } else if (isTiered) {
       for (const tier of data.allTiers!) {
         const spec = [tier.manufacturer, tier.productName].filter(Boolean).join(" ").trim();
-        priceRow(tier.name + (spec ? `  —  ${spec}` : ""), fmt(tier.price) + " inc GST", y);
-        y += 18;
+        priceRow(tier.name + (spec ? `:  ${spec}` : ""), fmt(tier.price) + " inc GST", y);
+        y += 22;
         hRule(y, 0.3);
-        y += 8;
+        y += 10;
       }
-      y += 6;
+      y += 8;
       doc.font(I).fontSize(8.5).fillColor(MID)
         .text("Select one option to proceed. Prices include GST.", ML, y);
-      y += 18;
+      y += 20;
     } else {
       // Single product: show supply & install ex-GST
       const exGst = Math.round(data.basePrice / 1.1);
       priceRow("Supply & installation", fmt(exGst), y);
-      y += 18;
+      y += 22;
       hRule(y, 0.3);
-      y += 8;
+      y += 10;
     }
 
     // Add-ons
     for (const addon of data.addons) {
       priceRow(addon.title, fmt(Math.round(addon.price / 1.1)), y);
-      y += 18;
+      y += 22;
       hRule(y, 0.3);
-      y += 8;
+      y += 10;
     }
 
     // Subtotal / GST / Total
     if (!isTiered) {
-      y += 8;
+      y += 10;
       const subtotalEx = Math.round(data.grandTotal / 1.1);
       const gstAmt     = data.grandTotal - subtotalEx;
       subtleRow("Subtotal (ex GST)", fmt(subtotalEx), y);
-      y += 16;
+      y += 18;
       subtleRow("GST (10%)", fmt(gstAmt), y);
-      y += 16;
+      y += 18;
       hRule(y, 1, BLACK);
-      y += 10;
+      y += 12;
       priceRow("Total (inc GST)", fmt(data.grandTotal), y, true);
-      y += 22;
+      y += 28;
 
       // Deposit / balance
       const depPct = data.depositPercent ?? 0;
@@ -333,9 +333,9 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
         const dep = Math.round(data.grandTotal * (depPct / 100));
         const bal = data.grandTotal - dep;
         subtleRow(`Deposit (${depPct}%)`, fmt(dep), y);
-        y += 14;
+        y += 16;
         subtleRow("Balance on completion", fmt(bal), y);
-        y += 18;
+        y += 20;
       }
     }
 
@@ -343,9 +343,9 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
 
     // ── Banking details (page 1) ──────────────────────────────────
     hRule(y, 0.5);
-    y += 16;
+    y += 18;
     label("BANKING DETAILS", ML, y);
-    y += 14;
+    y += 16;
 
     const bankRows: [string, string][] = [
       ["Account Name",   "Bell Spec Pty Ltd"],
@@ -357,7 +357,7 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
     for (const [lbl, val] of bankRows) {
       doc.font(R).fontSize(8.5).fillColor(MID).text(lbl, ML, y, { width: bLabelW });
       doc.font(R).fontSize(9.5).fillColor(DARK).text(val, ML + bLabelW, y, { width: CW - bLabelW });
-      y += 18;
+      y += 22;
     }
 
     y += S5;
@@ -366,7 +366,7 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
     doc.font(R).fontSize(8.5).fillColor(MID)
       .text("Payment due on completion of works. Please send remittances to hello@bellcarpets.com.au",
         ML, y, { width: CW });
-    y += 20;
+    y += 22;
 
     // Tax invoice note (quotes only)
     if (!data.invoiceNumber) {
@@ -384,7 +384,7 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
     doc.font(R).fontSize(7).fillColor(LIGHT).text("Page 1", ML, f1y, { width: CW, align: "right" });
 
     // ══════════════════════════════════════════════════════════════
-    // PAGE 2: T&C — distributed vertically to fill the page
+    // PAGE 2: T&C — balanced to fill the page without overflow
     // ══════════════════════════════════════════════════════════════
     doc.addPage();
     y = 52;
@@ -401,9 +401,9 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
 
     y += 40;
     hRule(y, 0.5, BLACK);
-    y += 28;
+    y += 22;
 
-    // ── T&C sections — generous spacing ───────────────────────────
+    // ── T&C sections ──────────────────────────────────────────────
     const isInvoiceDoc = !!data.invoiceNumber;
     const depPct = data.depositPercent ?? 50;
     const balPct = 100 - depPct;
@@ -420,12 +420,13 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
       : [
           { label: "Deposit", text: `A non-refundable deposit of ${depPct}% is required to confirm your booking and order materials.` },
           { label: "Balance", text: `The remaining ${balPct}% is due upon practical completion of the installation on the scheduled day.` },
+          { label: "Urgent Works", text: "If the job is to be completed within 10 business days, the deposit must be paid in full before works commence." },
         ];
 
     const tcSections = [
       { title: "Financial Commitment", items: financialItems },
       { title: "Scheduling & Access", items: [
-          { label: "Lead Time",   text: "Installation dates are subject to material availability. Typical lead time is 5–10 business days from deposit receipt." },
+          { label: "Lead Time",   text: "Installation dates are subject to material availability. Typical lead time is 5 to 10 business days from deposit receipt." },
           { label: "Site Access", text: "Clear and safe access must be provided. Furniture must be removed from the work area prior to the installation date unless a furniture removal add-on is included." },
           { label: "Subfloor",   text: "Subfloor must be structurally sound, dry, and level. Any remediation required beyond normal preparation will be quoted separately." },
         ]},
@@ -445,11 +446,11 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
         ]},
     ];
 
-    // T&C spacing constants — generous to fill the page
-    const TC_SECTION_GAP = 28;     // space between sections (was 6)
-    const TC_TITLE_GAP = 16;       // space after section title before first item (was 11)
-    const TC_ITEM_GAP = 14;        // extra space after each item (was 3)
-    const TC_LINE_GAP = 2;         // lineGap within text blocks (was 0.5)
+    // T&C spacing constants — balanced to fill page without overflow
+    const TC_SECTION_GAP = 22;     // space between sections
+    const TC_TITLE_GAP = 14;       // space after section title before first item
+    const TC_ITEM_GAP = 10;        // extra space after each item
+    const TC_LINE_GAP = 1.5;       // lineGap within text blocks
 
     // Render T&C in a compact two-column label/text style
     for (let si = 0; si < tcSections.length; si++) {
