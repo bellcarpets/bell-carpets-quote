@@ -605,7 +605,7 @@ const MESSAGE_TEMPLATES = [
     label: "New Quote",
     template: (name: string, link: string, address?: string) => {
       const addressLine = address ? ` for ${address}` : '';
-      return `Hey ${name || "there"},\n\nI've just emailed your flooring quote${addressLine} — you can also view it here:\n${link}\n\nCheers,\nLeon`;
+      return `Hey ${name || "there"},\n\nI've just emailed your flooring quote${addressLine} - you can also view it here:\n${link}\n\nTo secure your installation date, please reply via our email sent or this text.\n\nThanks, Leon`;
     },
   },
   {
