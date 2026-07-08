@@ -240,8 +240,10 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
       ? descLines
       : (data.scopeOfWorks ?? []).map(i => i.description?.trim() || i.title?.trim() || "").filter(Boolean);
     for (const line of scopeLines) {
-      doc.font(R).fontSize(9.5).fillColor(DARK).text(line, ML, y, { width: CW, lineGap: 1 });
-      y += SCOPE_LINE_GAP;
+      doc.font(R).fontSize(9.5).fillColor(DARK);
+      const lineH = doc.heightOfString(line, { width: CW, lineGap: 1 });
+      doc.text(line, ML, y, { width: CW, lineGap: 1 });
+      y += lineH + 4;
     }
 
     // ── Product spec line ─────────────────────────────────────────
