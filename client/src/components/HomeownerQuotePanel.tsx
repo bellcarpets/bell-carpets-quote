@@ -239,38 +239,35 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="flex items-center gap-3 mb-6">
-            <div className="h-px flex-1 bg-white/10" />
-            <h2 className="text-xs font-medium tracking-[0.25em] uppercase text-white/40">
+          <div className="mb-8">
+            <h2 className="font-serif-display text-2xl sm:text-[1.75rem] tracking-wide text-white/90">
               Scope of Works
             </h2>
-            <div className="h-px flex-1 bg-white/10" />
+            <div className="h-px w-12 mt-4 bg-white/20" />
           </div>
-          <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-6">
-            <div className="flex">
-              <div className="w-[3px] flex-shrink-0 rounded-full" style={{ backgroundColor: CREAM, opacity: 0.5 }} />
-              <div className="flex-1 pl-5 space-y-3">
-                {descriptionLines.map((line, i) => (
-                  <p key={i} className="text-sm text-white/70 leading-relaxed">{line}</p>
-                ))}
-              </div>
-            </div>
+          <div className="flex">
+            <div className="w-[2px] flex-shrink-0 rounded-full" style={{ backgroundColor: `${CREAM}40` }} />
+            <div className="flex-1 pl-5 space-y-3">
+              {descriptionLines.map((line, i) => (
+                <p key={i} className="text-[15px] text-white/60 leading-relaxed">{line}</p>
+              ))}
 
-            {/* Spec line and underlay below description */}
-            {(specLine || underlayName) && (
-              <div className="mt-5 pt-4 border-t border-white/[0.06] pl-[23px]">
-                {specLine && (
-                  <p className="text-xs text-white/40 tracking-wide">
-                    {specLine}
-                  </p>
-                )}
-                {underlayName && (
-                  <p className="text-xs text-white/40 tracking-wide mt-1.5">
-                    Includes {underlayName} underlay
-                  </p>
-                )}
-              </div>
-            )}
+              {/* Spec line and underlay below description */}
+              {(specLine || underlayName) && (
+                <div className="pt-2 space-y-1.5">
+                  {specLine && (
+                    <p className="text-[13px] text-white/35 tracking-wide">
+                      {specLine}
+                    </p>
+                  )}
+                  {underlayName && (
+                    <p className="text-[13px] text-white/35 tracking-wide">
+                      Includes {underlayName} underlay
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </motion.div>
       )}
@@ -385,7 +382,7 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.15 }}
         >
-          <h2 className="text-xs font-medium tracking-[0.25em] uppercase text-white/40 mb-5">
+          <h2 className="font-serif-display text-xl sm:text-[1.375rem] tracking-wide text-white/90 mb-6">
             Additional Services
           </h2>
           <div className="space-y-3">

@@ -4,7 +4,7 @@
  */
 
 import { motion } from "framer-motion";
-import { Plus, Minus, Package } from "lucide-react";
+import { Plus, Minus } from "lucide-react";
 
 interface Addon {
   id: string;
@@ -45,18 +45,13 @@ export default function AddonSelector({
       className="w-full"
     >
       {/* Section header */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-white/[0.04] border border-white/10">
-          <Package className="w-4 h-4 text-white/40" />
-        </div>
-        <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-white/40">
-            Additional Services
-          </p>
-          <p className="text-sm text-white/60 mt-0.5">
-            Optional extras — add to your quote
-          </p>
-        </div>
+      <div className="mb-8">
+        <h2 className="font-serif-display text-xl sm:text-[1.375rem] tracking-wide text-white/90">
+          Additional Services
+        </h2>
+        <p className="text-sm text-white/40 mt-2">
+          Optional extras to add to your quote
+        </p>
       </div>
 
       {/* Addon cards */}

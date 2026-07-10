@@ -1,6 +1,6 @@
 /**
  * ScopeOfWorks — Displays the included works as a vertical timeline
- * Premium document design with generous spacing and subtle numbered timeline
+ * Premium document design: commanding serif header, generous spacing, subtle timeline
  */
 
 import { motion } from "framer-motion";
@@ -24,22 +24,21 @@ export default function ScopeOfWorks({ items }: ScopeOfWorksProps) {
       transition={{ duration: 0.6 }}
       className="mt-0"
     >
-      {/* Section header */}
-      <div className="flex items-center gap-3 mb-8">
-        <div className="h-px flex-1 bg-white/10" />
-        <h2 className="text-xs font-medium tracking-[0.25em] uppercase text-white/40">
+      {/* Section header — commanding serif typography */}
+      <div className="mb-10">
+        <h2 className="font-serif-display text-2xl sm:text-[1.75rem] tracking-wide text-white/90">
           Scope of Works
         </h2>
-        <div className="h-px flex-1 bg-white/10" />
+        <div className="h-px w-12 mt-4 bg-white/20" />
       </div>
 
       {/* Timeline container */}
       <div className="relative pl-8">
         {/* Vertical timeline line */}
-        <div className="absolute left-3 top-2 bottom-0 w-px" style={{ backgroundColor: `${CREAM}40` }} />
+        <div className="absolute left-3 top-2 bottom-0 w-px" style={{ backgroundColor: `${CREAM}30` }} />
 
         {/* Scope items */}
-        <div className="space-y-5">
+        <div className="space-y-6">
           {items.map((item, i) => (
             <motion.div
               key={i}
@@ -50,16 +49,16 @@ export default function ScopeOfWorks({ items }: ScopeOfWorksProps) {
               className="relative"
             >
               {/* Numbered circle on timeline */}
-              <div className="absolute -left-8 top-0.5 w-6 h-6 rounded-full flex items-center justify-center bg-zinc-900 flex-shrink-0" style={{ border: `1px solid ${CREAM}66` }}>
-                <span className="text-xs font-medium" style={{ color: `${CREAM}CC` }}>{i + 1}</span>
+              <div className="absolute -left-8 top-0.5 w-6 h-6 rounded-full flex items-center justify-center bg-zinc-900 flex-shrink-0" style={{ border: `1px solid ${CREAM}44` }}>
+                <span className="text-[11px] font-medium" style={{ color: `${CREAM}99` }}>{i + 1}</span>
               </div>
 
               {/* Item content */}
-              <div className="rounded-xl px-5 py-4 bg-white/[0.02]">
-                <p className="text-sm font-medium mb-1 text-white">
+              <div className="py-1">
+                <p className="text-sm font-medium mb-1 text-white/80">
                   {item.title}
                 </p>
-                <p className="text-sm text-white/50 leading-relaxed">
+                <p className="text-sm text-white/45 leading-relaxed">
                   {item.description}
                 </p>
               </div>

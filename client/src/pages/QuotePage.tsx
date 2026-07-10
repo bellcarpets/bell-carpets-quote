@@ -16,7 +16,6 @@ import HomeownerQuotePanel from "@/components/HomeownerQuotePanel";
 import ScopeOfWorks from "@/components/ScopeOfWorks";
 import QuoteTerms from "@/components/QuoteTerms";
 
-import WhyBellCarpets from "@/components/WhyBellCarpets";
 import Footer from "@/components/Footer";
 import AcceptModal from "@/components/AcceptModal";
 import JobStatusTracker from "@/components/JobStatusTracker";
@@ -65,7 +64,7 @@ const UNDERLAY_SPECS: Record<NonNullable<Exclude<UnderlayOption, "">>, {
     ],
     highlight: {
       icon: Wind,
-      title: "Dunlop Fresh Living — Antimicrobial Protection",
+      title: "Dunlop Fresh Living: Antimicrobial Protection",
       body: "Reduces dust mites, bacteria, mould & mildew for healthier indoor air quality",
     },
     benefits: [
@@ -103,7 +102,7 @@ const UNDERLAY_SPECS: Record<NonNullable<Exclude<UnderlayOption, "">>, {
     ],
     highlight: {
       icon: Shield,
-      title: "Luxury Classified — AS 4288-2003",
+      title: "Luxury Classified: AS 4288-2003",
       body: "Independently rated Luxury (Class L) under the Australian Standard for carpet underlay",
     },
     benefits: [
@@ -517,19 +516,19 @@ export default function QuotePage({ slug }: QuotePageProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
-        className="mt-6 text-center"
+        className="mt-10 text-center"
       >
         <button
           onClick={handleDownloadPdf}
           disabled={downloading}
-          className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-white/10 border border-white/20 rounded-lg hover:bg-white/20 hover:border-white/40 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-2 px-4 py-2 text-xs tracking-[0.1em] uppercase text-white/40 hover:text-white/70 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
         >
           {downloading ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
           ) : (
-            <Download className="w-4 h-4" />
+            <Download className="w-3.5 h-3.5" />
           )}
-          {downloading ? "Generating PDF..." : "Download Quote as PDF"}
+          {downloading ? "Generating..." : "Download PDF"}
         </button>
       </motion.div>
     );
@@ -664,16 +663,16 @@ export default function QuotePage({ slug }: QuotePageProps) {
             </div>
           )}
           {config.customerNotes && config.customerNotes.trim() && (
-            <div className="max-w-lg mx-auto mt-10">
-              <div className="rounded-xl p-5" style={{ backgroundColor: `${CREAM}14`, border: `1px solid ${CREAM}33` }}>
-                <h3 className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: `${CREAM}CC` }}>Notes</h3>
-                <p className="text-white/70 text-sm leading-relaxed whitespace-pre-wrap">{config.customerNotes.trim()}</p>
+            <div className="max-w-lg mx-auto mt-14">
+              <div className="flex">
+                <div className="w-[2px] flex-shrink-0 rounded-full" style={{ backgroundColor: `${CREAM}40` }} />
+                <div className="pl-5">
+                  <p className="text-[11px] uppercase tracking-[0.2em] text-white/30 mb-3">Notes</p>
+                  <p className="text-[15px] text-white/60 leading-relaxed whitespace-pre-wrap">{config.customerNotes.trim()}</p>
+                </div>
               </div>
             </div>
           )}
-          <div className="max-w-lg mx-auto">
-            {quoteType === "agent" ? <WhyBellCarpets /> : null}
-          </div>
           <div className="max-w-lg mx-auto mt-12">
             <QuoteTerms terms={config.terms} validUntil={validUntil} />
           </div>
@@ -704,26 +703,23 @@ export default function QuotePage({ slug }: QuotePageProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="mt-10 mb-16 max-w-lg mx-auto lg:mx-0"
+              className="mt-14 mb-20 max-w-lg mx-auto lg:mx-0"
             >
-              <div className="flex items-center gap-3 mb-6">
-                <div className="h-px flex-1 bg-white/10" />
-                <h2 className="text-xs font-medium tracking-[0.25em] uppercase text-white/40">
+              <div className="mb-8">
+                <h2 className="font-serif-display text-2xl sm:text-[1.75rem] tracking-wide text-white/90">
                   Scope of Works
                 </h2>
-                <div className="h-px flex-1 bg-white/10" />
+                <div className="h-px w-12 mt-4 bg-white/20" />
               </div>
-              <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-6">
-                <div className="flex">
-                  <div className="w-[3px] flex-shrink-0 rounded-full" style={{ backgroundColor: CREAM, opacity: 0.5 }} />
-                  <div className="flex-1 pl-5 space-y-3">
-                    {descLines.map((line, i) => (
-                      <p key={i} className="text-sm text-white/70 leading-relaxed">{line}</p>
-                    ))}
-                    {underlayNote && (
-                      <p className="text-sm text-white/50 leading-relaxed pt-1">{underlayNote}</p>
-                    )}
-                  </div>
+              <div className="flex">
+                <div className="w-[2px] flex-shrink-0 rounded-full" style={{ backgroundColor: `${CREAM}40` }} />
+                <div className="flex-1 pl-5 space-y-3">
+                  {descLines.map((line, i) => (
+                    <p key={i} className="text-[15px] text-white/60 leading-relaxed">{line}</p>
+                  ))}
+                  {underlayNote && (
+                    <p className="text-[15px] text-white/45 leading-relaxed pt-1">{underlayNote}</p>
+                  )}
                 </div>
               </div>
             </motion.section>
@@ -731,13 +727,12 @@ export default function QuotePage({ slug }: QuotePageProps) {
         })()}
 
         {/* ─── YOUR OPTIONS SECTION ─── */}
-        <section id="tier-cards-section" className="mt-8">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.35 }} className="flex items-center gap-3 mb-8">
-            <div className="h-px flex-1 bg-white/10" />
-            <h2 className="text-xs font-medium tracking-[0.25em] uppercase text-white/40">
+        <section id="tier-cards-section" className="mt-16">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.35 }} className="mb-10 max-w-lg mx-auto lg:mx-0">
+            <h2 className="font-serif-display text-2xl sm:text-[1.75rem] tracking-wide text-white/90">
               Your Options
             </h2>
-            <div className="h-px flex-1 bg-white/10" />
+            <div className="h-px w-12 mt-4 bg-white/20" />
           </motion.div>
 
           {/* How to accept instruction card */}
@@ -767,7 +762,7 @@ export default function QuotePage({ slug }: QuotePageProps) {
           </motion.div>
 
           {/* ─── TIER CARDS ─── */}
-          <div className={`space-y-6 lg:grid lg:gap-6 lg:space-y-0 lg:items-start ${tiers.length === 2 ? 'lg:grid-cols-2 max-w-3xl mx-auto' : 'lg:grid-cols-3'}`}>
+          <div className={`space-y-8 lg:grid lg:gap-8 lg:space-y-0 lg:items-start ${tiers.length === 2 ? 'lg:grid-cols-2 max-w-3xl mx-auto' : 'lg:grid-cols-3'}`}>
             {tiers.map((tier, i) => (
               <TierCard
                 key={tier.id}
@@ -808,17 +803,17 @@ export default function QuotePage({ slug }: QuotePageProps) {
           </div>
         )}
         {config.customerNotes && config.customerNotes.trim() && (
-          <div className="max-w-lg mx-auto mt-10">
-            <div className="rounded-xl p-6" style={{ backgroundColor: `${CREAM}14`, border: `1px solid ${CREAM}33` }}>
-              <h3 className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: `${CREAM}CC` }}>Notes</h3>
-              <p className="text-white/70 text-sm leading-relaxed whitespace-pre-wrap">{config.customerNotes.trim()}</p>
+          <div className="max-w-lg mx-auto mt-16">
+            <div className="flex">
+              <div className="w-[2px] flex-shrink-0 rounded-full" style={{ backgroundColor: `${CREAM}40` }} />
+              <div className="pl-5">
+                <p className="text-[11px] uppercase tracking-[0.2em] text-white/30 mb-3">Notes</p>
+                <p className="text-[15px] text-white/60 leading-relaxed whitespace-pre-wrap">{config.customerNotes.trim()}</p>
+              </div>
             </div>
           </div>
         )}
         <div className="max-w-lg mx-auto mt-16">
-          <WhyBellCarpets />
-        </div>
-        <div className="max-w-lg mx-auto mt-14">
           <QuoteTerms terms={config.terms} validUntil={validUntil} />
         </div>
         <DownloadQuotePDF />

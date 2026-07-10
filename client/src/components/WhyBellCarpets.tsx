@@ -1,29 +1,9 @@
 /**
- * WhyBellCarpets — agency-only sign-off statement on the customer-facing quote page.
- * Simple one-line statement: "Bell Carpets — second-generation family business, Gold Coast since 1987."
+ * WhyBellCarpets — Previously rendered a sign-off statement.
+ * Content removed per brand rules: no stats about years in business.
+ * Component kept as a no-op to avoid breaking imports.
  */
-import { motion } from "framer-motion";
 
 export default function WhyBellCarpets() {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 15 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.7, delay: 0.2 }}
-      className="mt-16 text-center"
-    >
-      <p
-        style={{
-          fontSize: "0.9375rem",
-          lineHeight: 1.75,
-          fontWeight: 300,
-          letterSpacing: "0.02em",
-          color: "rgba(255,255,255,0.55)",
-        }}
-      >
-        Bell Carpets — second-generation family business, Gold Coast since 1987.
-      </p>
-    </motion.div>
-  );
+  return null;
 }

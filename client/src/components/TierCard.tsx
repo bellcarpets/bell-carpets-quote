@@ -5,8 +5,8 @@
  * Tap magnify icon on any swatch to open swatch lightbox
  * "View product specs" link opens specs lightbox
  *
- * Redesigned for visual weight: larger cards, more breathing room,
- * clear price prominence, premium document feel.
+ * World-class premium design: large price numbers, generous breathing room,
+ * luxury real estate brochure feel with strong typographic hierarchy.
  */
 
 import { useState, useEffect, useCallback } from "react";
@@ -41,10 +41,10 @@ const ENFORCER_SPECS: SpecItem[] = [
 const LEMAR_TWIST_SPECS: SpecItem[] = [
   { label: "Style", value: "Cut Pile Twist" },
   { label: "Pile Content", value: "100% SDN (Solution Dyed Nylon)" },
-  { label: "Pile Weight", value: "884 gm/m² — 26 oz/yd²" },
+  { label: "Pile Weight", value: "884 gm/m² (26 oz/yd²)" },
   { label: "Pile Height", value: "7.5mm" },
   { label: "Carpet Thickness", value: "9mm" },
-  { label: "Machine Gauge", value: "3.175mm — 1/8\"" },
+  { label: "Machine Gauge", value: "3.175mm (1/8\")" },
   { label: "Width", value: "3.66 metres" },
   { label: "Primary Back", value: "Heat Stabilised Woven Polypropylene" },
   { label: "Secondary Back", value: "Synthetic Don Bac" },
@@ -112,7 +112,7 @@ function SpecsLightbox({ productName, manufacturer, specs, onClose }: SpecsLight
         <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-white/10 flex-shrink-0">
           <div>
             <p className="text-white font-semibold text-base leading-tight">{productName}</p>
-            <p className="text-white/40 text-xs mt-0.5">{manufacturer} — Product Specifications</p>
+            <p className="text-white/40 text-xs mt-0.5">{manufacturer}: Product Specifications</p>
           </div>
           <button
             onClick={onClose}
@@ -296,7 +296,7 @@ export default function TierCard({
             ${
               isSelected
                 ? "shadow-[0_0_40px_-8px_rgba(237,232,223,0.15)]"
-                : "border-white/10 hover:border-white/20 shadow-lg hover:shadow-xl"
+                : "border-white/[0.08] hover:border-white/20 shadow-lg hover:shadow-xl"
             }
           `}
         >
@@ -306,15 +306,15 @@ export default function TierCard({
             className="relative w-full text-left group"
           >
             {/* Top row: label + selection indicator */}
-            <div className="relative px-6 pt-6 pb-2 flex items-start justify-between gap-3">
-              <div className="px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-[0.15em] uppercase bg-white/[0.07] text-white/70 border border-white/15">
+            <div className="relative px-7 pt-8 pb-2 flex items-start justify-between gap-3">
+              <div className="px-3.5 py-1.5 rounded-full text-[10px] font-semibold tracking-[0.2em] uppercase bg-white/[0.05] text-white/60 border border-white/[0.08]">
                 {tier.label}
               </div>
               <div
                 className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
                   isSelected
                     ? "text-zinc-900 scale-110"
-                    : "bg-white/[0.07] text-white/30 border border-white/10"
+                    : "bg-white/[0.05] text-white/30 border border-white/[0.08]"
                 }`}
                 style={isSelected ? { backgroundColor: CREAM } : undefined}
               >
@@ -326,43 +326,41 @@ export default function TierCard({
               </div>
             </div>
 
-            {/* Product info + price */}
-            <div className="relative px-6 pb-6 pt-3 bg-zinc-900">
-              <div className="flex items-end justify-between gap-4">
-                <div className="min-w-0">
-                  <p className="text-xs tracking-wide mb-1 truncate text-white/40">
-                    {tier.manufacturer}
-                  </p>
-                  <p className="text-xl font-medium leading-tight text-white">
-                    {tier.productName}
-                  </p>
-                  {selectedColour && (
-                    <div className="flex items-center gap-1.5 mt-2.5">
-                      <div className="w-4 h-4 rounded-full border border-white/20 overflow-hidden flex-shrink-0">
-                        <img
-                          src={selectedColour.swatchImage}
-                          alt={selectedColour.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <span className="text-xs text-white/50">
-                        {selectedColour.name}
-                      </span>
-                      <Check className="w-3 h-3 text-white/60" />
-                    </div>
-                  )}
-                </div>
-                <div className="text-right flex-shrink-0">
-                  <div className="flex items-baseline gap-1 justify-end">
-                    <span className="text-3xl sm:text-4xl font-semibold tracking-tight text-white">
-                      ${Math.round(tier.price).toLocaleString("en-AU")}
-                    </span>
+            {/* Product info */}
+            <div className="relative px-7 pt-4 pb-3 bg-zinc-900">
+              <p className="text-[11px] tracking-[0.15em] uppercase mb-2 text-white/35">
+                {tier.manufacturer}
+              </p>
+              <p className="text-xl sm:text-[1.375rem] font-medium leading-tight text-white">
+                {tier.productName}
+              </p>
+              {selectedColour && (
+                <div className="flex items-center gap-1.5 mt-3">
+                  <div className="w-4 h-4 rounded-full border border-white/20 overflow-hidden flex-shrink-0">
+                    <img
+                      src={selectedColour.swatchImage}
+                      alt={selectedColour.name}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                  <span className="text-[11px] text-white/40 block mt-0.5">
-                    inc GST
+                  <span className="text-xs text-white/50">
+                    {selectedColour.name}
                   </span>
+                  <Check className="w-3 h-3 text-white/60" />
                 </div>
+              )}
+            </div>
+
+            {/* Price — dominant, luxury feel */}
+            <div className="relative px-7 pt-5 pb-8 bg-zinc-900">
+              <div className="flex items-baseline gap-1">
+                <span className="font-serif-display text-[2.75rem] sm:text-[3.25rem] font-light tracking-tight text-white leading-none">
+                  ${Math.round(tier.price).toLocaleString("en-AU")}
+                </span>
               </div>
+              <span className="text-[11px] tracking-[0.1em] uppercase text-white/30 block mt-2">
+                inc GST
+              </span>
             </div>
           </button>
 
@@ -376,24 +374,24 @@ export default function TierCard({
                 transition={{ duration: 0.4, ease: "easeInOut" }}
                 className="overflow-hidden bg-zinc-900"
               >
-                <div className="relative px-6 pb-7">
-                  <div className="h-px w-full mb-5 bg-white/10" />
+                <div className="relative px-7 pb-8">
+                  <div className="h-px w-full mb-7 bg-white/[0.06]" />
 
                   {/* Fibre & pile info */}
-                  <div className="flex flex-wrap gap-x-6 gap-y-2 mb-5">
+                  <div className="flex flex-wrap gap-x-8 gap-y-3 mb-6">
                     <div>
-                      <span className="text-[10px] uppercase tracking-wider text-white/30">Fibre</span>
-                      <p className="text-sm text-white/70">{tier.fibre}</p>
+                      <span className="text-[10px] uppercase tracking-[0.15em] text-white/25">Fibre</span>
+                      <p className="text-sm text-white/70 mt-0.5">{tier.fibre}</p>
                     </div>
                     <div>
-                      <span className="text-[10px] uppercase tracking-wider text-white/30">Style</span>
-                      <p className="text-sm text-white/70">{tier.pileType}</p>
+                      <span className="text-[10px] uppercase tracking-[0.15em] text-white/25">Style</span>
+                      <p className="text-sm text-white/70 mt-0.5">{tier.pileType}</p>
                     </div>
 
                     {tier.colourName && (
                       <div>
-                        <span className="text-[10px] uppercase tracking-wider text-white/30">Colour</span>
-                        <p className="text-sm text-white/70">{tier.colourName}</p>
+                        <span className="text-[10px] uppercase tracking-[0.15em] text-white/25">Colour</span>
+                        <p className="text-sm text-white/70 mt-0.5">{tier.colourName}</p>
                       </div>
                     )}
                   </div>
@@ -405,20 +403,20 @@ export default function TierCard({
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="inline-flex items-center gap-1.5 mb-5 text-xs text-white/50 hover:text-white/80 transition-colors underline underline-offset-2 decoration-white/20 hover:decoration-white/50"
+                      className="inline-flex items-center gap-1.5 mb-6 text-xs text-white/40 hover:text-white/70 transition-colors"
                     >
                       <ExternalLink className="w-3.5 h-3.5" />
-                      View colours
+                      <span className="underline underline-offset-2 decoration-white/15 hover:decoration-white/40">View colours</span>
                     </a>
                   )}
 
                   {/* Badges */}
                   {tier.badges.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-5">
+                    <div className="flex flex-wrap gap-2 mb-6">
                       {tier.badges.map((badge) => (
                         <div
                           key={badge}
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] tracking-wide uppercase bg-white/[0.06] text-white/60 border border-white/10"
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] tracking-wide uppercase bg-white/[0.04] text-white/50 border border-white/[0.06]"
                         >
                           {badge.toLowerCase().includes("warranty") ? (
                             <Shield className="w-3 h-3" />
@@ -434,19 +432,19 @@ export default function TierCard({
                   )}
 
                   {/* Step 2 — Colour selection */}
-                  <div className="mb-4">
-                    <div className="flex items-center gap-2 mb-3">
+                  <div className="mb-5 mt-2">
+                    <div className="flex items-center gap-2.5 mb-3">
                       <span className="w-6 h-6 rounded-full text-zinc-900 text-[11px] font-bold flex items-center justify-center flex-shrink-0" style={{ backgroundColor: CREAM }}>2</span>
-                      <p className="text-xs uppercase tracking-[0.15em] text-white/60 font-medium">Pick your colour</p>
+                      <p className="text-xs uppercase tracking-[0.15em] text-white/50 font-medium">Pick your colour</p>
                     </div>
-                    <p className="text-[11px] text-white/30 ml-8">
+                    <p className="text-[11px] text-white/25 ml-8">
                       Tap to select · tap{" "}
                       <ZoomIn className="inline w-3 h-3 mb-0.5" /> to enlarge
                     </p>
                   </div>
 
                   {/* Colour swatches */}
-                  <div className="grid grid-cols-5 gap-3 sm:gap-4 mb-5">
+                  <div className="grid grid-cols-5 gap-3 sm:gap-4 mb-6">
                     {tier.colours.map((colour) => {
                       const isChosen = selectedColourId === colour.id;
                       return (
@@ -524,7 +522,7 @@ export default function TierCard({
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.35 }}
-                      className="mt-6"
+                      className="mt-8"
                     >
                       <button
                         onClick={(e) => {
@@ -536,8 +534,8 @@ export default function TierCard({
                       >
                         Accept Quote
                       </button>
-                      <p className="mt-2.5 text-center text-[10px] text-white/30">
-                        {tier.name} — {selectedColour.name}
+                      <p className="mt-3 text-center text-[10px] text-white/25">
+                        {tier.name} · {selectedColour.name}
                       </p>
                     </motion.div>
                   )}
