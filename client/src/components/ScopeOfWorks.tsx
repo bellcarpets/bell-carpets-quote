@@ -1,6 +1,6 @@
 /**
  * ScopeOfWorks — Displays the included works as a vertical timeline
- * Clean black & white premium design with subtle numbered timeline
+ * Premium document design with generous spacing and subtle numbered timeline
  */
 
 import { motion } from "framer-motion";
@@ -22,12 +22,12 @@ export default function ScopeOfWorks({ items }: ScopeOfWorksProps) {
       whileInView={{ opacity: 1 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.6 }}
-      className="mt-14"
+      className="mt-0"
     >
       {/* Section header */}
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex items-center gap-3 mb-8">
         <div className="h-px flex-1 bg-white/10" />
-        <h2 className="text-sm font-medium tracking-[0.2em] uppercase text-white/50">
+        <h2 className="text-xs font-medium tracking-[0.25em] uppercase text-white/40">
           Scope of Works
         </h2>
         <div className="h-px flex-1 bg-white/10" />
@@ -39,7 +39,7 @@ export default function ScopeOfWorks({ items }: ScopeOfWorksProps) {
         <div className="absolute left-3 top-2 bottom-0 w-px" style={{ backgroundColor: `${CREAM}40` }} />
 
         {/* Scope items */}
-        <div className="space-y-4">
+        <div className="space-y-5">
           {items.map((item, i) => (
             <motion.div
               key={i}
@@ -55,11 +55,11 @@ export default function ScopeOfWorks({ items }: ScopeOfWorksProps) {
               </div>
 
               {/* Item content */}
-              <div className="rounded-xl px-4 py-3.5 bg-white/[0.02]">
-                <p className="text-sm font-medium mb-0.5 text-white">
+              <div className="rounded-xl px-5 py-4 bg-white/[0.02]">
+                <p className="text-sm font-medium mb-1 text-white">
                   {item.title}
                 </p>
-                <p className="text-sm text-white/50">
+                <p className="text-sm text-white/50 leading-relaxed">
                   {item.description}
                 </p>
               </div>

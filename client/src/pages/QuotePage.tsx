@@ -1,7 +1,7 @@
 /**
  * QuotePage — Public quote page loaded by /quote/:slug
  * Handles both "agent" (3-tier) and "homeowner" (single product) layouts
- * Clean black & white premium design
+ * Premium document-style design: generous white space, clear visual hierarchy
  */
 
 import { useState, useRef, useMemo, useEffect } from "react";
@@ -459,10 +459,6 @@ export default function QuotePage({ slug }: QuotePageProps) {
   }
 
   // ─── Description-block presence ─────────────────────────────────────
-  // The flowing description block replaces the old titled "Scope of Works"
-  // whenever it renders — for BOTH admin-edited descriptions AND legacy quotes
-  // that fall back to a generated description. Compute once and reuse on both
-  // the single-product and tiered layouts so the scope never shows twice.
   const singleDescLines = config ? getDescriptionLines(config, { tiered: false }) : [];
   const tieredDescLines = config ? getDescriptionLines(config, { tiered: true }) : [];
 
@@ -514,8 +510,6 @@ export default function QuotePage({ slug }: QuotePageProps) {
   }
 
   // ─── Download quote PDF button (admin preview only — hidden from customers) ───
-  // Only shown when the page is opened via the admin panel's "Preview" button (?preview=1)
-  // This prevents the button appearing even when an admin opens the raw quote URL
   const DownloadQuotePDF = () => {
     if (!isPreviewMode) return null;
     return (
@@ -523,7 +517,7 @@ export default function QuotePage({ slug }: QuotePageProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
-        className="mt-4 text-center"
+        className="mt-6 text-center"
       >
         <button
           onClick={handleDownloadPdf}
@@ -558,11 +552,11 @@ export default function QuotePage({ slug }: QuotePageProps) {
 
   // ─── Shared header ──────────────────────────────────────────────────
   const Header = () => (
-    <header className="pt-10 pb-2 text-center">
+    <header className="pt-14 pb-4 text-center">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
         <img
           src={LOGO_WHITE_PNG}
-          alt="Bell Carpets — Established 1987"
+          alt="Bell Carpets"
           className="h-12 sm:h-14 w-auto mx-auto"
         />
         <p className="text-[10px] tracking-[0.3em] mt-3 text-white/50 uppercase font-light">
@@ -573,14 +567,6 @@ export default function QuotePage({ slug }: QuotePageProps) {
   );
 
   // ─── Shared greeting ────────────────────────────────────────────────
-  // Determine the name shown in the "Hi {name}" greeting and "Prepared for {name}".
-  //
-  // For agency-style quotes (agent / real_estate / agency_single) the quote is
-  // addressed to the AGENCY/CLIENT, not the individual contact person. Prefer the
-  // agency name held in `config.client.name`. For real_estate quotes the agency
-  // name is stored on `agentName` at create time (contact person goes to
-  // agentPropertyManager), so fall back to `agentName` when client.name is empty.
-  // For homeowner quotes use the client name directly.
   const isAgencyStyle =
     quoteType === "agent" || quoteType === "real_estate" || quoteType === "agency_single";
   const agencyDisplayName =
@@ -594,9 +580,9 @@ export default function QuotePage({ slug }: QuotePageProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8, delay: 0.2 }}
-      className="mt-10 mb-10 max-w-lg mx-auto lg:mx-0"
+      className="mt-12 mb-6 max-w-lg mx-auto lg:mx-0"
     >
-      <h2 className="text-2xl sm:text-3xl font-semibold leading-snug mb-5 text-white">
+      <h2 className="text-2xl sm:text-3xl font-semibold leading-snug mb-6 text-white">
         {quoteType === "homeowner" ? (
           <>Hi {greetingName},{" "}<span className="text-white/40">here is your flooring quote for</span></>
         ) : (isSinglePriceAgent || isAgencySingle) ? (
@@ -605,22 +591,26 @@ export default function QuotePage({ slug }: QuotePageProps) {
           <>Hi {greetingName},{" "}<span className="text-white/40">here are your flooring options for</span></>
         )}
       </h2>
+
+      {/* Property address card */}
       <div className="rounded-xl overflow-hidden border border-white/10 bg-white/[0.02]">
         <div className="flex">
           <div className="w-[3px] flex-shrink-0" style={{ backgroundColor: CREAM, opacity: 0.5 }} />
-          <div className="flex items-start gap-3 px-4 py-3.5">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-white/[0.04]">
-              <MapPin className="w-4 h-4 text-white/40" />
+          <div className="flex items-start gap-3 px-5 py-4">
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-white/[0.04]">
+              <MapPin className="w-4.5 h-4.5 text-white/40" />
             </div>
             <div>
-              <p className="text-base font-medium text-white">
+              <p className="text-base sm:text-lg font-medium text-white leading-snug">
                 {config.property.address}
               </p>
             </div>
           </div>
         </div>
       </div>
-      <div className="flex items-center gap-4 mt-4">
+
+      {/* Quote meta: number + date */}
+      <div className="flex items-center gap-4 mt-5">
         <div className="flex items-center gap-1.5">
           <FileText className="w-3.5 h-3.5 text-white/20" />
           <span className="text-xs text-white/30">
@@ -654,7 +644,7 @@ export default function QuotePage({ slug }: QuotePageProps) {
           <Greeting />
 
           {/* Single product panel */}
-          <div className="max-w-lg mx-auto">
+          <div className="max-w-lg mx-auto mt-10">
              <HomeownerQuotePanel
               config={config}
               addons={addons}
@@ -669,13 +659,13 @@ export default function QuotePage({ slug }: QuotePageProps) {
               block renders (admin-edited OR generated fallback), so the scope is
               never shown twice. Only shows if there is no description at all. */}
           {singleDescLines.length === 0 && (
-            <div className="max-w-lg mx-auto">
+            <div className="max-w-lg mx-auto mt-12">
               <ScopeOfWorks items={config.scopeOfWorks} />
             </div>
           )}
           {config.customerNotes && config.customerNotes.trim() && (
-            <div className="max-w-lg mx-auto">
-              <div className="rounded-xl p-5 mt-1" style={{ backgroundColor: `${CREAM}14`, border: `1px solid ${CREAM}33` }}>
+            <div className="max-w-lg mx-auto mt-10">
+              <div className="rounded-xl p-5" style={{ backgroundColor: `${CREAM}14`, border: `1px solid ${CREAM}33` }}>
                 <h3 className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: `${CREAM}CC` }}>Notes</h3>
                 <p className="text-white/70 text-sm leading-relaxed whitespace-pre-wrap">{config.customerNotes.trim()}</p>
               </div>
@@ -684,7 +674,7 @@ export default function QuotePage({ slug }: QuotePageProps) {
           <div className="max-w-lg mx-auto">
             {quoteType === "agent" ? <WhyBellCarpets /> : null}
           </div>
-          <div className="max-w-lg mx-auto">
+          <div className="max-w-lg mx-auto mt-12">
             <QuoteTerms terms={config.terms} validUntil={validUntil} />
           </div>
           <DownloadQuotePDF />
@@ -694,40 +684,79 @@ export default function QuotePage({ slug }: QuotePageProps) {
         </div>
       </div>
     );
-  }  // ─── AGENT LAYOUT (3-tier) ───────────────────────────────────────────────
+  }
+
+  // ─── AGENT LAYOUT (3-tier) ───────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-zinc-900">
       <PreviewBackButton />
-      <div className="max-w-lg lg:max-w-4xl mx-auto px-5 sm:px-6">
+      <div className="max-w-lg lg:max-w-5xl mx-auto px-5 sm:px-6">
         <Header />
         <Greeting />
-        <DownloadQuotePDF />
 
-        {/* Tier selection */}
-        <section id="tier-cards-section">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.3 }} className="flex items-center gap-3 mb-6">
+        {/* ─── SCOPE OF WORKS SECTION ─── */}
+        {(() => {
+          const descLines = tieredDescLines;
+          const underlayNote = getUnderlayNote(tiers[0]?.underlay);
+          if (descLines.length === 0 && !underlayNote) return null;
+          return (
+            <motion.section
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="mt-10 mb-16 max-w-lg mx-auto lg:mx-0"
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <div className="h-px flex-1 bg-white/10" />
+                <h2 className="text-xs font-medium tracking-[0.25em] uppercase text-white/40">
+                  Scope of Works
+                </h2>
+                <div className="h-px flex-1 bg-white/10" />
+              </div>
+              <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-6">
+                <div className="flex">
+                  <div className="w-[3px] flex-shrink-0 rounded-full" style={{ backgroundColor: CREAM, opacity: 0.5 }} />
+                  <div className="flex-1 pl-5 space-y-3">
+                    {descLines.map((line, i) => (
+                      <p key={i} className="text-sm text-white/70 leading-relaxed">{line}</p>
+                    ))}
+                    {underlayNote && (
+                      <p className="text-sm text-white/50 leading-relaxed pt-1">{underlayNote}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </motion.section>
+          );
+        })()}
+
+        {/* ─── YOUR OPTIONS SECTION ─── */}
+        <section id="tier-cards-section" className="mt-8">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.35 }} className="flex items-center gap-3 mb-8">
             <div className="h-px flex-1 bg-white/10" />
-            <h2 className="text-sm font-medium tracking-[0.2em] uppercase text-white/50">
-              Your Quote
+            <h2 className="text-xs font-medium tracking-[0.25em] uppercase text-white/40">
+              Your Options
             </h2>
             <div className="h-px flex-1 bg-white/10" />
           </motion.div>
+
+          {/* How to accept instruction card */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="mb-8 max-w-lg mx-auto"
+            className="mb-10 max-w-lg mx-auto"
           >
-            <div className="rounded-xl border border-white/10 bg-white/[0.03] px-5 py-4">
-              <p className="text-xs font-medium tracking-[0.15em] uppercase text-white/40 mb-3">How to accept your quote</p>
-              <ol className="space-y-2">
+            <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] px-6 py-5">
+              <p className="text-xs font-medium tracking-[0.15em] uppercase text-white/40 mb-4">How to accept your quote</p>
+              <ol className="space-y-3">
                 {[
                   "Select your preferred carpet below",
                   "Choose your colour from the swatches",
                   "Tap Accept Quote to confirm",
                 ].map((text, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <span className="w-5 h-5 rounded-full border border-white/20 flex items-center justify-center text-[10px] font-semibold text-white/40 flex-shrink-0 mt-0.5">
+                    <span className="w-6 h-6 rounded-full border border-white/20 flex items-center justify-center text-[11px] font-semibold text-white/40 flex-shrink-0 mt-0.5">
                       {i + 1}
                     </span>
                     <span className="text-sm text-white/60 leading-snug">{text}</span>
@@ -737,35 +766,8 @@ export default function QuotePage({ slug }: QuotePageProps) {
             </div>
           </motion.div>
 
-          {/* Flowing description block — scope of work shown before the tier cards.
-              Admin-edited description wins; legacy quotes fall back to generated lines. */}
-          {(() => {
-            const descLines = tieredDescLines;
-            const underlayNote = getUnderlayNote(tiers[0]?.underlay);
-            if (descLines.length === 0 && !underlayNote) return null;
-            return (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.45 }}
-                className="mb-8 max-w-lg mx-auto"
-              >
-                <div className="flex">
-                  <div className="w-[3px] flex-shrink-0 rounded-full" style={{ backgroundColor: CREAM, opacity: 0.5 }} />
-                  <div className="flex-1 pl-4 space-y-2">
-                    {descLines.map((line, i) => (
-                      <p key={i} className="text-sm text-white/70 leading-relaxed">{line}</p>
-                    ))}
-                    {underlayNote && (
-                      <p className="text-sm text-white/50 leading-relaxed pt-1">{underlayNote}</p>
-                    )}
-                  </div>
-                </div>
-              </motion.div>
-            );
-          })()}
-
-          <div className={`space-y-4 lg:grid lg:gap-5 lg:space-y-0 lg:items-start ${tiers.length === 2 ? 'lg:grid-cols-2 max-w-3xl mx-auto' : 'lg:grid-cols-3'}`}>
+          {/* ─── TIER CARDS ─── */}
+          <div className={`space-y-6 lg:grid lg:gap-6 lg:space-y-0 lg:items-start ${tiers.length === 2 ? 'lg:grid-cols-2 max-w-3xl mx-auto' : 'lg:grid-cols-3'}`}>
             {tiers.map((tier, i) => (
               <TierCard
                 key={tier.id}
@@ -788,7 +790,7 @@ export default function QuotePage({ slug }: QuotePageProps) {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className="mt-8 max-w-lg mx-auto"
+            className="mt-14 max-w-lg mx-auto"
           >
             <AddonSelector
               addons={addons}
@@ -800,27 +802,26 @@ export default function QuotePage({ slug }: QuotePageProps) {
           </motion.div>
         )}
 
-
-
         {tieredDescLines.length === 0 && (
-          <div className="max-w-lg mx-auto">
+          <div className="max-w-lg mx-auto mt-14">
             <ScopeOfWorks items={withUnderlayItem(config.scopeOfWorks, selectedTier?.underlay || tiers[0]?.underlay)} />
           </div>
         )}
         {config.customerNotes && config.customerNotes.trim() && (
-          <div className="max-w-lg mx-auto">
-            <div className="rounded-xl p-5 mt-1" style={{ backgroundColor: `${CREAM}14`, border: `1px solid ${CREAM}33` }}>
-              <h3 className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: `${CREAM}CC` }}>Notes</h3>
+          <div className="max-w-lg mx-auto mt-10">
+            <div className="rounded-xl p-6" style={{ backgroundColor: `${CREAM}14`, border: `1px solid ${CREAM}33` }}>
+              <h3 className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: `${CREAM}CC` }}>Notes</h3>
               <p className="text-white/70 text-sm leading-relaxed whitespace-pre-wrap">{config.customerNotes.trim()}</p>
             </div>
           </div>
         )}
-        <div className="max-w-lg mx-auto">
+        <div className="max-w-lg mx-auto mt-16">
           <WhyBellCarpets />
         </div>
-        <div className="max-w-lg mx-auto">
+        <div className="max-w-lg mx-auto mt-14">
           <QuoteTerms terms={config.terms} validUntil={validUntil} />
         </div>
+        <DownloadQuotePDF />
         <div className="max-w-lg mx-auto">
           <Footer />
         </div>

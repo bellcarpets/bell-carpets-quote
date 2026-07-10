@@ -1,6 +1,6 @@
 /**
  * HomeownerQuotePanel — Single-product quote panel for homeowner quotes
- * Clean black & white premium design
+ * Premium document-style design with generous spacing and clear hierarchy
  */
 
 import { useState } from "react";
@@ -194,7 +194,7 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
         initial={{ opacity: 0, scale: 0.97 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
-        className="rounded-2xl p-8 text-center mt-8 bg-zinc-900 border border-white/10 shadow-sm"
+        className="rounded-2xl p-10 text-center mt-8 bg-zinc-900 border border-white/10 shadow-sm"
       >
         <img src={LOGO_WHITE_PNG} alt="Bell Carpets" className="h-8 mx-auto mb-6 opacity-40" />
         <div className="w-16 h-16 rounded-full mx-auto mb-5 flex items-center justify-center bg-white">
@@ -206,7 +206,7 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
         <p className="text-sm mb-6 text-white/50">
           Thank you, {agentName}. Bell Carpets has been notified and will be in touch shortly to confirm your booking.
         </p>
-        <div className="rounded-xl p-4 text-left space-y-2 bg-white/[0.02] border border-white/10">
+        <div className="rounded-xl p-5 text-left space-y-2.5 bg-white/[0.02] border border-white/10">
           <div className="flex justify-between text-sm">
             <span className="text-white/50">Product</span>
             <span className="text-white">{product.productName}</span>
@@ -231,12 +231,55 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
   }
 
   return (
-    <div className="space-y-5 mt-2">
-      {/* ─── Product card ─── */}
+    <div className="space-y-8">
+      {/* ─── Scope of Works section ─── */}
+      {descriptionLines.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="flex items-center gap-3 mb-6">
+            <div className="h-px flex-1 bg-white/10" />
+            <h2 className="text-xs font-medium tracking-[0.25em] uppercase text-white/40">
+              Scope of Works
+            </h2>
+            <div className="h-px flex-1 bg-white/10" />
+          </div>
+          <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-6">
+            <div className="flex">
+              <div className="w-[3px] flex-shrink-0 rounded-full" style={{ backgroundColor: CREAM, opacity: 0.5 }} />
+              <div className="flex-1 pl-5 space-y-3">
+                {descriptionLines.map((line, i) => (
+                  <p key={i} className="text-sm text-white/70 leading-relaxed">{line}</p>
+                ))}
+              </div>
+            </div>
+
+            {/* Spec line and underlay below description */}
+            {(specLine || underlayName) && (
+              <div className="mt-5 pt-4 border-t border-white/[0.06] pl-[23px]">
+                {specLine && (
+                  <p className="text-xs text-white/40 tracking-wide">
+                    {specLine}
+                  </p>
+                )}
+                {underlayName && (
+                  <p className="text-xs text-white/40 tracking-wide mt-1.5">
+                    Includes {underlayName} underlay
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        </motion.div>
+      )}
+
+      {/* ─── Product card (no description inside — it's above now) ─── */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
         className="rounded-2xl overflow-hidden bg-zinc-900 border border-white/10 shadow-sm"
       >
         {/* Hero image */}
@@ -248,61 +291,45 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
         )}
 
         <div className="p-0">
-          {/* ── PRODUCT + DESCRIPTION SECTION ── */}
-          <div className="relative flex">
-            {/* Cream accent bar */}
-            <div className="w-[3px] flex-shrink-0 rounded-l-2xl" style={{ backgroundColor: CREAM, opacity: 0.5 }} />
-
-            <div className="flex-1 px-6 py-6">
-              {/* Heading */}
-              <h3 className="text-2xl font-semibold text-white leading-tight mb-4">
-                Your Quote
-              </h3>
-
-              {/* Flowing description — scope of work in natural lines */}
-              {descriptionLines.length > 0 && (
-                <div className="space-y-2 mb-4">
-                  {descriptionLines.map((line, i) => (
-                    <p key={i} className="text-sm text-white/70 leading-relaxed">
-                      {line}
-                    </p>
-                  ))}
-                </div>
-              )}
-
-              {/* One subtle spec line: manufacturer · fibre · pile type */}
-              {specLine && (
-                <p className="text-xs text-white/40 tracking-wide">
-                  {specLine}
-                </p>
-              )}
-
-              {/* Underlay shown inline (no separate density-spec block) */}
-              {underlayName && (
-                <p className="text-xs text-white/40 tracking-wide mt-1.5">
-                  Includes {underlayName} underlay
-                </p>
-              )}
+          {/* If no description lines, show scope inline in the card (legacy fallback) */}
+          {descriptionLines.length === 0 && (
+            <div className="relative flex">
+              <div className="w-[3px] flex-shrink-0 rounded-l-2xl" style={{ backgroundColor: CREAM, opacity: 0.5 }} />
+              <div className="flex-1 px-6 py-6">
+                <h3 className="text-2xl font-semibold text-white leading-tight mb-4">
+                  Your Quote
+                </h3>
+                {specLine && (
+                  <p className="text-xs text-white/40 tracking-wide">
+                    {specLine}
+                  </p>
+                )}
+                {underlayName && (
+                  <p className="text-xs text-white/40 tracking-wide mt-1.5">
+                    Includes {underlayName} underlay
+                  </p>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Colour selector */}
           {product.colours && product.colours.length > 0 && (
-            <div className="px-6 pb-5">
-              <p className="text-xs tracking-widest uppercase mb-3 text-white/40">
+            <div className="px-6 py-6">
+              <p className="text-xs tracking-widest uppercase mb-4 text-white/40">
                 Select Colour
               </p>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-4">
                 {product.colours.map((colour) => {
                   const isSelected = selectedColourId === colour.id;
                   return (
                     <button
                       key={colour.id}
                       onClick={() => setSelectedColourId(colour.id)}
-                      className="flex flex-col items-center gap-1.5 group"
+                      className="flex flex-col items-center gap-2 group"
                     >
                       <div
-                        className={`relative w-14 h-14 rounded-xl overflow-hidden transition-all duration-200 ${
+                        className={`relative w-16 h-16 rounded-xl overflow-hidden transition-all duration-200 ${
                           isSelected ? "ring-2 ring-offset-2 ring-offset-zinc-900" : "ring-1 ring-white/10"
                         }`}
                         style={isSelected ? { boxShadow: `0 0 0 2px ${CREAM}` } : undefined}
@@ -318,7 +345,7 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
                           </div>
                         )}
                       </div>
-                      <span className={`text-[10px] text-center max-w-[56px] leading-tight ${isSelected ? "text-white font-medium" : "text-white/50"}`}>
+                      <span className={`text-[10px] text-center max-w-[64px] leading-tight ${isSelected ? "text-white font-medium" : "text-white/50"}`}>
                         {colour.name}
                       </span>
                     </button>
@@ -358,7 +385,7 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.15 }}
         >
-          <h2 className="text-sm font-medium tracking-[0.2em] uppercase text-white/35 mb-4">
+          <h2 className="text-xs font-medium tracking-[0.25em] uppercase text-white/40 mb-5">
             Additional Services
           </h2>
           <div className="space-y-3">
@@ -368,7 +395,7 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
                 <button
                   key={addon.id}
                   onClick={() => handleToggleAddon(addon.id)}
-                  className={`w-full rounded-xl p-4 text-left transition-all duration-200 border ${
+                  className={`w-full rounded-xl p-5 text-left transition-all duration-200 border ${
                     isSelected ? "bg-white/[0.03] border-white/20" : "bg-zinc-900 border-white/10 hover:border-white/10"
                   }`}
                 >
@@ -377,7 +404,7 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
                       <p className={`text-sm font-medium ${isSelected ? "text-white" : "text-white/70"}`}>
                         {addon.title}
                       </p>
-                      <p className="text-xs mt-0.5 text-white/40">
+                      <p className="text-xs mt-1 text-white/40">
                         {addon.description}
                       </p>
                     </div>
@@ -401,7 +428,7 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
         </motion.div>
       )}
 
-      {/* ─── Accept section ─── */}
+      {/* ─── Pricing & Accept section ─── */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -411,20 +438,20 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
         {/* Cream accent bar — matches product card */}
         <div className="flex">
           <div className="w-[3px] flex-shrink-0" style={{ backgroundColor: CREAM, opacity: 0.5 }} />
-          <div className="flex-1 p-5">
+          <div className="flex-1 p-6">
 
         {/* Price summary */}
-        <div className="mb-5 space-y-2">
+        <div className="mb-6 space-y-2.5">
           {hasRooms ? (
             <>
-              <p className="text-xs tracking-widest uppercase text-white/40 mb-2">Room Breakdown</p>
+              <p className="text-xs tracking-widest uppercase text-white/40 mb-3">Room Breakdown</p>
               {config.rooms?.map((room) => (
                 <div key={room.id} className="flex justify-between text-sm">
                   <span className="text-white/50">{room.name}</span>
                   <span className="text-white">{formatPrice(room.price)}</span>
                 </div>
               ))}
-              <div className="h-px mt-2 bg-white/10" />
+              <div className="h-px mt-3 bg-white/10" />
               <div className="flex justify-between text-sm font-medium">
                 <span className="text-white/50">Subtotal (rooms)</span>
                 <span className="text-white">{formatPrice(roomsTotal)}</span>
@@ -437,20 +464,20 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
               <span className="text-white">+{formatPrice(a.price)}</span>
             </div>
           ))}
-          {(hasRooms || selectedAddons.length > 0) && <div className="h-px mt-2 bg-white/10" />}
+          {(hasRooms || selectedAddons.length > 0) && <div className="h-px mt-3 bg-white/10" />}
           {/* Total — dominant statement FIRST */}
-          <div className="flex justify-between items-baseline pb-1">
+          <div className="flex justify-between items-baseline pb-2 pt-1">
             <span className="text-sm text-white/60">Total (inc GST)</span>
-            <span className="text-3xl font-bold text-white tracking-tight">{formatPrice(grandTotal)}</span>
+            <span className="text-4xl font-bold text-white tracking-tight">{formatPrice(grandTotal)}</span>
           </div>
-          <div className="h-px mb-1 bg-white/[0.06]" />
+          <div className="h-px mb-2 bg-white/[0.06]" />
           <div className="flex justify-between text-xs text-white/40">
             <span>GST (10%)</span>
             <span>{formatPrice(Math.round(grandTotal / 11))}</span>
           </div>
           {!usesAgentPaymentTerms(config.quoteType) && (
             <>
-              <div className="h-px mt-1 mb-1 bg-white/[0.06]" />
+              <div className="h-px mt-2 mb-2 bg-white/[0.06]" />
               <div className="flex justify-between text-xs">
                 <span className="text-white/30">
                   <CreditCard className="w-3 h-3 inline mr-1.5 opacity-60" />
@@ -473,7 +500,7 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
         {!showConfirm && (step === "form" || step === "error") && (
           <div className="space-y-3">
             {isInsuranceAssessment ? (
-              <div className="rounded-xl border p-4 text-center space-y-3" style={{ borderColor: `${CREAM}33`, backgroundColor: `${CREAM}0D` }}>
+              <div className="rounded-xl border p-5 text-center space-y-3" style={{ borderColor: `${CREAM}33`, backgroundColor: `${CREAM}0D` }}>
                 <p className="text-sm font-medium" style={{ color: CREAM }}>This quote has been prepared for insurance assessment purposes.</p>
                 {linkedQuoteSlug && linkedQuoteNumber && (
                   <a
@@ -489,7 +516,7 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
               <>
                 {/* Validity badge — urgency at decision point */}
                 {validUntil && (
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-2 mb-2">
                     <Clock className="w-3.5 h-3.5 flex-shrink-0" style={{ color: `${CREAM}B3` }} />
                     <span className="text-xs" style={{ color: `${CREAM}B3` }}>
                       Valid until {validUntil}
@@ -498,7 +525,7 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
                 )}
                 <button
                   onClick={() => setShowConfirm(true)}
-                  className="w-full py-3.5 rounded-xl font-semibold text-sm tracking-wide transition-all duration-200 active:scale-[0.98] text-zinc-900 shadow-lg hover:opacity-90"
+                  className="w-full py-4 rounded-xl font-semibold text-sm tracking-wide transition-all duration-200 active:scale-[0.98] text-zinc-900 shadow-lg hover:opacity-90"
                   style={{ backgroundColor: CREAM }}
                 >
                   Accept This Quote
@@ -522,8 +549,9 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.35 }}
+              className="px-6 pb-6"
             >
-              <p className="text-sm mb-4 text-white/50">
+              <p className="text-sm mb-5 text-white/50">
                 Please enter your details to confirm acceptance:
               </p>
               <div className="space-y-3">
@@ -600,7 +628,7 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
 
         {/* Submitting */}
         {step === "submitting" && (
-          <div className="flex items-center justify-center gap-3 py-4">
+          <div className="flex items-center justify-center gap-3 py-6 px-6">
             <Loader2 className="w-5 h-5 animate-spin text-white" />
             <span className="text-sm text-white/50">Submitting your acceptance...</span>
           </div>
@@ -608,7 +636,7 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
 
         {/* Error */}
         {step === "error" && (
-          <div className="rounded-xl p-4 flex items-start gap-3 bg-red-50 border border-red-100">
+          <div className="rounded-xl p-4 mx-6 mb-6 flex items-start gap-3 bg-red-50 border border-red-100">
             <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5 text-red-400" />
             <div>
               <p className="text-sm font-medium text-red-600">Submission failed</p>
