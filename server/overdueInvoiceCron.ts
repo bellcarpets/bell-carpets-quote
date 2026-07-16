@@ -44,7 +44,7 @@ function buildOverdueEmail(data: {
         <!-- Header -->
         <tr>
           <td style="padding:40px 40px 28px;text-align:center;border-bottom:1px solid #e8e8e8;">
-            <img src="${LOGO_CDN}" alt="Bell Carpets" width="180" style="display:block;margin:0 auto;" />
+            <img src="${LOGO_CDN}" alt="Bell Carpets" width="160" style="width:160px;max-width:160px;display:block;margin:0 auto;" />
           </td>
         </tr>
 
@@ -128,7 +128,7 @@ function buildOverdueEmail(data: {
         <!-- Footer -->
         <tr>
           <td style="padding:32px 48px;text-align:center;background:#ffffff;">
-            <img src="https://quote.bellcarpets.com.au/images/logo.jpg" alt="Bell Carpets" style="height:30px;display:block;margin:0 auto;" />
+            <img src="https://quote.bellcarpets.com.au/images/logo.jpg" alt="Bell Carpets" width="120" style="width:120px;max-width:120px;display:block;margin:0 auto;" />
           </td>
         </tr>
 

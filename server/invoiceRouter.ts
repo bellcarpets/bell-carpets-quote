@@ -147,7 +147,7 @@ function buildInvoiceEmailHtml(data: {
 
         <!-- Header -->
         <tr><td style="padding:48px 48px 32px;text-align:center;border-bottom:1px solid #e8e8e8;">
-          <img src="${INVOICE_LOGO_URL}" alt="Bell Carpets" style="width:200px;display:block;margin:0 auto;" />
+          <img src="${INVOICE_LOGO_URL}" alt="Bell Carpets" width="160" style="width:160px;max-width:160px;display:block;margin:0 auto;" />
         </td></tr>
 
         <!-- Body -->
@@ -238,7 +238,7 @@ function buildInvoiceEmailHtml(data: {
 
         <!-- Footer -->
         <tr><td style="padding:32px 48px;text-align:center;background:#ffffff;border-top:1px solid #e8e8e8;">
-          <img src="${INVOICE_LOGO_URL}" alt="Bell Carpets" style="height:30px;display:block;margin:0 auto 12px;" />
+          <img src="${INVOICE_LOGO_URL}" alt="Bell Carpets" width="120" style="width:120px;max-width:120px;display:block;margin:0 auto 12px;" />
           <p style="margin:0;font-size:11px;color:#999;font-family:Arial,sans-serif;line-height:1.6;">
             Bell Spec Pty Ltd &nbsp;&middot;&nbsp; ABN 74 613 299 773<br />
             <a href="x-apple-data-detectors://0" dir="ltr" style="color:#999;text-decoration:none;pointer-events:none;">Unit 1, 41 Olympic Circuit, Southport QLD 4215</a>
