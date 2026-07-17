@@ -12,7 +12,7 @@ import { formatAESTDateTime } from "../shared/aestUtils";
 
 // ─── Shared email layout helpers ─────────────────────────────────────────
 
-const LOGO_URL = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663449952732/EvSxkTrWsYNTCIAI.jpg";
+const LOGO_URL = "https://bellquote-tzpkfj3d.manus.space/manus-storage/logo-email_e46f3e2d.jpg";
 
 function emailHeader(): string {
   return `
@@ -20,7 +20,7 @@ function emailHeader(): string {
       <tr><td align="center" style="padding:40px 16px;">
         <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#111111;">
           <tr><td style="padding:40px 40px 0;text-align:center;">
-            <img src="${LOGO_URL}" alt="Bell Carpets" width="160" height="auto" style="width:160px;max-width:160px;height:auto;display:block;margin:0 auto;" />
+            <img src="${LOGO_URL}" alt="Bell Carpets" width="320" height="87" style="width:320px;max-width:320px;height:auto;display:block;margin:0 auto;" />
           </td></tr>
           <tr><td style="padding:32px 40px 0;">`;
 }
@@ -407,7 +407,7 @@ function buildReviewRequestEmail(params: {
       <tr><td align="center" style="padding:40px 16px;">
         <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#111111;">
           <tr><td style="padding:40px 40px 0;text-align:center;">
-            <img src="${LOGO_URL}" alt="Bell Carpets" width="160" height="auto" style="width:160px;max-width:160px;height:auto;display:block;margin:0 auto;" />
+            <img src="${LOGO_URL}" alt="Bell Carpets" width="320" height="87" style="width:320px;max-width:320px;height:auto;display:block;margin:0 auto;" />
           </td></tr>
           <tr><td style="padding:32px 40px;">
             <p style="color:#ffffff;font-size:16px;line-height:1.6;margin:0 0 24px;font-family:Arial,sans-serif;">Hi ${params.firstName},</p>
