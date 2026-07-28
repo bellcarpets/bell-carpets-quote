@@ -845,23 +845,46 @@ function InvoiceDownloadButton({
   password,
   quoteSlug,
   quoteNumber,
+  onCreated,
 }: {
   password: string;
   quoteSlug: string;
   quoteNumber: string;
+  onCreated?: () => void;
 }) {
-  const { data: invoice, isLoading } = trpc.invoice.getByQuote.useQuery(
+  const { data: invoice, isLoading, refetch } = trpc.invoice.getByQuote.useQuery(
     { password, quoteSlug },
     { refetchOnWindowFocus: false }
   );
+  const generateMutation = trpc.invoice.generate.useMutation();
+  const [creating, setCreating] = useState(false);
 
   if (isLoading) return null;
 
   if (!invoice) {
     return (
-      <span className="py-1.5 px-2 rounded-lg text-xs text-white/40 flex items-center gap-1">
-        <FileText className="w-3 h-3" /> No Invoice
-      </span>
+      <button
+        onClick={async (e) => {
+          e.stopPropagation();
+          setCreating(true);
+          try {
+            await generateMutation.mutateAsync({ password, quoteSlug });
+            await refetch();
+            onCreated?.();
+            toast.success(`Invoice created for ${quoteNumber}`);
+          } catch (err) {
+            toast.error("Failed to create invoice");
+          } finally {
+            setCreating(false);
+          }
+        }}
+        disabled={creating}
+        className="py-1.5 px-2 rounded-lg text-xs text-amber-400 hover:bg-amber-500/10 transition-colors flex items-center gap-1 border border-amber-500/20"
+        title={`Create invoice for ${quoteNumber}`}
+      >
+        {creating ? <Loader2 className="w-3 h-3 animate-spin" /> : <FileText className="w-3 h-3" />}
+        {creating ? "Creating..." : "Create Invoice"}
+      </button>
     );
   }
 
@@ -2070,6 +2093,13 @@ function QuotesDashboard({
                       )}
                     </p>
                   )}
+                  {/* Internal notes preview — admin only */}
+                  {(q as any).internalNotes && (
+                    <p className="text-amber-400/70 text-xs mt-1 truncate flex items-center gap-1" title={(q as any).internalNotes}>
+                      <span className="text-amber-400/40">📝</span>
+                      {(q as any).internalNotes.substring(0, 80)}{(q as any).internalNotes.length > 80 ? '…' : ''}
+                    </p>
+                  )}
                   {/* Payment breakdown — only shown once quote is accepted (not draft/quote_sent) */}
                   {(q.acceptedTotal ?? 0) > 0 && q.jobStatus !== 'draft' && q.jobStatus !== 'quote_sent' && (() => {
                     const total = q.acceptedTotal ?? q.highestPrice ?? 0;
@@ -2332,8 +2362,8 @@ function QuotesDashboard({
                         >
                           <ExternalLink className="w-3 h-3" /> View
                         </a>
-                        {q.jobStatus !== "quote_sent" && q.jobStatus !== "draft" && (
-                          <InvoiceDownloadButton password={password} quoteSlug={q.slug} quoteNumber={q.quoteNumber} />
+                        {(q.jobStatus === "completed" || q.jobStatus === "paid_in_full") && (
+                          <InvoiceDownloadButton password={password} quoteSlug={q.slug} quoteNumber={q.quoteNumber} onCreated={refetch} />
                         )}
                         <StatusDropdown
                           currentStatus={q.jobStatus as JobStatus}
@@ -5036,8 +5066,31 @@ function PaymentStatusBadge({ status }: { status: string }) {
 }
 
 function XeroSyncButton({ password, invoiceId, onSynced }: { password: string; invoiceId: number; onSynced: () => void }) {
-  // Xero removed — Saasu syncs automatically on job completion
-  return null;
+  const retrySyncMutation = trpc.admin.retrySaasuSync.useMutation();
+  const [syncing, setSyncing] = useState(false);
+  return (
+    <button
+      onClick={async (e) => {
+        e.stopPropagation();
+        setSyncing(true);
+        try {
+          await retrySyncMutation.mutateAsync({ password, invoiceId });
+          onSynced();
+          toast.success("Synced to Saasu");
+        } catch {
+          toast.error("Saasu sync failed");
+        } finally {
+          setSyncing(false);
+        }
+      }}
+      disabled={syncing}
+      className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-zinc-700/50 border border-white/10 text-white/40 text-[10px] hover:bg-zinc-700 hover:text-white/70 transition-colors"
+      title="Sync to Saasu manually"
+    >
+      {syncing ? <Loader2 className="w-2.5 h-2.5 animate-spin" /> : <RefreshCw className="w-2.5 h-2.5" />}
+      Saasu
+    </button>
+  );
 }
 
 function InvoicesTab({ password }: { password: string }) {

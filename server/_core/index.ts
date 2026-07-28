@@ -8,6 +8,13 @@ import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
+import {
+  handleReminderCron,
+  handleFollowUpCron,
+  handleExpiryReminderCron,
+  handleOverdueCron,
+  handleWeeklyPipelineSms,
+} from "../scheduledHandlers";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -36,6 +43,14 @@ async function startServer() {
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   registerStorageProxy(app);
   registerOAuthRoutes(app);
+
+  // Heartbeat scheduled job endpoints — must be registered before Vite/static fallthrough
+  app.post("/api/scheduled/reminder", handleReminderCron);
+  app.post("/api/scheduled/followUp", handleFollowUpCron);
+  app.post("/api/scheduled/expiryReminder", handleExpiryReminderCron);
+  app.post("/api/scheduled/overdue", handleOverdueCron);
+  app.post("/api/scheduled/weeklyPipeline", handleWeeklyPipelineSms);
+
   // tRPC API
   app.use(
     "/api/trpc",

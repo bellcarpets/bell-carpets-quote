@@ -106,3 +106,11 @@
 - [x] Resend API key configured (email sending)
 - [x] Twilio credentials configured (SMS sending — +61468009879)
 - [x] GitHub backup (bellcarpets/bell-carpets-quote — private repo)
+
+## Phase 11: 10/10 Fixes
+- [x] Migrate all 4 cron jobs (reminder, followUp, expiryReminder, overdueInvoice) from setInterval to Heartbeat scheduler
+- [x] Create invoice for BC-056 (Clear Island Waters, Ray White Malan + Co, Best tier $2,200) — via Create Invoice button on card
+- [x] Show internal notes preview on quote list card
+- [x] Add "Create Invoice" button on completed/paid_in_full quote cards
+- [x] Add Saasu manual sync fallback button on invoices without xeroInvoiceId
+- [x] Add weekly pipeline SMS (Monday morning summary to Leon's number)

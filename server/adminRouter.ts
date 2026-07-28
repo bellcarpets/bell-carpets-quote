@@ -681,6 +681,7 @@ export const adminRouter = router({
           reviewRequestedAt: quotes.reviewRequestedAt,
           createdAt: quotes.createdAt,
           updatedAt: quotes.updatedAt,
+          internalNotes: quotes.internalNotes,
         })
         .from(quotes)
         .where(isNull(quotes.deletedAt))
@@ -767,6 +768,7 @@ export const adminRouter = router({
           lastViewedAt: viewStatsMap.get(row.slug)?.lastViewedAt ?? null,
           uniqueIPs: viewStatsMap.get(row.slug)?.uniqueIPs ?? 0,
           sharingAlert: (viewStatsMap.get(row.slug)?.uniqueIPs ?? 0) > 2,
+          internalNotes: row.internalNotes ?? null,
         };
       });
     }),

@@ -35,7 +35,7 @@ export function normaliseAuPhone(raw: string): string | null {
 export async function sendSms(to: string, body: string): Promise<boolean> {
   const sid = process.env.TWILIO_ACCOUNT_SID;
   const token = process.env.TWILIO_AUTH_TOKEN;
-  const from = process.env.TWILIO_PHONE_NUMBER;
+  const from = process.env.TWILIO_FROM_NUMBER || process.env.TWILIO_PHONE_NUMBER;
 
   if (!sid || !token || !from) {
     console.warn("[SMS] Twilio credentials not configured — skipping SMS");
