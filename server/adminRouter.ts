@@ -316,6 +316,7 @@ export async function sendSchedulingConfirmationEmail(data: SchedulingConfirmati
         from: "Bell Carpets <quotes@bellcarpets.com.au>",
         reply_to: "hello@bellcarpets.com.au",
         to: [data.recipientEmail],
+        bcc: ["hello@bellcarpets.com.au"],
         subject: `Installation Scheduled: ${data.propertyAddress} on ${dateStr}`,
         html: htmlBody,
       }),

@@ -144,3 +144,7 @@
 - [x] Add "Request 48-Hour Extension" button to expired quote page UI
 - [x] Show success state after extension is granted
 - [x] Limit to one extension per quote (prevent abuse)
+
+## Phase 15: BCC on All Outgoing Emails
+- [x] Add bcc: hello@bellcarpets.com.au to all Resend email sends across the codebase
+- [x] Strip Invoices tab to workflow tracker (remove dollar amounts, keep job/status/dates only)

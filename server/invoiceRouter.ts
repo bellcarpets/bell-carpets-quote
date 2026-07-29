@@ -574,6 +574,7 @@ export const invoiceRouter = router({
         from: "Bell Carpets <quotes@bellcarpets.com.au>",
         reply_to: "hello@bellcarpets.com.au",
         to: [invoice.recipientEmail],
+        bcc: ["hello@bellcarpets.com.au"],
         subject: `Tax Invoice ${invoice.invoiceNumber} from Bell Carpets`,
         html: emailHtml,
       };
