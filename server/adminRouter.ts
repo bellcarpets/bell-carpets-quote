@@ -428,7 +428,7 @@ export async function sendQuoteLinkEmail(data: QuoteLinkEmailData): Promise<bool
           <!-- CTA Button -->
           <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:40px;">
             <tr><td>
-              <a href="${quoteUrl}" style="display:inline-block;background:#ffffff;color:#fff;text-decoration:none;padding:16px 40px;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;font-family:Arial,sans-serif;">
+              <a href="${quoteUrl}" style="display:inline-block;background:#111111;color:#ffffff;text-decoration:none;padding:16px 40px;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;font-family:Arial,sans-serif;border-radius:6px;">
                 View Your Quote
               </a>
             </td></tr>
@@ -570,7 +570,7 @@ export async function sendReminderEmail(data: QuoteLinkEmailData & { daysLeft: n
           <!-- CTA Button -->
           <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:40px;">
             <tr><td>
-              <a href="${quoteUrl}" style="display:inline-block;background:#ffffff;color:#fff;text-decoration:none;padding:16px 40px;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;font-family:Arial,sans-serif;">
+              <a href="${quoteUrl}" style="display:inline-block;background:#111111;color:#ffffff;text-decoration:none;padding:16px 40px;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;font-family:Arial,sans-serif;border-radius:6px;">
                 ${isUrgent ? "Accept Now" : "Review Quote"}
               </a>
             </td></tr>
