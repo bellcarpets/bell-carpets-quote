@@ -846,11 +846,13 @@ function InvoiceDownloadButton({
   quoteSlug,
   quoteNumber,
   onCreated,
+  iconOnly,
 }: {
   password: string;
   quoteSlug: string;
   quoteNumber: string;
   onCreated?: () => void;
+  iconOnly?: boolean;
 }) {
   const { data: invoice, isLoading, refetch } = trpc.invoice.getByQuote.useQuery(
     { password, quoteSlug },
@@ -975,11 +977,13 @@ function StatusDropdown({
   quoteType,
   onSelect,
   disabled,
+  compact,
 }: {
   currentStatus: JobStatus;
   quoteType: QuoteType | string;
   onSelect: (status: JobStatus) => void;
   disabled?: boolean;
+  compact?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const pipeline = getPipeline(quoteType);
@@ -1087,6 +1091,8 @@ function QuotesDashboard({
     linkedQuoteSlug: "",
   });
   const [statusFilter, setStatusFilter] = useState<JobStatus | "all" | "expired" | "archived">("all");
+  const [sortField, setSortField] = useState<"date" | "quote" | "client" | "status" | "value">("date");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
   const { data: archivedQuotes, refetch: refetchArchived } = trpc.admin.listDeletedQuotes.useQuery(
     { password },
     { enabled: statusFilter === "archived", refetchOnWindowFocus: false }
@@ -1357,6 +1363,29 @@ function QuotesDashboard({
       (q.agentName || "").toLowerCase().includes(s) ||
       (q.acceptedAgentName || "").toLowerCase().includes(s)
     );
+  });
+  const sortedQuotes = [...filteredQuotes].sort((a, b) => {
+    let aVal: string | number = 0;
+    let bVal: string | number = 0;
+    if (sortField === "date") {
+      aVal = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      bVal = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    } else if (sortField === "quote") {
+      aVal = a.quoteNumber || "";
+      bVal = b.quoteNumber || "";
+    } else if (sortField === "client") {
+      aVal = (a.clientName || a.agentName || "").toLowerCase();
+      bVal = (b.clientName || b.agentName || "").toLowerCase();
+    } else if (sortField === "status") {
+      aVal = a.jobStatus || "";
+      bVal = b.jobStatus || "";
+    } else if (sortField === "value") {
+      aVal = a.acceptedTotal ?? a.lowestPrice ?? 0;
+      bVal = b.acceptedTotal ?? b.lowestPrice ?? 0;
+    }
+    if (aVal < bVal) return sortDir === "asc" ? -1 : 1;
+    if (aVal > bVal) return sortDir === "asc" ? 1 : -1;
+    return 0;
   });
 
     const expiredCount = (quotesList || []).filter(isExpiredQuote).length;
@@ -1998,384 +2027,188 @@ function QuotesDashboard({
             )}
           </div>
         ) : statusFilter !== "archived" ? (
-          <div className="space-y-3">
-            {filteredQuotes.map((q) => {
-              const qDaysLeft = getDaysRemaining(q.expiresAt);
-              const qIsOpenStatus = q.jobStatus === 'draft' || q.jobStatus === 'quote_sent';
-              const qExpired = qIsOpenStatus && qDaysLeft !== null && qDaysLeft <= 0;
-              const qExpiringSoon = qIsOpenStatus && qDaysLeft !== null && qDaysLeft > 0 && qDaysLeft <= 3;
-              const qCancelled = q.jobStatus === "cancelled";
-              const cardBorder = qCancelled
-                ? "border-zinc-700/40"
-                : qExpired
-                ? "border-red-500/40"
-                : qExpiringSoon
-                  ? "border-amber-500/40"
-                  : "border-white/10";
-              return (
-              <div
-                key={q.slug}
-                className={`rounded-xl border overflow-hidden ${cardBorder} ${qCancelled ? "bg-white/[0.02] opacity-40" : "bg-white/[0.04]"}`}
-              >
-                {/* Quote card header */}
-                <button
-                  onClick={() => onEditQuote(q.slug)}
-                  className="w-full px-4 py-3 text-left hover:bg-white/[0.03] transition-colors"
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="quote-number text-white text-sm font-semibold">
-                        {q.quoteNumber}
-                      </span>
-                      {q.quoteType === "homeowner" ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 text-xs">
-                          <Home className="w-3 h-3" /> Homeowner
-                        </span>
-                      ) : q.quoteType === "agency_single" ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-400 text-xs">
-                          <Package className="w-3 h-3" /> Agency Single
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 text-xs">
-                          <Users className="w-3 h-3" /> Agent
-                        </span>
-                      )}
-                      {q.jobStatus !== "cancelled" && <StatusBadge status={q.jobStatus as JobStatus} />}
-                      {q.jobStatus === "cancelled" && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-zinc-700/50 text-zinc-400 text-xs border border-zinc-600/40">
-                          <XCircle className="w-3 h-3" /> Cancelled
-                        </span>
-                      )}
-                      {q.isInsuranceAssessment && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 text-xs border border-amber-500/20">
-                          Insurance
-                        </span>
-                      )}
-                    </div>
-                    <span className="text-xs text-white/40">
-                      {q.createdAt
-                        ? formatAESTDate(new Date(q.createdAt), {
-                            day: "2-digit",
-                            month: "short",
-                          })
-                        : ""}
-                    </span>
-                  </div>
-                  {/* Headline name: agency name (clientName) for agency types, customer name for homeowner */}
-                  <p className="text-white text-sm font-medium truncate">
-                    {(q.quoteType === "agent" || q.quoteType === "real_estate" || q.quoteType === "agency_single")
-                      ? (safeString(q.clientName) || safeString(q.agentName) || "No agency")
-                      : (safeString(q.clientName) || "No client name")}
-                  </p>
-                  {/* Secondary line: PM name (agentName) for agency types; nothing extra for homeowner */}
-                  {(q.quoteType === "agent" || q.quoteType === "real_estate" || q.quoteType === "agency_single")
-                    ? safeString(q.agentName) && (
-                        <p className="text-white/50 text-xs truncate mt-0.5">
-                          {safeString(q.agentName)}
-                        </p>
-                      )
-                    : null
-                  }
-                  <p className="text-white/40 text-xs truncate mt-0.5">
-                    {safeString(q.propertyAddress) || "No property address"}
-                  </p>
-                  {(q.quoteType === "agent" || q.quoteType === "real_estate" || q.quoteType === "agency_single") && safeString(q.agentEmail) && (
-                    <p className="text-white/25 text-xs truncate mt-0.5 flex items-center gap-1">
-                      {safeString(q.agentEmail)}
-                      {q.quoteLinkEmailSent ? (
-                        <span className="text-green-400/60 ml-1">✓ emailed</span>
-                      ) : (
-                        <span className="text-amber-400/60 ml-1">not emailed</span>
-                      )}
-                    </p>
-                  )}
-                  {/* Internal notes preview — admin only */}
-                  {(q as any).internalNotes && (
-                    <p className="text-amber-400/70 text-xs mt-1 truncate flex items-center gap-1" title={(q as any).internalNotes}>
-                      <span className="text-amber-400/40">📝</span>
-                      {(q as any).internalNotes.substring(0, 80)}{(q as any).internalNotes.length > 80 ? '…' : ''}
-                    </p>
-                  )}
-                  {/* Payment breakdown — only shown once quote is accepted (not draft/quote_sent) */}
-                  {(q.acceptedTotal ?? 0) > 0 && q.jobStatus !== 'draft' && q.jobStatus !== 'quote_sent' && (() => {
-                    const total = q.acceptedTotal ?? q.highestPrice ?? 0;
-                    const discount = q.discountAmount ?? 0;
-                    const effectiveTotal = Math.max(0, total - discount);
-                    const paid = q.depositPaidAmount ?? 0;
-                    const balance = Math.max(0, effectiveTotal - paid);
-                    return (
-                      <div className="mt-2 flex items-center gap-2 flex-wrap">
-                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs">
-                          <span className="text-white/50">Total</span>
-                          <span className="text-white font-semibold">${total.toLocaleString()}</span>
-                          {discount > 0 && (
-                            <>
-                              <span className="text-white/20">·</span>
-                              <span className="text-white/50">Discount</span>
-                              <span className="text-orange-400 font-semibold">−${discount.toLocaleString()}</span>
-                            </>
-                          )}
-                          {paid > 0 && (
-                            <>
-                              <span className="text-white/20">·</span>
-                              <span className="text-white/50">Deposit</span>
-                              <span className="text-green-400 font-semibold">${paid.toLocaleString()}</span>
-                            </>
-                          )}
-                          <span className="text-white/20">·</span>
-                          <span className="text-white/50">Balance</span>
-                          <span className={balance > 0 ? "text-amber-400 font-bold" : "text-green-400 font-bold"}>
-                            {balance > 0 ? `$${balance.toLocaleString()}` : "Paid"}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })()}
-                  <div className="flex items-center gap-3 mt-2 text-xs text-white/40 flex-wrap">
-                    <span>
-                      ${q.lowestPrice.toLocaleString()} – $
-                      {q.highestPrice.toLocaleString()}
-                    </span>
-                    {safeString(q.acceptedTier) && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/15 text-green-400 border border-green-500/25 font-semibold">
-                        <CheckCircle2 className="w-3 h-3" />
-                        {safeString(q.acceptedTier)}{safeString(q.acceptedColour) ? ` · ${safeString(q.acceptedColour)}` : ""}{q.acceptedTotal ? ` · $${q.acceptedTotal.toLocaleString()}` : ""}
-                      </span>
-                    )}
-                    {/* Scheduled date indicator */}
-                    {q.scheduledDate && (
-                      <span className="inline-flex items-center gap-1 text-purple-400">
-                        <Calendar className="w-3 h-3" /> {formatAESTDate(new Date(q.scheduledDate), { day: "numeric", month: "short" })}
-                      </span>
-                    )}
-                    {/* Expiry indicator — only relevant while quote is pending (draft or quote_sent) */}
-                    {q.expiresAt && !([ "accepted", "deposit_paid", "scheduled", "completed", "paid_in_full"] as string[]).includes(q.jobStatus) && (() => {
-                      const days = getDaysRemaining(q.expiresAt);
-                      if (days === null) return null;
-                      if (days <= 0) return (
-                        <span className="inline-flex items-center gap-1 text-red-400">
-                          <Clock className="w-3 h-3" /> Expired {Math.abs(days)}d ago
-                        </span>
-                      );
-                      if (days <= 3) return (
-                        <span className="inline-flex items-center gap-1 text-orange-400">
-                          <Clock className="w-3 h-3" /> {days}d left
-                        </span>
-                      );
-                      return (
-                        <span className="inline-flex items-center gap-1 text-white/40">
-                          <Clock className="w-3 h-3" /> {days}d left
-                        </span>
-                      );
-                    })()}
-                    {/* View tracking indicator — only show if actually viewed */}
-                    {q.viewCount > 0 && (
-                      <span className="inline-flex items-center gap-1 text-cyan-400/70" title={q.lastViewedAt ? `Last viewed ${formatRelativeTime(new Date(q.lastViewedAt))}` : ''}>
-                        <Eye className="w-3 h-3" /> {q.viewCount}
-                        {(q as any).uniqueIPs > 1 && <span className="text-white/30"> · {(q as any).uniqueIPs} IPs</span>}
-                      </span>
-                    )}
-                    {/* Sharing alert — quote link being forwarded */}
-                    {(q as any).sharingAlert && (
-                      <span className="inline-flex items-center gap-1 text-amber-400 animate-pulse" title={`\u26a0\ufe0f Link shared \u2014 ${(q as any).uniqueIPs} unique IPs detected`}>
-                        <AlertTriangle className="w-3 h-3" /> Shared
-                      </span>
-                    )}
-                  </div>
-                </button>
-
-                {/* Quote card actions */}
-                {(() => {
-                  const nextStatuses = getNextStatuses(q.jobStatus as JobStatus, q.quoteType);
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr className="border-b border-white/[0.06]">
+                  <th className="w-8 py-2.5 pr-2 text-left">
+                    <input
+                      type="checkbox"
+                      className="w-3.5 h-3.5 rounded border-white/20 bg-transparent accent-amber-400 cursor-pointer"
+                      onChange={() => {}}
+                    />
+                  </th>
+                  <th
+                    className="py-2.5 pr-4 text-left text-[10px] uppercase tracking-[0.14em] text-white/30 font-medium whitespace-nowrap cursor-pointer hover:text-white/60 transition-colors select-none"
+                    onClick={() => { setSortField("date"); setSortDir(sortField === "date" && sortDir === "desc" ? "asc" : "desc"); }}
+                  >
+                    Date {sortField === "date" ? (sortDir === "asc" ? "\u2191" : "\u2193") : ""}
+                  </th>
+                  <th
+                    className="py-2.5 pr-4 text-left text-[10px] uppercase tracking-[0.14em] text-white/30 font-medium whitespace-nowrap cursor-pointer hover:text-white/60 transition-colors select-none"
+                    onClick={() => { setSortField("quote"); setSortDir(sortField === "quote" && sortDir === "desc" ? "asc" : "desc"); }}
+                  >
+                    Quote {sortField === "quote" ? (sortDir === "asc" ? "\u2191" : "\u2193") : ""}
+                  </th>
+                  <th
+                    className="py-2.5 pr-4 text-left text-[10px] uppercase tracking-[0.14em] text-white/30 font-medium cursor-pointer hover:text-white/60 transition-colors select-none"
+                    onClick={() => { setSortField("client"); setSortDir(sortField === "client" && sortDir === "desc" ? "asc" : "desc"); }}
+                  >
+                    Client {sortField === "client" ? (sortDir === "asc" ? "\u2191" : "\u2193") : ""}
+                  </th>
+                  <th className="py-2.5 pr-4 text-left text-[10px] uppercase tracking-[0.14em] text-white/30 font-medium hidden lg:table-cell">
+                    Address
+                  </th>
+                  <th
+                    className="py-2.5 pr-4 text-left text-[10px] uppercase tracking-[0.14em] text-white/30 font-medium whitespace-nowrap cursor-pointer hover:text-white/60 transition-colors select-none"
+                    onClick={() => { setSortField("status"); setSortDir(sortField === "status" && sortDir === "desc" ? "asc" : "desc"); }}
+                  >
+                    Status {sortField === "status" ? (sortDir === "asc" ? "\u2191" : "\u2193") : ""}
+                  </th>
+                  <th
+                    className="py-2.5 pr-4 text-right text-[10px] uppercase tracking-[0.14em] text-white/30 font-medium whitespace-nowrap cursor-pointer hover:text-white/60 transition-colors select-none"
+                    onClick={() => { setSortField("value"); setSortDir(sortField === "value" && sortDir === "desc" ? "asc" : "desc"); }}
+                  >
+                    Value {sortField === "value" ? (sortDir === "asc" ? "\u2191" : "\u2193") : ""}
+                  </th>
+                  <th className="py-2.5 text-right text-[10px] uppercase tracking-[0.14em] text-white/30 font-medium">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {sortedQuotes.map((q) => {
+                  const qDaysLeft = getDaysRemaining(q.expiresAt);
+                  const qIsOpenStatus = q.jobStatus === "draft" || q.jobStatus === "quote_sent";
+                  const qExpired = qIsOpenStatus && qDaysLeft !== null && qDaysLeft <= 0;
+                  const qExpiringSoon = qIsOpenStatus && qDaysLeft !== null && qDaysLeft > 0 && qDaysLeft <= 3;
+                  const qCancelled = q.jobStatus === "cancelled";
+                  const rowOpacity = qCancelled ? "opacity-40" : "";
+                  const rowBorder = qExpired
+                    ? "border-red-500/20"
+                    : qExpiringSoon
+                    ? "border-amber-500/20"
+                    : "border-white/[0.04]";
+                  const acceptedVal = (q.acceptedTotal ?? 0) > 0 ? q.acceptedTotal : null;
+                  const displayValue = acceptedVal ?? (q.lowestPrice === q.highestPrice ? q.lowestPrice : null);
+                  const valueRange =
+                    !displayValue && q.lowestPrice && q.highestPrice && q.lowestPrice !== q.highestPrice
+                      ? `$${q.lowestPrice.toLocaleString()} \u2013 $${q.highestPrice.toLocaleString()}`
+                      : null;
                   return (
-                    <div className="border-t border-white/10">
-                      {/* Email Template — FIRST item for agency quotes, impossible to miss */}
-                      {q.quoteType !== 'homeowner' && (
-                        <div className="px-4 pt-3 pb-2">
-                          <EmailTemplateButton
-                            clientName={q.agentName || q.clientName}
-                            quoteLink={`${window.location.origin}/quote/${q.slug}`}
-                            propertyAddress={q.propertyAddress || undefined}
-                            onCopied={() => {
-                              markEmailedMutation.mutate({ password, slug: q.slug });
-                              refetch();
-                            }}
-                          />
-                        </div>
-                      )}
-                      {/* Single option: show standard button */}
-                      {nextStatuses.length === 1 && (() => {
-                        const nextStatus = ALL_STATUS_CONFIGS.find((s) => s.value === nextStatuses[0]);
-                        return nextStatus ? (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); handleStatusChange(q.slug, nextStatus.value, q.acceptedTotal ?? undefined, q.depositPercent, q.tierSummaries, q.pricingMode); }}
-                            disabled={updateStatusMutation.isPending}
-                            className={`w-full px-4 py-2 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors ${nextStatus.bg} ${nextStatus.color} hover:opacity-90 disabled:opacity-50 border-b border-white/10`}
-                          >
-                            <ChevronRight className="w-3.5 h-3.5" />
-                            Mark as {nextStatus.label}
-                          </button>
-                        ) : null;
-                      })()}
-                      {/* Multiple options: show buttons side-by-side (homeowner at accepted) */}
-                      {nextStatuses.length > 1 && (
-                        <div className="flex gap-2 p-2 border-b border-white/10">
-                          {nextStatuses.map((status) => {
-                            const config = ALL_STATUS_CONFIGS.find((s) => s.value === status);
-                            return config ? (
-                              <button
-                                key={status}
-                                onClick={(e) => { e.stopPropagation(); handleStatusChange(q.slug, status, q.acceptedTotal ?? undefined, q.depositPercent, q.tierSummaries, q.pricingMode); }}
-                                disabled={updateStatusMutation.isPending}
-                                className={`flex-1 px-3 py-2 text-xs font-semibold flex items-center justify-center gap-1 transition-colors ${config.bg} ${config.color} hover:opacity-90 disabled:opacity-50 rounded`}
-                              >
-                                <ChevronRight className="w-3 h-3" />
-                                {config.label}
-                              </button>
-                            ) : null;
-                          })}
-                        </div>
-                      )}
-                      {/* Copy Link & Template Messages */}
-                      <div className="px-4 py-2 border-b border-white/10 space-y-2">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            const url = `${window.location.origin}/quote/${q.slug}`;
-                            navigator.clipboard.writeText(url).then(() => {
-                              toast.success(`Quote link copied — paste into your message to ${q.clientName || 'the client'}`);
-                            }).catch(() => {
-                              toast.error('Could not copy — please copy manually: ' + url);
-                            });
-                          }}
-                          className="w-full py-2 rounded-lg text-sm font-semibold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 transition-colors flex items-center justify-center gap-2"
-                        >
-                          <ClipboardCopy className="w-4 h-4" />
-                          Copy Quote Link
-                        </button>
-                        <TemplateMessageButtons
-                          clientName={q.quoteType !== 'homeowner' ? (q.agentName || q.clientName) : q.clientName}
-                          quoteLink={`${window.location.origin}/quote/${q.slug}`}
-                          quoteSlug={q.slug}
-                          phone={q.agentPhone || undefined}
-                          scheduledDate={q.scheduledDate ? new Date(q.scheduledDate) : null}
-                          jobStatus={q.jobStatus}
-                          propertyAddress={q.propertyAddress || undefined}
-                          expiresAt={q.expiresAt ? new Date(q.expiresAt) : null}
-                          balanceOwing={(() => {
-                            // Only show balance for accepted quotes that haven't been paid in full.
-                            if (!q.acceptedTotal || q.jobStatus === 'draft' || q.jobStatus === 'quote_sent') return null;
-                            if (q.jobStatus === "paid_in_full") return null;
-                            const total = q.acceptedTotal;
-                            if (!total) return null;
-                            const discount = q.discountAmount ?? 0;
-                            const paid = q.depositPaidAmount ?? 0;
-                            return Math.max(0, total - discount - paid);
-                          })()}
+                    <tr
+                      key={q.slug}
+                      className={`border-b ${rowBorder} ${rowOpacity} hover:bg-white/[0.025] transition-colors group cursor-pointer`}
+                      onClick={() => onEditQuote(q.slug)}
+                    >
+                      <td className="py-2.5 pr-2" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          className="w-3.5 h-3.5 rounded border-white/20 bg-transparent accent-amber-400 cursor-pointer"
                         />
-                      </div>
-                      {/* Google Review Request — homeowner completed/paid_in_full only */}
-                      {q.quoteType === "homeowner" && (q.jobStatus === "completed" || q.jobStatus === "paid_in_full") && (
-                        <div className="px-4 py-2 border-t border-white/5">
-                          {(!q.reviewStatus || q.reviewStatus === "none") && (
-                            <button
-                              onClick={async () => {
-                                if (!confirm("Send a Google review request to this customer? They'll get an email and SMS offering $100 off for a review.")) return;
-                                try {
-                                  const res = await requestReviewMutation.mutateAsync({ password, slug: q.slug });
-                                  toast.success(`Review request sent${res.emailSent ? " (email)" : ""}${res.smsSent ? " (SMS)" : ""}`);
-                                  refetch();
-                                } catch (err: any) {
-                                  toast.error(err.message || "Failed to send review request");
-                                }
-                              }}
-                              disabled={requestReviewMutation.isPending}
-                              className="w-full py-2 rounded-lg text-xs font-medium bg-amber-500/15 text-amber-400 hover:bg-amber-500/25 transition-colors flex items-center justify-center gap-1.5"
-                            >
-                              <Star className="w-3.5 h-3.5" />
-                              {requestReviewMutation.isPending ? "Sending..." : "Request Google Review ($100 off)"}
-                            </button>
-                          )}
-                          {q.reviewStatus === "requested" && (
-                            <div className="flex items-center gap-2">
-                              <span className="flex-1 text-xs text-amber-400 flex items-center gap-1.5">
-                                <Star className="w-3 h-3" /> Review requested{q.reviewRequestedAt ? ` ${new Date(q.reviewRequestedAt).toLocaleDateString("en-AU", { day: "numeric", month: "short" })}` : ""}
-                              </span>
-                              <button
-                                onClick={async () => {
-                                  if (!confirm("Confirm the customer has left a Google review? This will apply a $100 credit to their invoice.")) return;
-                                  try {
-                                    await markReviewReceivedMutation.mutateAsync({ password, slug: q.slug });
-                                    toast.success("Review received — $100 credit applied!");
-                                    refetch();
-                                  } catch (err: any) {
-                                    toast.error(err.message || "Failed to mark review received");
-                                  }
-                                }}
-                                disabled={markReviewReceivedMutation.isPending}
-                                className="py-1.5 px-3 rounded-lg text-xs font-medium bg-green-500/15 text-green-400 hover:bg-green-500/25 transition-colors flex items-center gap-1"
-                              >
-                                <CheckCircle2 className="w-3 h-3" />
-                                {markReviewReceivedMutation.isPending ? "Applying..." : "Review Received"}
-                              </button>
-                            </div>
-                          )}
-                          {q.reviewStatus === "received" && (
-                            <span className="text-xs text-green-400 flex items-center gap-1.5">
-                              <CheckCircle2 className="w-3 h-3" /> Review received — credit pending
-                            </span>
-                          )}
-                          {q.reviewStatus === "credit_applied" && (
-                            <span className="text-xs text-green-400 flex items-center gap-1.5">
-                              <CheckCircle2 className="w-3 h-3" /> ✓ $100 Google Review credit applied
-                            </span>
-                          )}
-                        </div>
-                      )}
-                      <div className="px-4 py-2 flex items-center gap-2">
-                        <button
-                          onClick={() => onEditQuote(q.slug)}
-                          className="flex-1 py-1.5 rounded-lg text-xs text-white hover:bg-white/10 transition-colors flex items-center justify-center gap-1"
-                        >
-                          <FileText className="w-3 h-3" /> Edit
-                        </button>
-                        <button
-                          onClick={() => handleDuplicate(q.slug, q.quoteNumber)}
-                          className="flex-1 py-1.5 rounded-lg text-xs text-white/50 hover:bg-white/[0.04] transition-colors flex items-center justify-center gap-1"
-                        >
-                          <Copy className="w-3 h-3" /> Duplicate
-                        </button>
-                        <a
-                          href={`/quote/${q.slug}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex-1 py-1.5 rounded-lg text-xs text-white/50 hover:bg-white/[0.04] transition-colors flex items-center justify-center gap-1"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <ExternalLink className="w-3 h-3" /> View
-                        </a>
-                        {(q.jobStatus === "completed" || q.jobStatus === "paid_in_full") && (
-                          <InvoiceDownloadButton password={password} quoteSlug={q.slug} quoteNumber={q.quoteNumber} onCreated={refetch} />
+                      </td>
+                      <td className="py-2.5 pr-4 whitespace-nowrap text-white/40 text-xs tabular-nums">
+                        {q.createdAt
+                          ? formatAESTDate(new Date(q.createdAt), { day: "2-digit", month: "short", year: "2-digit" })
+                          : ""}
+                      </td>
+                      <td className="py-2.5 pr-4 whitespace-nowrap">
+                        <span className="quote-number text-white text-xs font-semibold">{q.quoteNumber}</span>
+                        {qExpired && (
+                          <span className="ml-1.5 text-[9px] text-red-400 uppercase tracking-wider">Expired</span>
                         )}
+                        {qExpiringSoon && !qExpired && (
+                          <span className="ml-1.5 text-[9px] text-amber-400 uppercase tracking-wider">{qDaysLeft}d left</span>
+                        )}
+                      </td>
+                      <td className="py-2.5 pr-4 max-w-[180px]">
+                        <p className="text-white text-xs font-medium truncate">
+                          {q.quoteType === "agent" || q.quoteType === "real_estate" || q.quoteType === "agency_single"
+                            ? q.clientName || q.agentName || "No agency"
+                            : q.clientName || "No client"}
+                        </p>
+                        {(q.quoteType === "agent" || q.quoteType === "real_estate" || q.quoteType === "agency_single") &&
+                          q.agentName && (
+                            <p className="text-white/35 text-[10px] truncate">{q.agentName}</p>
+                          )}
+                      </td>
+                      <td className="py-2.5 pr-4 max-w-[200px] hidden lg:table-cell">
+                        <p className="text-white/45 text-xs truncate">{q.propertyAddress || ""}</p>
+                      </td>
+                      <td className="py-2.5 pr-4 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                         <StatusDropdown
                           currentStatus={q.jobStatus as JobStatus}
                           quoteType={q.quoteType}
-                          onSelect={(newStatus) => handleStatusChange(q.slug, newStatus, q.acceptedTotal ?? undefined, q.depositPercent, q.tierSummaries, q.pricingMode)}
+                          onSelect={(newStatus) =>
+                            handleStatusChange(
+                              q.slug,
+                              newStatus,
+                              q.acceptedTotal ?? undefined,
+                              q.depositPercent,
+                              q.tierSummaries,
+                              q.pricingMode
+                            )
+                          }
                           disabled={updateStatusMutation.isPending}
+                          compact
                         />
-                        <button
-                          onClick={() => handleDelete(q.slug, q.quoteNumber)}
-                          className="py-1.5 px-2 rounded-lg text-xs text-red-400 hover:bg-red-500/10 transition-colors"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
-                      </div>
-                    </div>
+                      </td>
+                      <td className="py-2.5 pr-4 text-right whitespace-nowrap">
+                        {displayValue ? (
+                          <span
+                            className={`text-xs font-semibold tabular-nums ${
+                              acceptedVal ? "text-amber-400" : "text-white/70"
+                            }`}
+                          >
+                            ${displayValue.toLocaleString()}
+                          </span>
+                        ) : valueRange ? (
+                          <span className="text-xs text-white/40 tabular-nums">{valueRange}</span>
+                        ) : (
+                          <span className="text-xs text-white/20">\u2014</span>
+                        )}
+                      </td>
+                      <td className="py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-end gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <a
+                            href={`/quote/${q.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="View quote"
+                            className="p-1.5 rounded hover:bg-white/10 text-white/40 hover:text-white transition-colors"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                          <button
+                            title="Duplicate"
+                            onClick={() => handleDuplicate(q.slug, q.quoteNumber)}
+                            className="p-1.5 rounded hover:bg-white/10 text-white/40 hover:text-white transition-colors"
+                          >
+                            <Copy className="w-3.5 h-3.5" />
+                          </button>
+                          {(q.jobStatus === "completed" || q.jobStatus === "paid_in_full") && (
+                            <InvoiceDownloadButton
+                              password={password}
+                              quoteSlug={q.slug}
+                              quoteNumber={q.quoteNumber}
+                              onCreated={refetch}
+                              iconOnly
+                            />
+                          )}
+                          <button
+                            title="Delete"
+                            onClick={() => handleDelete(q.slug, q.quoteNumber)}
+                            className="p-1.5 rounded hover:bg-red-500/10 text-white/20 hover:text-red-400 transition-colors"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
                   );
-                })()}
-              </div>
-            );
-            })}
+                })}
+              </tbody>
+            </table>
           </div>
         ) : null}
       </div>

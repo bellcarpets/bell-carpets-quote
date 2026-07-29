@@ -114,3 +114,18 @@
 - [x] Add "Create Invoice" button on completed/paid_in_full quote cards
 - [x] Add Saasu manual sync fallback button on invoices without xeroInvoiceId
 - [x] Add weekly pipeline SMS (Monday morning summary to Leon's number)
+
+## Phase 12: Saasu-Style Dense Table View
+- [x] Replace card-based quote list with dense data table (Date, Quote, Client, Address, Status, Value, Actions columns)
+- [x] Sortable column headers with sort direction indicator
+- [x] Checkbox column on left for future bulk actions
+- [x] Status shown as compact StatusDropdown inline
+- [x] Value shown as amber gold for accepted quotes, range text for unaccepted
+- [x] Actions as icon-only buttons that appear on row hover (View, Duplicate, Invoice, Delete)
+- [x] Row click opens quote editor
+- [x] Expired rows get red left border, expiring-soon rows get amber left border
+- [x] sortField and sortDir state variables added to QuotesDashboard
+- [x] sortedQuotes computed array (sorted filteredQuotes)
+- [x] compact prop on StatusDropdown component
+- [x] iconOnly prop on InvoiceDownloadButton component
+- [x] Zero TypeScript errors
