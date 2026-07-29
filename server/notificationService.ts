@@ -248,7 +248,7 @@ export async function notifyQuoteAccepted(params: {
       depositPercent: params.depositPercent,
       rooms: params.rooms,
     });
-    sendEmailViaResend(params.recipientEmail, `Quote accepted — Bell Carpets`, html, params.pdfAttachment)
+    sendEmailViaResend(params.recipientEmail, `Quote accepted from Bell Carpets`, html, params.pdfAttachment)
       .then((ok) => logNotification({ quoteNumber: params.quoteNumber, statusTrigger: "accepted", channel: "email", recipientEmail: params.recipientEmail, recipientName: params.recipientName, success: ok, errorMessage: ok ? undefined : "Email send failed" }))
       .catch((err) => { console.error("[Notification] notifyQuoteAccepted email error:", err); logNotification({ quoteNumber: params.quoteNumber, statusTrigger: "accepted", channel: "email", recipientEmail: params.recipientEmail, recipientName: params.recipientName, success: false, errorMessage: String(err) }); });
   }
@@ -279,7 +279,7 @@ export async function notifyDepositPaid(params: {
       rooms: params.rooms,
       totalAmount: params.totalAmount,
     });
-    sendEmailViaResend(params.recipientEmail, `Deposit received — Bell Carpets`, html)
+    sendEmailViaResend(params.recipientEmail, `Deposit received from Bell Carpets`, html)
       .then((ok) => logNotification({ quoteNumber: params.quoteNumber, statusTrigger: "deposit_paid", channel: "email", recipientEmail: params.recipientEmail, recipientName: params.recipientName, success: ok, errorMessage: ok ? undefined : "Email send failed" }))
       .catch((err) => { console.error("[Notification] notifyDepositPaid email error:", err); logNotification({ quoteNumber: params.quoteNumber, statusTrigger: "deposit_paid", channel: "email", recipientEmail: params.recipientEmail, recipientName: params.recipientName, success: false, errorMessage: String(err) }); });
   }
@@ -300,7 +300,7 @@ export async function notifyScheduled(params: {
       propertyAddress: params.propertyAddress,
       scheduledDate: params.scheduledDate,
     });
-    sendEmailViaResend(params.recipientEmail, `Installation scheduled — Bell Carpets`, html)
+    sendEmailViaResend(params.recipientEmail, `Installation scheduled from Bell Carpets`, html)
       .then((ok) => logNotification({ quoteNumber: params.quoteNumber, statusTrigger: "scheduled", channel: "email", recipientEmail: params.recipientEmail, recipientName: params.recipientName, success: ok, errorMessage: ok ? undefined : "Email send failed" }))
       .catch((err) => { console.error("[Notification] notifyScheduled email error:", err); logNotification({ quoteNumber: params.quoteNumber, statusTrigger: "scheduled", channel: "email", recipientEmail: params.recipientEmail, recipientName: params.recipientName, success: false, errorMessage: String(err) }); });
   }
@@ -338,7 +338,7 @@ export async function notifyCompleted(params: {
       reply_to: "hello@bellcarpets.com.au",
       to: [params.recipientEmail],
       bcc: ["hello@bellcarpets.com.au"],
-      subject: `Installation complete — Bell Carpets`,
+      subject: `Installation complete from Bell Carpets`,
       html,
     };
 
@@ -387,7 +387,7 @@ export async function notifyPaidInFull(params: {
       propertyAddress: params.propertyAddress,
       invoiceNumber: params.invoiceNumber,
     });
-    sendEmailViaResend(params.recipientEmail, `Payment received — Bell Carpets`, html)
+    sendEmailViaResend(params.recipientEmail, `Payment received from Bell Carpets`, html)
       .then((ok) => logNotification({ quoteNumber: params.quoteNumber, statusTrigger: "paid_in_full", channel: "email", recipientEmail: params.recipientEmail, recipientName: params.recipientName, success: ok, errorMessage: ok ? undefined : "Email send failed" }))
       .catch((err) => { console.error("[Notification] notifyPaidInFull email error:", err); logNotification({ quoteNumber: params.quoteNumber, statusTrigger: "paid_in_full", channel: "email", recipientEmail: params.recipientEmail, recipientName: params.recipientName, success: false, errorMessage: String(err) }); });
   }

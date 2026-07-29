@@ -245,7 +245,7 @@ export async function sendSchedulingConfirmationEmail(data: SchedulingConfirmati
 
   const htmlBody = `<!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Installation Scheduled — Bell Carpets</title></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Installation Scheduled from Bell Carpets</title></head>
 <body style="margin:0;padding:0;background:#ffffff;font-family:Georgia,'Times New Roman',serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;">
     <tr><td align="center" style="padding:40px 16px 0;">
@@ -316,7 +316,7 @@ export async function sendSchedulingConfirmationEmail(data: SchedulingConfirmati
         from: "Bell Carpets <quotes@bellcarpets.com.au>",
         reply_to: "hello@bellcarpets.com.au",
         to: [data.recipientEmail],
-        subject: `Installation Scheduled — ${data.propertyAddress} on ${dateStr}`,
+        subject: `Installation Scheduled: ${data.propertyAddress} on ${dateStr}`,
         html: htmlBody,
       }),
     });
@@ -361,7 +361,7 @@ export async function sendQuoteLinkEmail(data: QuoteLinkEmailData): Promise<bool
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Your Flooring Quote — Bell Carpets</title>
+  <title>Your Flooring Quote from Bell Carpets</title>
 </head>
 <body style="margin:0;padding:0;background:#f5f5f5;font-family:Georgia,'Times New Roman',serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;">
@@ -470,7 +470,7 @@ export async function sendQuoteLinkEmail(data: QuoteLinkEmailData): Promise<bool
         reply_to: "hello@bellcarpets.com.au",
         to: [data.agentEmail],
         bcc: ["hello@bellcarpets.com.au"],
-        subject: `Your Flooring Quote ${data.quoteNumber} — Bell Carpets`,
+        subject: `Your Flooring Quote ${data.quoteNumber} from Bell Carpets`,
         html: htmlBody,
       }),
     });
@@ -503,7 +503,7 @@ export async function sendReminderEmail(data: QuoteLinkEmailData & { daysLeft: n
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Quote Reminder — Bell Carpets</title>
+  <title>Quote Reminder from Bell Carpets</title>
 </head>
 <body style="margin:0;padding:0;background:#f5f5f5;font-family:Georgia,'Times New Roman',serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;">
@@ -613,7 +613,7 @@ export async function sendReminderEmail(data: QuoteLinkEmailData & { daysLeft: n
         reply_to: "hello@bellcarpets.com.au",
         to: [data.agentEmail],
         bcc: ["hello@bellcarpets.com.au"],
-        subject: `Reminder: Your Quote ${data.quoteNumber} ${urgencyText} — Bell Carpets`,
+        subject: `Reminder: Your Quote ${data.quoteNumber} ${urgencyText} from Bell Carpets`,
         html: htmlBody,
       }),
     });
