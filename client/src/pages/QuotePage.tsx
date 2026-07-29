@@ -125,6 +125,120 @@ function withUnderlayItem(
 const formatPrice = (n: number) =>
   "$" + n.toLocaleString("en-AU", { minimumFractionDigits: 0 });
 
+// ─── Expired Quote Page (with extension request) ─────────────────────────────
+function ExpiredQuotePage({ slug, expiresAt }: { slug: string; expiresAt: string | Date }) {
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+  const extensionMutation = trpc.quote.requestExtension.useMutation();
+
+  const handleRequestExtension = async () => {
+    setStatus("loading");
+    setErrorMsg("");
+    try {
+      await extensionMutation.mutateAsync({ slug });
+      setStatus("success");
+    } catch (err: any) {
+      const msg = err?.message || "Something went wrong. Please call us instead.";
+      setErrorMsg(msg);
+      setStatus("error");
+    }
+  };
+
+  if (status === "success") {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-6 bg-zinc-900">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4 }}
+          className="text-center max-w-sm"
+        >
+          <img src={LOGO_WHITE_PNG} alt="Bell Carpets" className="h-8 mx-auto mb-2 opacity-40" />
+          <p className="text-[9px] tracking-[0.3em] text-white/40 uppercase font-light mb-8">{QUOTE_DATA.business.tagline}</p>
+          <div className="w-16 h-16 rounded-full mx-auto mb-5 flex items-center justify-center bg-emerald-500/10 border border-emerald-500/30">
+            <svg className="w-7 h-7 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+          </div>
+          <h2 className="text-2xl font-semibold mb-3 text-white">
+            Quote Extended
+          </h2>
+          <p className="text-sm mb-6 text-white/50 leading-relaxed">
+            Your quote has been extended by 48 hours. Refresh this page to view your options and make your selection.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full text-sm font-semibold bg-white text-black hover:bg-white/90 transition-colors"
+          >
+            View My Quote
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center px-6 bg-zinc-900">
+      <div className="text-center max-w-sm">
+        <img src={LOGO_WHITE_PNG} alt="Bell Carpets" className="h-8 mx-auto mb-2 opacity-30" />
+        <p className="text-[9px] tracking-[0.3em] text-white/40 uppercase font-light mb-6">{QUOTE_DATA.business.tagline}</p>
+        <div className="w-16 h-16 rounded-full mx-auto mb-5 flex items-center justify-center bg-white/5 border border-white/10">
+          <AlertCircle className="w-7 h-7 text-red-400" />
+        </div>
+        <h2 className="text-2xl font-semibold mb-2 text-white">
+          Quote Expired
+        </h2>
+        <p className="text-sm mb-3 text-white/50">
+          This quote expired on{" "}
+          <span className="text-white/70 font-medium">
+            {formatAESTDate(new Date(expiresAt), { day: "2-digit", month: "long", year: "numeric" })}
+          </span>.
+        </p>
+        <p className="text-sm mb-6 text-white/50 leading-relaxed">
+          Still interested? Request a 48 hour extension below, or contact Bell Carpets directly.
+        </p>
+
+        {/* Extension button */}
+        <div className="mb-5">
+          <button
+            onClick={handleRequestExtension}
+            disabled={status === "loading"}
+            className="w-full py-3.5 rounded-full font-semibold text-sm tracking-wide transition-all duration-200 active:scale-[0.97] bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-200 text-zinc-900 shadow-lg shadow-amber-400/20 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {status === "loading" ? (
+              <span className="inline-flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Requesting...</span>
+            ) : (
+              "Request 48 Hour Extension"
+            )}
+          </button>
+          {status === "error" && (
+            <p className="text-xs text-red-400 mt-2">{errorMsg}</p>
+          )}
+        </div>
+
+        <div className="flex items-center gap-3 mb-5">
+          <div className="h-px flex-1 bg-white/10" />
+          <span className="text-xs text-white/30 uppercase tracking-wider">or</span>
+          <div className="h-px flex-1 bg-white/10" />
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <a
+            href="tel:0466912786"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium bg-white text-black hover:bg-white/90 transition-colors"
+          >
+            Call 0466 912 786
+          </a>
+          <a
+            href="mailto:hello@bellcarpets.com.au"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium bg-transparent border border-white/20 text-white hover:bg-white/10 transition-colors"
+          >
+            Email Us
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 interface QuotePageProps {
   slug: string;
 }
@@ -439,47 +553,7 @@ export default function QuotePage({ slug }: QuotePageProps) {
   const isExpired = quoteData?.expiresAt ? new Date(quoteData.expiresAt) < new Date() : false;
 
   if (isExpired) {
-    return (
-      <div className="min-h-screen flex items-center justify-center px-6 bg-zinc-900">
-        <div className="text-center max-w-sm">
-          <img src={LOGO_WHITE_PNG} alt="Bell Carpets" className="h-8 mx-auto mb-2 opacity-30" />
-          <p className="text-[9px] tracking-[0.3em] text-white/40 uppercase font-light mb-6">{QUOTE_DATA.business.tagline}</p>
-          <div className="w-16 h-16 rounded-full mx-auto mb-5 flex items-center justify-center bg-white/5 border border-white/10">
-            <AlertCircle className="w-7 h-7 text-red-400" />
-          </div>
-          <h2 className="text-2xl font-semibold mb-2 text-white">
-            Quote Expired
-          </h2>
-          <p className="text-sm mb-3 text-white/50">
-            This quote expired on{" "}
-            <span className="text-white/70 font-medium">
-              {formatAESTDate(new Date(quoteData.expiresAt!), { day: "2-digit", month: "long", year: "numeric" })}
-            </span>.
-          </p>
-          <p className="text-sm mb-6 text-white/50 leading-relaxed">
-            Please contact Bell Carpets on{" "}
-            <a href="tel:0466912786" className="text-white/80 font-medium hover:text-white transition-colors">0466 912 786</a>
-            {" "}or{" "}
-            <a href="mailto:info@bellcarpets.com.au" className="text-white/80 font-medium hover:text-white transition-colors">email us</a>
-            {" "}for a fresh quote.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <a
-              href="tel:0466912786"
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium bg-white text-black hover:bg-white/90 transition-colors"
-            >
-              Call 0466 912 786
-            </a>
-            <a
-              href="mailto:info@bellcarpets.com.au"
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium bg-transparent border border-white/20 text-white hover:bg-white/10 transition-colors"
-            >
-              Email Us
-            </a>
-          </div>
-        </div>
-      </div>
-    );
+    return <ExpiredQuotePage slug={slug} expiresAt={quoteData.expiresAt!} />;
   }
 
   // ─── Download quote PDF button (admin preview only — hidden from customers) ───

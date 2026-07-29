@@ -137,3 +137,10 @@
 - [x] Ensure all text colours are updated for light background readability
 - [x] Maintain elite/premium aesthetic with clean typography
 - [x] Client column shows contact name (agentName) instead of agency name (clientName)
+
+## Phase 14: Expired Quote Extension Button
+- [x] Add backend tRPC endpoint to extend quote expiry by 48 hours
+- [x] Notify admin (owner notification) when a client requests an extension
+- [x] Add "Request 48-Hour Extension" button to expired quote page UI
+- [x] Show success state after extension is granted
+- [x] Limit to one extension per quote (prevent abuse)
