@@ -1378,13 +1378,13 @@ function QuotesDashboard({
   }
 
   return (
-    <div className="min-h-screen bg-[#0d0d0e] text-white">
+    <div className="min-h-screen bg-[#0c0b0a] text-white">
       {/* Header */}
-      <div className="sticky top-0 z-50 bg-[#0d0d0e]/95 backdrop-blur border-b border-white/[0.05]">
+      <div className="sticky top-0 z-50 bg-[#0c0b0a]/95 backdrop-blur border-b border-white/[0.05]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <div className="py-4 flex items-center justify-between gap-4">
             <div>
-              <h1 className="text-lg font-semibold text-white leading-tight tracking-tight">Quotes</h1>
+              <h1 className="text-lg font-semibold text-white leading-tight tracking-[-0.02em]">Quotes</h1>
               <p className="text-[11px] text-white/30 mt-0.5">{quotesList?.length || 0} total</p>
             </div>
             <button
@@ -1399,16 +1399,16 @@ function QuotesDashboard({
           {/* Elite stat cards row */}
           <div className="grid grid-cols-4 gap-3 pb-4">
             <div className="bg-white/[0.04] rounded-xl px-4 py-3 border border-white/[0.06]">
-              <p className="text-[10px] uppercase tracking-[0.12em] text-white/30 mb-1.5">Open</p>
-              <p className="text-2xl font-bold text-amber-400 leading-none">{openQuoteCount}</p>
+              <p className="section-label text-white/30 mb-1.5">Open</p>
+              <p className="stat-value text-2xl font-bold text-amber-400 leading-none">{openQuoteCount}</p>
             </div>
             <div className="bg-white/[0.04] rounded-xl px-4 py-3 border border-white/[0.06]">
-              <p className="text-[10px] uppercase tracking-[0.12em] text-white/30 mb-1.5">Scheduled</p>
-              <p className="text-2xl font-bold text-purple-400 leading-none">{scheduledCount}</p>
+              <p className="section-label text-white/30 mb-1.5">Scheduled</p>
+              <p className="stat-value text-2xl font-bold text-purple-400 leading-none">{scheduledCount}</p>
             </div>
             <div className="bg-white/[0.04] rounded-xl px-4 py-3 border border-white/[0.06]">
-              <p className="text-[10px] uppercase tracking-[0.12em] text-white/30 mb-1.5">Pipeline</p>
-              <p className="text-2xl font-bold text-white leading-none">${pipelineValue.toLocaleString()}</p>
+              <p className="section-label text-white/30 mb-1.5">Pipeline</p>
+              <p className="stat-value text-2xl font-bold text-gold leading-none">${pipelineValue.toLocaleString()}</p>
             </div>
             {expiredCount > 0 ? (
               <button
@@ -1420,8 +1420,8 @@ function QuotesDashboard({
               </button>
             ) : (
               <div className="bg-white/[0.04] rounded-xl px-4 py-3 border border-white/[0.06]">
-                <p className="text-[10px] uppercase tracking-[0.12em] text-white/30 mb-1.5">Total</p>
-                <p className="text-2xl font-bold text-white/60 leading-none">{quotesList?.length || 0}</p>
+                <p className="section-label text-white/30 mb-1.5">Total</p>
+                <p className="stat-value text-2xl font-bold text-white/50 leading-none">{quotesList?.length || 0}</p>
               </div>
             )}
           </div>
@@ -1829,7 +1829,7 @@ function QuotesDashboard({
         </div>
       )}
 
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-5">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-5 bg-[#0c0b0a]">
         {/* Status filter — horizontal scrollable pill row */}
         <div className="overflow-x-auto scrollbar-none -mx-1 px-1 mb-4">
           <div className="flex items-center gap-1.5 min-w-max">
@@ -2024,7 +2024,7 @@ function QuotesDashboard({
                 >
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-white font-mono text-sm font-semibold">
+                      <span className="quote-number text-white text-sm font-semibold">
                         {q.quoteNumber}
                       </span>
                       {q.quoteType === "homeowner" ? (
@@ -6280,13 +6280,13 @@ export default function Admin() {
   const MOBILE_NAV: AdminView[] = ["dashboard", "calendar", "invoices", "contacts", "agencies"];
 
   return (
-    <div className="min-h-screen bg-[#0d0d0e] text-white flex">
+    <div className="min-h-screen bg-[#0d0d0e] text-white flex admin-root">
       {/* ── Left Sidebar (desktop) ── */}
-      <aside className="hidden md:flex flex-col w-56 shrink-0 bg-[#0a0a0b] border-r border-white/[0.05] sticky top-0 h-screen overflow-y-auto">
+      <aside className="hidden md:flex flex-col w-56 shrink-0 bg-[#080807] border-r border-white/[0.05] sticky top-0 h-screen overflow-y-auto">
         {/* Logo + subtitle */}
         <div className="px-5 pt-6 pb-5">
           <img src={LOGO_WHITE_PNG} alt="Bell Carpets" className="h-[18px] mb-1.5" />
-          <p className="text-[9px] tracking-[0.18em] text-white/20 uppercase font-normal">Quote Manager</p>
+          <p className="sidebar-subtitle text-[11px] text-white/25">Quote Manager</p>
         </div>
         {/* Nav groups */}
         <nav className="flex-1 px-3 pb-4 space-y-6">
