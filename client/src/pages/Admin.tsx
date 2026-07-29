@@ -1359,8 +1359,16 @@ function QuotesDashboard({
     );
   });
 
-  const expiredCount = (quotesList || []).filter(isExpiredQuote).length;
-
+    const expiredCount = (quotesList || []).filter(isExpiredQuote).length;
+  // Summary stats for the header bar
+  const pipelineValue = (quotesList || []).reduce((sum, q) => {
+    if (["accepted", "deposit_paid", "scheduled", "completed"].includes(q.jobStatus)) {
+      return sum + (q.acceptedTotal ?? q.highestPrice ?? 0);
+    }
+    return sum;
+  }, 0);
+  const openQuoteCount = (quotesList || []).filter(q => ["draft", "quote_sent"].includes(q.jobStatus)).length;
+  const scheduledCount = (quotesList || []).filter(q => q.jobStatus === "scheduled").length;
   if (isLoading) {
     return (
       <div className="min-h-screen bg-zinc-900 flex items-center justify-center">
@@ -1372,39 +1380,51 @@ function QuotesDashboard({
   return (
     <div className="min-h-screen bg-zinc-900 text-white">
       {/* Header */}
-      <div className="sticky top-0 z-50 bg-white/5 backdrop-blur border-b border-white/10">
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex flex-col items-start">
-              <img
-                src={LOGO_WHITE_PNG}
-                alt="Bell Carpets"
-                className="h-5"
-              />
-              <p className="text-[7px] tracking-[0.2em] text-white/40 uppercase font-light mt-0.5">RESIDENTIAL | COMMERCIAL | PROJECTS</p>
-            </div>
-            <div className="h-5 w-px bg-white/10" />
+      <div className="sticky top-0 z-50 bg-zinc-900/95 backdrop-blur border-b border-white/[0.06]">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+          <div className="py-3 flex items-center justify-between gap-4">
             <div>
-              <h1 className="text-sm font-semibold text-white leading-tight">
-                Quotes
-              </h1>
-              <p className="text-xs text-white/40">
-                {quotesList?.length || 0} quote{(quotesList?.length || 0) !== 1 ? "s" : ""}
-              </p>
+              <h1 className="text-base font-semibold text-white leading-tight">Quotes</h1>
+              <p className="text-xs text-white/40">{quotesList?.length || 0} total</p>
             </div>
+            <button
+              onClick={() => setShowTypeModal(true)}
+              disabled={creating}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black font-semibold text-sm hover:bg-white/90 disabled:opacity-50 transition-colors shrink-0"
+            >
+              {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+              New Quote
+            </button>
           </div>
-          <button
-            onClick={() => setShowTypeModal(true)}
-            disabled={creating}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black font-semibold text-sm hover:bg-white/90 disabled:opacity-50 transition-colors"
-          >
-            {creating ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Plus className="w-4 h-4" />
+          {/* Summary stats bar */}
+          <div className="flex items-center gap-4 pb-3 text-xs">
+            <div className="flex items-center gap-1.5">
+              <span className="text-white/40">Open</span>
+              <span className="font-semibold text-amber-400">{openQuoteCount}</span>
+            </div>
+            <div className="w-px h-3 bg-white/10" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-white/40">Scheduled</span>
+              <span className="font-semibold text-purple-400">{scheduledCount}</span>
+            </div>
+            <div className="w-px h-3 bg-white/10" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-white/40">Pipeline</span>
+              <span className="font-semibold text-white">${pipelineValue.toLocaleString()}</span>
+            </div>
+            {expiredCount > 0 && (
+              <>
+                <div className="w-px h-3 bg-white/10" />
+                <button
+                  onClick={() => setStatusFilter(statusFilter === "expired" ? "all" : "expired")}
+                  className="flex items-center gap-1.5 text-red-400 hover:text-red-300 transition-colors"
+                >
+                  <Clock className="w-3 h-3" />
+                  <span className="font-semibold">{expiredCount} expired</span>
+                </button>
+              </>
             )}
-            New Quote
-          </button>
+          </div>
         </div>
       </div>
 
@@ -1809,86 +1829,61 @@ function QuotesDashboard({
         </div>
       )}
 
-      <div className="max-w-2xl mx-auto px-4 py-4">
-        {/* Status Summary Counts */}
-        <div className="grid grid-cols-3 gap-2 mb-2">
-          {DASHBOARD_STATUSES.map((s) => {
-            const count = statusCounts[s.value] || 0;
-            const isActive = statusFilter === s.value;
-            const Icon = s.icon;
-            return (
-              <button
-                key={s.value}
-                onClick={() => setStatusFilter(isActive ? "all" : s.value)}
-                className={`px-2.5 py-2 rounded-xl border text-left transition-all ${
-                  isActive
-                    ? `${s.bg} border-current ${s.color}`
-                    : "bg-zinc-800/50 border-white/10 hover:border-white/10"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <Icon className={`w-3.5 h-3.5 ${isActive ? s.color : "text-white/40"}`} />
-                  <span className={`text-lg font-semibold ${isActive ? s.color : "text-white"}`}>{count}</span>
-                </div>
-                <p className={`text-[10px] mt-1 ${isActive ? s.color : "text-white/40"}`}>{s.label}</p>
-              </button>
-            );
-          })}
-          {/* Expired tile — always visible in the grid */}
-          <button
-            onClick={() => setStatusFilter(statusFilter === "expired" ? "all" : "expired")}
-            className={`px-2.5 py-2 rounded-xl border text-left transition-all ${
-              statusFilter === "expired"
-                ? "bg-red-500/10 border-red-500/30 text-red-400"
-                : "bg-zinc-800/50 border-white/10 hover:border-white/10"
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <Clock className={`w-3.5 h-3.5 ${statusFilter === "expired" ? "text-red-400" : "text-white/40"}`} />
-              <span className={`text-lg font-semibold ${statusFilter === "expired" ? "text-red-400" : expiredCount > 0 ? "text-red-400" : "text-white"}`}>{expiredCount}</span>
-            </div>
-            <p className={`text-[10px] mt-1 ${statusFilter === "expired" ? "text-red-400" : expiredCount > 0 ? "text-red-400" : "text-white/40"}`}>Expired</p>
-          </button>
-        </div>
-        {/* Archived filter button */}
-        <button
-          onClick={() => setStatusFilter(statusFilter === "archived" ? "all" : "archived")}
-          className={`w-full px-3 py-2 rounded-xl border text-left transition-all mb-2 flex items-center justify-between ${
-            statusFilter === "archived"
-              ? "bg-orange-500/10 border-orange-500/30 text-orange-400"
-              : "bg-zinc-800/50 border-white/10 hover:border-orange-500/30 hover:text-orange-400"
-          }`}
-        >
-          <div className="flex items-center gap-2">
-            <Archive className={`w-3.5 h-3.5 ${statusFilter === "archived" ? "text-orange-400" : "text-white/40"}`} />
-            <span className={`text-xs ${statusFilter === "archived" ? "text-orange-400" : "text-white/50"}`}>Archived Quotes</span>
-          </div>
-        </button>
-
-        {/* Active filter indicator */}
-        {statusFilter !== "all" && (
-          <div className="mb-3 flex items-center gap-2">
-            <Filter className="w-3.5 h-3.5 text-white/40" />
-            <span className="text-xs text-white/50">Showing:</span>
-            {statusFilter === "expired" ? (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 text-xs">
-                <Clock className="w-3 h-3" /> Expired
-              </span>
-            ) : statusFilter === "archived" ? (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-400 text-xs">
-                <Archive className="w-3 h-3" /> Archived
-              </span>
-            ) : (
-              <StatusBadge status={statusFilter} />
-            )}
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4">
+        {/* Status filter — horizontal scrollable pill row */}
+        <div className="overflow-x-auto scrollbar-none -mx-1 px-1 mb-4">
+          <div className="flex items-center gap-1.5 min-w-max">
             <button
               onClick={() => setStatusFilter("all")}
-              className="text-xs text-white/40 hover:text-white ml-auto"
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                statusFilter === "all"
+                  ? "bg-white text-black"
+                  : "bg-zinc-800 text-white/50 hover:text-white hover:bg-zinc-700"
+              }`}
             >
-              Clear filter
+              All ({(quotesList || []).length})
+            </button>
+            {DASHBOARD_STATUSES.map((s) => {
+              const count = statusCounts[s.value] || 0;
+              const isActive = statusFilter === s.value;
+              return (
+                <button
+                  key={s.value}
+                  onClick={() => setStatusFilter(isActive ? "all" : s.value)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                    isActive
+                      ? `${s.bg} ${s.color} ring-1 ring-current/40`
+                      : "bg-zinc-800 text-white/50 hover:text-white hover:bg-zinc-700"
+                  }`}
+                >
+                  {s.label} {count > 0 && <span className={isActive ? "" : "text-white/30"}>{count}</span>}
+                </button>
+              );
+            })}
+            {expiredCount > 0 && (
+              <button
+                onClick={() => setStatusFilter(statusFilter === "expired" ? "all" : "expired")}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                  statusFilter === "expired"
+                    ? "bg-red-500/15 text-red-400 ring-1 ring-red-500/40"
+                    : "bg-zinc-800 text-red-400/60 hover:text-red-400 hover:bg-zinc-700"
+                }`}
+              >
+                Expired {expiredCount}
+              </button>
+            )}
+            <button
+              onClick={() => setStatusFilter(statusFilter === "archived" ? "all" : "archived")}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                statusFilter === "archived"
+                  ? "bg-orange-500/15 text-orange-400 ring-1 ring-orange-500/40"
+                  : "bg-zinc-800 text-white/30 hover:text-white/60 hover:bg-zinc-700"
+              }`}
+            >
+              Archived
             </button>
           </div>
-        )}
+        </div>
 
         {/* Search */}
         <div className="relative mb-3">
@@ -3946,7 +3941,7 @@ function QuoteEditor({
         </Section>
 
         {/* Terms */}
-        <Section title="Payment Terms">
+        <Section title="Terms & Conditions">
           {config.terms.map((term, idx) => (
             <div key={idx} className="flex gap-2">
               <input
@@ -6268,118 +6263,163 @@ export default function Admin() {
     );
   }
 
+    // Sidebar nav items grouped by category
+  const NAV_ITEMS: { view: AdminView; label: string; icon: React.ElementType; group: string }[] = [
+    { view: "dashboard",     label: "Quotes",        icon: LayoutDashboard, group: "pipeline" },
+    { view: "calendar",      label: "Calendar",      icon: Calendar,        group: "pipeline" },
+    { view: "invoices",      label: "Invoices",      icon: FileText,        group: "finance" },
+    { view: "contacts",      label: "Contacts",      icon: BookUser,        group: "people" },
+    { view: "agencies",      label: "Agencies",      icon: Building2,       group: "people" },
+    { view: "library",       label: "Library",       icon: BookOpen,        group: "tools" },
+    { view: "xero",          label: "Saasu",         icon: Settings,        group: "tools" },
+    { view: "notifications", label: "Notifications", icon: Bell,            group: "tools" },
+  ];
+  const NAV_GROUPS = [
+    { key: "pipeline", label: "Pipeline" },
+    { key: "finance",  label: "Finance" },
+    { key: "people",   label: "People" },
+    { key: "tools",    label: "Tools" },
+  ];
+  // Mobile bottom bar: 5 primary items
+  const MOBILE_NAV: AdminView[] = ["dashboard", "calendar", "invoices", "contacts", "agencies"];
+
   return (
-    <div className="min-h-screen bg-zinc-900 text-white">
-      {/* Tab Header */}
-      <div className="sticky top-0 z-50 bg-white/5 backdrop-blur border-b border-white/10">
-        <div className="max-w-2xl mx-auto px-4">
-          <div className="py-3 flex items-center justify-between gap-3">
-            <div className="flex flex-col items-start">
-              <img
-                src={LOGO_WHITE_PNG}
-                alt="Bell Carpets"
-                className="h-5"
-              />
-              <p className="text-[7px] tracking-[0.2em] text-white/40 uppercase font-light mt-0.5">RESIDENTIAL | COMMERCIAL | PROJECTS</p>
-            </div>
-            <button
-              onClick={handleLogout}
-              title="Log out"
-              className="flex items-center gap-1.5 text-xs text-white/30 hover:text-white/70 transition-colors px-2 py-1 rounded-lg hover:bg-white/5"
-            >
-              <Lock className="w-3 h-3" />
-              <span className="hidden sm:inline">Lock</span>
-            </button>
-          </div>
-          {/* Tab bar — horizontally scrollable on mobile, min-width per tab so items never jam */}
-          <div className="overflow-x-auto -mb-px scrollbar-none" style={{ WebkitOverflowScrolling: "touch" }}>
-            <div className="flex min-w-max">
+    <div className="min-h-screen bg-zinc-900 text-white flex">
+      {/* ── Left Sidebar (desktop) ── */}
+      <aside className="hidden md:flex flex-col w-52 shrink-0 bg-zinc-950 border-r border-white/[0.06] sticky top-0 h-screen overflow-y-auto">
+        {/* Logo */}
+        <div className="px-4 pt-5 pb-4 border-b border-white/[0.06]">
+          <img src={LOGO_WHITE_PNG} alt="Bell Carpets" className="h-5 mb-0.5" />
+          <p className="text-[7px] tracking-[0.2em] text-white/30 uppercase font-light">RESIDENTIAL · COMMERCIAL · PROJECTS</p>
+        </div>
+        {/* Nav groups */}
+        <nav className="flex-1 px-2 py-4 space-y-5">
+          {NAV_GROUPS.map(group => {
+            const items = NAV_ITEMS.filter(i => i.group === group.key);
+            return (
+              <div key={group.key}>
+                <p className="px-3 mb-1 text-[9px] font-semibold tracking-[0.15em] uppercase text-white/25">{group.label}</p>
+                {items.map(item => {
+                  const Icon = item.icon;
+                  const active = view === item.view;
+                  return (
+                    <button
+                      key={item.view}
+                      onClick={() => setView(item.view)}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 mb-0.5 ${
+                        active
+                          ? "bg-white/10 text-white"
+                          : "text-white/40 hover:text-white/80 hover:bg-white/[0.04]"
+                      }`}
+                    >
+                      <Icon className={`w-4 h-4 shrink-0 ${active ? "text-white" : "text-white/40"}`} />
+                      {item.label}
+                    </button>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </nav>
+        {/* Lock button */}
+        <div className="px-2 py-4 border-t border-white/[0.06]">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-white/30 hover:text-white/70 hover:bg-white/[0.04] transition-all duration-150"
+          >
+            <Lock className="w-4 h-4 shrink-0" />
+            Lock
+          </button>
+        </div>
+      </aside>
+
+      {/* ── Main content ── */}
+      <div className="flex-1 min-w-0 flex flex-col">
+        {/* Mobile top bar */}
+        <div className="md:hidden sticky top-0 z-50 bg-zinc-950/95 backdrop-blur border-b border-white/[0.06] px-4 py-3 flex items-center justify-between">
+          <img src={LOGO_WHITE_PNG} alt="Bell Carpets" className="h-5" />
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-1.5 text-xs text-white/30 hover:text-white/70 transition-colors px-2 py-1 rounded-lg hover:bg-white/5"
+          >
+            <Lock className="w-3 h-3" />
+          </button>
+        </div>
+
+        {/* View content */}
+        <div className="flex-1 pb-20 md:pb-0">
+          {view === "dashboard"     && <QuotesDashboard password={password} onEditQuote={setEditingSlug} />}
+          {view === "calendar"      && <CalendarView password={password} onEditQuote={setEditingSlug} />}
+          {view === "contacts"      && <ContactsManager password={password} />}
+          {view === "invoices"      && <InvoicesTab password={password} />}
+          {view === "library"       && <ScopeLibraryManager />}
+          {view === "xero"          && <XeroSettings password={password} />}
+          {view === "notifications" && <NotificationLogView />}
+          {view === "agencies"      && <AgenciesTab password={password} onEditQuote={(slug) => { setEditingSlug(slug); setView("dashboard"); }} />}
+        </div>
+
+        {/* ── Mobile bottom tab bar ── */}
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-zinc-950/95 backdrop-blur border-t border-white/[0.06] flex">
+          {NAV_ITEMS.filter(i => MOBILE_NAV.includes(i.view)).map(item => {
+            const Icon = item.icon;
+            const active = view === item.view;
+            return (
               <button
-                onClick={() => setView("dashboard")}
-                className={`min-w-[72px] px-3 py-3 text-xs font-medium flex flex-col items-center gap-1 border-b-2 transition-colors ${
-                  view === "dashboard" ? "border-white text-white" : "border-transparent text-white/40 hover:text-white/60"
+                key={item.view}
+                onClick={() => setView(item.view)}
+                className={`flex-1 flex flex-col items-center gap-1 py-2.5 text-[10px] font-medium transition-colors ${
+                  active ? "text-white" : "text-white/35 hover:text-white/60"
                 }`}
               >
-                <LayoutDashboard className="w-4 h-4" />
-                <span>Quotes</span>
+                <Icon className={`w-5 h-5 ${active ? "text-white" : "text-white/35"}`} />
+                {item.label}
               </button>
-              <button
-                onClick={() => setView("calendar")}
-                className={`min-w-[72px] px-3 py-3 text-xs font-medium flex flex-col items-center gap-1 border-b-2 transition-colors ${
-                  view === "calendar" ? "border-white text-white" : "border-transparent text-white/40 hover:text-white/60"
-                }`}
-              >
-                <Calendar className="w-4 h-4" />
-                <span>Calendar</span>
-              </button>
-              <button
-                onClick={() => setView("contacts")}
-                className={`min-w-[72px] px-3 py-3 text-xs font-medium flex flex-col items-center gap-1 border-b-2 transition-colors ${
-                  view === "contacts" ? "border-white text-white" : "border-transparent text-white/40 hover:text-white/60"
-                }`}
-              >
-                <BookUser className="w-4 h-4" />
-                <span>Contacts</span>
-              </button>
-              <button
-                onClick={() => setView("invoices")}
-                className={`min-w-[72px] px-3 py-3 text-xs font-medium flex flex-col items-center gap-1 border-b-2 transition-colors ${
-                  view === "invoices" ? "border-white text-white" : "border-transparent text-white/40 hover:text-white/60"
-                }`}
-              >
-                <FileText className="w-4 h-4" />
-                <span>Invoices</span>
-              </button>
-              <button
-                onClick={() => setView("library")}
-                className={`min-w-[72px] px-3 py-3 text-xs font-medium flex flex-col items-center gap-1 border-b-2 transition-colors ${
-                  view === "library" ? "border-white text-white" : "border-transparent text-white/40 hover:text-white/60"
-                }`}
-              >
-                <BookOpen className="w-4 h-4" />
-                <span>Library</span>
-              </button>
-              <button
-                onClick={() => setView("xero")}
-                className={`min-w-[72px] px-3 py-3 text-xs font-medium flex flex-col items-center gap-1 border-b-2 transition-colors ${
-                  view === "xero" ? "border-white text-white" : "border-transparent text-white/40 hover:text-white/60"
-                }`}
-              >
-                <Settings className="w-4 h-4" />
-                <span>Saasu</span>
-              </button>
-              <button
-                onClick={() => setView("agencies")}
-                className={`min-w-[72px] px-3 py-3 text-xs font-medium flex flex-col items-center gap-1 border-b-2 transition-colors ${
-                  view === "agencies" ? "border-purple-400 text-purple-400" : "border-transparent text-white/40 hover:text-white/60"
-                }`}
-              >
-                <Building2 className="w-4 h-4" />
-                <span>Agencies</span>
-              </button>
-              <button
-                onClick={() => setView("notifications")}
-                className={`min-w-[72px] px-3 py-3 text-xs font-medium flex flex-col items-center gap-1 border-b-2 transition-colors ${
-                  view === "notifications" ? "border-amber-400 text-amber-400" : "border-transparent text-white/40 hover:text-white/60"
-                }`}
-              >
-                <Bell className="w-4 h-4" />
-                <span>Notifs</span>
-              </button>
-            </div>
-          </div>
+            );
+          })}
+          {/* More button for non-primary items on mobile */}
+          {(() => {
+            const moreItems = NAV_ITEMS.filter(i => !MOBILE_NAV.includes(i.view));
+            const moreActive = moreItems.some(i => i.view === view);
+            return (
+              <div className="flex-1 relative group">
+                <button
+                  className={`w-full flex flex-col items-center gap-1 py-2.5 text-[10px] font-medium transition-colors ${
+                    moreActive ? "text-white" : "text-white/35 hover:text-white/60"
+                  }`}
+                >
+                  <Layers className={`w-5 h-5 ${moreActive ? "text-white" : "text-white/35"}`} />
+                  More
+                </button>
+                <div className="absolute bottom-full right-0 mb-1 bg-zinc-900 border border-white/10 rounded-xl shadow-xl overflow-hidden hidden group-focus-within:block">
+                  {moreItems.map(item => {
+                    const Icon = item.icon;
+                    const active = view === item.view;
+                    return (
+                      <button
+                        key={item.view}
+                        onClick={() => setView(item.view)}
+                        className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors ${
+                          active ? "text-white bg-white/10" : "text-white/50 hover:text-white hover:bg-white/[0.04]"
+                        }`}
+                      >
+                        <Icon className="w-4 h-4" />
+                        {item.label}
+                      </button>
+                    );
+                  })}
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-400/70 hover:text-red-400 hover:bg-red-500/[0.04] transition-colors border-t border-white/[0.06]"
+                  >
+                    <Lock className="w-4 h-4" />
+                    Lock
+                  </button>
+                </div>
+              </div>
+            );
+          })()}
         </div>
       </div>
-
-      {/* View Content */}
-      {view === "dashboard" && <QuotesDashboard password={password} onEditQuote={setEditingSlug} />}
-      {view === "calendar" && <CalendarView password={password} onEditQuote={setEditingSlug} />}
-      {view === "contacts" && <ContactsManager password={password} />}
-      {view === "invoices" && <InvoicesTab password={password} />}
-      {view === "library" && <ScopeLibraryManager />}
-      {view === "xero" && <XeroSettings password={password} />}
-      {view === "notifications" && <NotificationLogView />}
-      {view === "agencies" && <AgenciesTab password={password} onEditQuote={(slug) => { setEditingSlug(slug); setView("dashboard"); }} />}
     </div>
   );
 }
