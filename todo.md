@@ -129,3 +129,11 @@
 - [x] compact prop on StatusDropdown component
 - [x] iconOnly prop on InvoiceDownloadButton component
 - [x] Zero TypeScript errors
+
+## Phase 13: Light Background + Table Overflow Fix
+- [x] Switch QuotesDashboard main content area to white/light background
+- [x] Fix table overflow — horizontal scroll on narrow screens, min-width on table
+- [x] Keep sidebar dark, make content area light for contrast
+- [x] Ensure all text colours are updated for light background readability
+- [x] Maintain elite/premium aesthetic with clean typography
+- [x] Client column shows contact name (agentName) instead of agency name (clientName)

@@ -1,4 +1,4 @@
-import { LOGO_WHITE_PNG } from "@/lib/logo";
+import { LOGO_WHITE_PNG, LOGO_PNG } from "@/lib/logo";
 /**
  * Admin Panel — Bell Carpets Multi-Quote Manager
  * Password-protected, mobile-first, dark theme
@@ -994,13 +994,13 @@ function StatusDropdown({
         type="button"
         onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
         disabled={disabled}
-        className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs text-white/50 hover:bg-white/[0.04] hover:text-white transition-colors disabled:opacity-50"
+        className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 transition-colors disabled:opacity-50"
       >
         <CircleDot className="w-3 h-3" /> Status <ChevronDown className="w-3 h-3" />
       </button>
       {open && (
         <div
-          className="absolute right-0 bottom-full z-50 mb-1 bg-zinc-900 border border-white/20 rounded-xl shadow-2xl w-56 overflow-hidden"
+          className="absolute right-0 bottom-full z-50 mb-1 bg-white border border-zinc-200 rounded-xl shadow-xl w-56 overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {pipeline.map((s) => {
@@ -1011,15 +1011,15 @@ function StatusDropdown({
                 key={s.value}
                 type="button"
                 onClick={() => { onSelect(s.value); setOpen(false); }}
-                className={`w-full px-4 py-3 text-left text-sm flex items-center gap-3 transition-colors border-b border-white/10 last:border-0 ${
+                className={`w-full px-4 py-3 text-left text-sm flex items-center gap-3 transition-colors border-b border-zinc-100 last:border-0 ${
                   isCurrent
                     ? `${s.bg} ${s.color} font-semibold`
-                    : "text-white hover:bg-white/10"
+                    : "text-zinc-700 hover:bg-zinc-50"
                 }`}
               >
-                <Icon className={`w-4 h-4 flex-shrink-0 ${isCurrent ? s.color : "text-white/60"}`} />
+                <Icon className={`w-4 h-4 flex-shrink-0 ${isCurrent ? s.color : "text-zinc-400"}`} />
                 <span className="flex-1">{s.label}</span>
-                {isCurrent && <span className="text-[10px] text-white/50 flex-shrink-0">current</span>}
+                {isCurrent && <span className="text-[10px] text-zinc-400 flex-shrink-0">current</span>}
               </button>
             );
           })}
@@ -1211,18 +1211,19 @@ function QuotesDashboard({
     setScheduleDateModal(null);
   };
 
-  const handleCreate = async () => {
+  const handleCreate = async (overrideType?: QuoteType) => {
+    const effectiveType = overrideType || newQuoteForm.quoteType;
     setShowTypeModal(false);
     setCreating(true);
     try {
       // For homeowner quotes: clientName = agentName (contact name IS the client name — no separate field)
       // For agent/real_estate/agency_single: clientName = agency name (separate from contact person)
-      const resolvedClientName = newQuoteForm.quoteType === "homeowner"
+      const resolvedClientName = effectiveType === "homeowner"
         ? newQuoteForm.agentName
         : newQuoteForm.clientName;
       const result = await createMutation.mutateAsync({
         password,
-        quoteType: newQuoteForm.quoteType,
+        quoteType: effectiveType,
         clientName: resolvedClientName,
         propertyAddress: newQuoteForm.propertyAddress,
         agentName: newQuoteForm.agentName,
@@ -1238,7 +1239,7 @@ function QuotesDashboard({
       // Offer to save as a contact
       // For agency/real_estate/agency_single: save agency name (clientName) with agency email/phone only
       // For homeowner: save customer name (agentName) with customer email/phone
-      const isAgencyQuote = newQuoteForm.quoteType === "agent" || newQuoteForm.quoteType === "real_estate" || newQuoteForm.quoteType === "agency_single";
+      const isAgencyQuote = effectiveType === "agent" || effectiveType === "real_estate" || effectiveType === "agency_single";
       const contactNameToSave = isAgencyQuote ? newQuoteForm.clientName : newQuoteForm.agentName;
       const contactEmailToSave = newQuoteForm.agentEmail; // Same field for both (agency email or customer email)
       const contactPhoneToSave = newQuoteForm.agentPhone; // Same field for both (agency phone or customer phone)
@@ -1268,7 +1269,7 @@ function QuotesDashboard({
               </button>
               <button
                 onClick={() => {}}
-                className="px-3 py-1 rounded-lg bg-white/10 text-white text-xs"
+                className="px-3 py-1 rounded-lg bg-zinc-100 text-zinc-700 text-xs"
               >
                 Skip
               </button>
@@ -1400,502 +1401,137 @@ function QuotesDashboard({
   const scheduledCount = (quotesList || []).filter(q => q.jobStatus === "scheduled").length;
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-zinc-900 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-white animate-spin" />
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-zinc-400 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0c0b0a] text-white">
+    <div className="min-h-screen bg-[#f8f8f7] text-zinc-900">
       {/* Header */}
-      <div className="sticky top-0 z-50 bg-[#0c0b0a]/95 backdrop-blur border-b border-white/[0.05]">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+      <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-zinc-200/80 shadow-sm">
+        <div className="px-6 lg:px-8">
           <div className="py-4 flex items-center justify-between gap-4">
             <div>
-              <h1 className="text-lg font-semibold text-white leading-tight tracking-[-0.02em]">Quotes</h1>
-              <p className="text-[11px] text-white/30 mt-0.5">{quotesList?.length || 0} total</p>
+              <h1 className="text-xl font-semibold text-zinc-900 leading-tight tracking-[-0.02em]">Quotes</h1>
+              <p className="text-xs text-zinc-400 mt-0.5">{quotesList?.length || 0} total</p>
             </div>
             <button
               onClick={() => setShowTypeModal(true)}
               disabled={creating}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black font-semibold text-sm hover:bg-white/90 disabled:opacity-50 transition-colors shrink-0"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-900 text-white font-medium text-sm hover:bg-zinc-800 disabled:opacity-50 transition-colors shrink-0 shadow-sm border border-zinc-200"
             >
               {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
               New Quote
             </button>
           </div>
-          {/* Elite stat cards row */}
+          {/* Stat cards */}
           <div className="grid grid-cols-4 gap-3 pb-4">
-            <div className="bg-white/[0.04] rounded-xl px-4 py-3 border border-white/[0.06]">
-              <p className="section-label text-white/30 mb-1.5">Open</p>
-              <p className="stat-value text-2xl font-bold text-amber-400 leading-none">{openQuoteCount}</p>
+            <div className="bg-zinc-50 rounded-xl px-4 py-3 border border-zinc-200/60">
+              <p className="text-[10px] uppercase tracking-[0.12em] text-zinc-400 font-medium mb-1">Open</p>
+              <p className="text-2xl font-bold text-zinc-900 leading-none tabular-nums">{openQuoteCount}</p>
             </div>
-            <div className="bg-white/[0.04] rounded-xl px-4 py-3 border border-white/[0.06]">
-              <p className="section-label text-white/30 mb-1.5">Scheduled</p>
-              <p className="stat-value text-2xl font-bold text-purple-400 leading-none">{scheduledCount}</p>
+            <div className="bg-zinc-50 rounded-xl px-4 py-3 border border-zinc-200/60">
+              <p className="text-[10px] uppercase tracking-[0.12em] text-zinc-400 font-medium mb-1">Scheduled</p>
+              <p className="text-2xl font-bold text-zinc-900 leading-none tabular-nums">{scheduledCount}</p>
             </div>
-            <div className="bg-white/[0.04] rounded-xl px-4 py-3 border border-white/[0.06]">
-              <p className="section-label text-white/30 mb-1.5">Pipeline</p>
-              <p className="stat-value text-2xl font-bold text-gold leading-none">${pipelineValue.toLocaleString()}</p>
+            <div className="bg-zinc-50 rounded-xl px-4 py-3 border border-zinc-200/60">
+              <p className="text-[10px] uppercase tracking-[0.12em] text-zinc-400 font-medium mb-1">Pipeline</p>
+              <p className="text-2xl font-bold text-zinc-900 leading-none tabular-nums">${pipelineValue.toLocaleString()}</p>
             </div>
             {expiredCount > 0 ? (
-              <button
-                onClick={() => setStatusFilter(statusFilter === "expired" ? "all" : "expired")}
-                className="bg-red-500/[0.06] rounded-xl px-4 py-3 border border-red-500/20 text-left hover:bg-red-500/10 transition-colors"
-              >
-                <p className="text-[10px] uppercase tracking-[0.12em] text-red-400/60 mb-1.5">Expired</p>
-                <p className="text-2xl font-bold text-red-400 leading-none">{expiredCount}</p>
-              </button>
+              <div className="bg-red-50 rounded-xl px-4 py-3 border border-red-200/60">
+                <p className="text-[10px] uppercase tracking-[0.12em] text-red-500 font-medium mb-1">Expired</p>
+                <p className="text-2xl font-bold text-red-600 leading-none tabular-nums">{expiredCount}</p>
+              </div>
             ) : (
-              <div className="bg-white/[0.04] rounded-xl px-4 py-3 border border-white/[0.06]">
-                <p className="section-label text-white/30 mb-1.5">Total</p>
-                <p className="stat-value text-2xl font-bold text-white/50 leading-none">{quotesList?.length || 0}</p>
+              <div className="bg-zinc-50 rounded-xl px-4 py-3 border border-zinc-200/60">
+                <p className="text-[10px] uppercase tracking-[0.12em] text-zinc-400 font-medium mb-1">Total</p>
+                <p className="text-2xl font-bold text-zinc-900 leading-none tabular-nums">{quotesList?.length || 0}</p>
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* Quote Type Modal */}
-      {/* Schedule Date Modal */}
-      {scheduleDateModal && (
-        <div
-          className="fixed inset-0 z-50 bg-black/75 flex items-end sm:items-center justify-center p-0 sm:p-4"
-          style={{ animation: "fadeIn 0.15s ease" }}
-          onClick={() => setScheduleDateModal(null)}
-        >
+      {/* New Quote Type Modal */}
+      {showTypeModal && (
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowTypeModal(false)} />
           <div
-            className="w-full sm:max-w-sm bg-[#141418] rounded-t-3xl sm:rounded-2xl border border-white/8 p-6"
-            style={{ animation: "slideUp 0.2s cubic-bezier(0.34,1.56,0.64,1)" }}
-            onClick={(e) => e.stopPropagation()}
+            className="relative w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl border border-zinc-200 overflow-y-auto max-h-[92vh] shadow-xl"
           >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
-                <Calendar className="w-5 h-5 text-purple-400" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-white">Schedule Installation</h3>
-                <p className="text-xs text-white/40">Set the install date for this job</p>
-              </div>
+            <div className="px-5 pt-5 pb-3 border-b border-zinc-100">
+              <h2 className="text-base font-semibold text-zinc-900">New Quote</h2>
+              <p className="text-xs text-zinc-400 mt-0.5">Select quote type</p>
             </div>
-            <input
-              type="date"
-              value={scheduleDateInput}
-              onChange={(e) => setScheduleDateInput(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-zinc-800/60 border border-white/10 text-white text-sm focus:outline-none focus:border-purple-400 transition-colors mb-4 [color-scheme:dark]"
-            />
-            <div className="flex gap-3">
-              <button
-                onClick={() => setScheduleDateModal(null)}
-                className="flex-1 py-2.5 rounded-xl bg-zinc-800/50 border border-white/10 text-sm text-white/60 hover:text-white transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleScheduleDateConfirm}
-                disabled={updateStatusMutation.isPending}
-                className="flex-1 py-2.5 rounded-xl bg-purple-600 text-white text-sm font-semibold hover:bg-purple-500 disabled:opacity-50 transition-colors"
-              >
-                {updateStatusMutation.isPending ? "Saving..." : scheduleDateInput ? "Schedule" : "Skip Date"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Deposit Amount Modal (list view) */}
-      {depositModal && (
-        <div
-          className="fixed inset-0 z-50 bg-black/75 flex items-end sm:items-center justify-center p-0 sm:p-4"
-          style={{ animation: "fadeIn 0.15s ease" }}
-          onClick={() => setDepositModal(null)}
-        >
-          <div
-            className="w-full sm:max-w-sm bg-[#141418] rounded-t-3xl sm:rounded-2xl border border-white/8 p-6"
-            style={{ animation: "slideUp 0.2s cubic-bezier(0.34,1.56,0.64,1)" }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-                <Banknote className="w-5 h-5 text-emerald-400" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-white">Record Deposit Received</h3>
-                <p className="text-xs text-white/40">Enter the actual amount paid by the client</p>
-              </div>
-            </div>
-            {depositModal.suggestedAmount > 0 && (
-              <p className="text-xs text-white/40 mb-2">Suggested: ${depositModal.suggestedAmount.toLocaleString()} (based on deposit %)</p>
-            )}
-            <div className="relative mb-4">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 text-sm">$</span>
-              <input
-                type="number"
-                min="1"
-                step="1"
-                value={depositAmountInput}
-                onChange={(e) => setDepositAmountInput(e.target.value)}
-                placeholder="e.g. 1250"
-                className="w-full pl-7 pr-4 py-3 rounded-xl bg-zinc-800/60 border border-white/10 text-white text-sm focus:outline-none focus:border-emerald-400 transition-colors"
-                autoFocus
-              />
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setDepositModal(null)}
-                className="flex-1 py-2.5 rounded-xl bg-zinc-800/50 border border-white/10 text-sm text-white/60 hover:text-white transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDepositConfirm}
-                disabled={updateStatusMutation.isPending || !depositAmountInput}
-                className="flex-1 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-500 disabled:opacity-50 transition-colors"
-              >
-                {updateStatusMutation.isPending ? "Saving..." : "Confirm Deposit"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Tier Accept Modal (list view) — for tiered quotes only */}
-      {tierAcceptModal && (
-        <div
-          className="fixed inset-0 z-50 bg-black/75 flex items-end sm:items-center justify-center p-0 sm:p-4"
-          style={{ animation: "fadeIn 0.15s ease" }}
-          onClick={() => setTierAcceptModal(null)}
-        >
-          <div
-            className="w-full sm:max-w-sm bg-[#141418] rounded-t-3xl sm:rounded-2xl border border-white/8 p-6"
-            style={{ animation: "slideUp 0.2s cubic-bezier(0.34,1.56,0.64,1)" }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                <CheckCircle2 className="w-5 h-5 text-blue-400" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-white">Which Tier Did They Choose?</h3>
-                <p className="text-xs text-white/40">Select the tier the client accepted</p>
-              </div>
-            </div>
-            <div className="space-y-2 mb-4">
-              {tierAcceptModal.tiers.map((tier) => (
+            <div className="p-5 space-y-2">
+              {[
+                { value: "homeowner", label: "Homeowner", desc: "Direct to homeowner, single price" },
+                { value: "real_estate", label: "Real Estate Agency (3-Tier)", desc: "Good / Better / Best pricing" },
+                { value: "agency_single", label: "Agency Single Product", desc: "Single product for agency" },
+              ].map((t) => (
                 <button
-                  key={tier.name}
-                  onClick={() => setTierAcceptSelected(tier.name)}
-                  className={`w-full px-4 py-3 rounded-xl border text-left transition-colors ${
-                    tierAcceptSelected === tier.name
-                      ? "bg-blue-500/20 border-blue-500/50 text-white"
-                      : "bg-zinc-800/50 border-white/10 text-white/70 hover:border-white/20 hover:text-white"
-                  }`}
+                  key={t.value}
+                  onClick={() => handleCreate(t.value as QuoteType)}
+                  disabled={creating}
+                  className="w-full text-left px-4 py-3.5 rounded-xl border border-zinc-200 hover:border-zinc-400 hover:bg-zinc-50 transition-all group"
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-sm">{tier.name}</span>
-                    <span className="text-sm text-white/50">${tier.price.toLocaleString()}</span>
-                  </div>
+                  <p className="text-sm font-medium text-zinc-900 group-hover:text-zinc-900">{t.label}</p>
+                  <p className="text-xs text-zinc-400 mt-0.5">{t.desc}</p>
                 </button>
               ))}
             </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setTierAcceptModal(null)}
-                className="flex-1 py-2.5 rounded-xl bg-zinc-800/50 border border-white/10 text-sm text-white/60 hover:text-white transition-colors"
-              >
+            <div className="px-5 pb-5">
+              <button onClick={() => setShowTypeModal(false)} className="w-full py-2.5 text-sm text-zinc-400 hover:text-zinc-600 transition-colors">
                 Cancel
               </button>
-              <button
-                onClick={handleTierAcceptConfirm}
-                disabled={updateStatusMutation.isPending || !tierAcceptSelected}
-                className="flex-1 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-500 disabled:opacity-50 transition-colors"
-              >
-                {updateStatusMutation.isPending ? "Saving..." : "Confirm Acceptance"}
-              </button>
             </div>
           </div>
         </div>
       )}
 
-      {showTypeModal && (
-        <div
-          className="fixed inset-0 z-50 bg-black/75 flex items-end sm:items-center justify-center p-0 sm:p-4"
-          style={{ animation: "fadeIn 0.15s ease" }}
-          onClick={() => setShowTypeModal(false)}
-        >
-          <style>{`@keyframes fadeIn{from{opacity:0}to{opacity:1}} @keyframes slideUp{from{transform:translateY(24px);opacity:0}to{transform:translateY(0);opacity:1}}`}</style>
-          <div
-            className="w-full sm:max-w-md bg-[#141418] rounded-t-3xl sm:rounded-2xl border border-white/8 overflow-y-auto max-h-[92vh]"
-            style={{ animation: "slideUp 0.2s cubic-bezier(0.34,1.56,0.64,1)" }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Drag handle (mobile) */}
-            <div className="flex justify-center pt-3 pb-1 sm:hidden">
-              <div className="w-10 h-1 rounded-full bg-white/20" />
-            </div>
-
-            <div className="px-6 pt-4 pb-6">
-              {/* Header */}
-              <div className="flex items-start justify-between mb-6">
-                <div>
-                  <h2 className="text-xl font-semibold text-white tracking-tight">New Quote</h2>
-                  <p className="text-xs text-white/40 mt-0.5">Create and send a quote to your client</p>
-                </div>
-                <button onClick={() => setShowTypeModal(false)} className="text-white/30 hover:text-white/60 transition-colors mt-0.5">
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* Quote Type — three options: Homeowner, Real Estate Agency (tiered), Agency Single Product */}
-              <div className="mb-6">
-                <p className="text-[11px] font-medium text-white/40 uppercase tracking-widest mb-2.5">Quote Type</p>
-                <div className="flex flex-col bg-zinc-800/60 rounded-xl p-1 gap-1">
-                  <div className="flex gap-1">
-                    <button
-                      onClick={() => setNewQuoteForm(f => ({ ...f, quoteType: "homeowner" }))}
-                      className={`relative flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-                        newQuoteForm.quoteType === "homeowner"
-                          ? "bg-white text-black shadow-sm"
-                          : "text-white/50 hover:text-white/80"
-                      }`}
-                    >
-                      <Home className="w-3.5 h-3.5" />
-                      Homeowner
-                    </button>
-                    <button
-                      onClick={() => setNewQuoteForm(f => ({ ...f, quoteType: "real_estate" }))}
-                      className={`relative flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-                        newQuoteForm.quoteType === "real_estate" || newQuoteForm.quoteType === "agent"
-                          ? "bg-white text-black shadow-sm"
-                          : "text-white/50 hover:text-white/80"
-                      }`}
-                    >
-                      <Users className="w-3.5 h-3.5" />
-                      Real Estate Agency
-                    </button>
-                  </div>
-                  <button
-                    onClick={() => setNewQuoteForm(f => ({ ...f, quoteType: "agency_single" }))}
-                    className={`relative flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      newQuoteForm.quoteType === "agency_single"
-                        ? "bg-white text-black shadow-sm"
-                        : "text-white/50 hover:text-white/80"
-                    }`}
-                  >
-                    <Package className="w-3.5 h-3.5" />
-                    Agency — Single Product
-                  </button>
-                </div>
-                <p className="text-[11px] text-white/30 mt-1.5 text-center">
-                  {newQuoteForm.quoteType === "homeowner"
-                    ? "Single product — with optional room itemisation"
-                    : newQuoteForm.quoteType === "agency_single"
-                    ? "One carpet, one price — agent payment terms, no deposit"
-                    : "2-tier Good / Best — agent payment terms, no deposit"}
-                </p>
-              </div>
-              {/* Insurance Assessment Toggle */}
-              <div className="mb-5">
-                <label className="flex items-center gap-3 cursor-pointer group">
-                  <div className={`relative w-10 h-5 rounded-full transition-colors duration-200 ${
-                    newQuoteForm.isInsuranceAssessment ? "bg-amber-500" : "bg-zinc-700"
-                  }`}
-                    onClick={() => setNewQuoteForm(f => ({ ...f, isInsuranceAssessment: !f.isInsuranceAssessment, linkedQuoteSlug: "" }))}
-                  >
-                    <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200 ${
-                      newQuoteForm.isInsuranceAssessment ? "translate-x-5" : ""
-                    }`} />
-                  </div>
-                  <span className="text-sm text-white/70 group-hover:text-white/90 transition-colors">Insurance Assessment Only</span>
-                </label>
-                {newQuoteForm.isInsuranceAssessment && (
-                  <p className="text-[11px] text-amber-400/60 mt-1.5 ml-[52px]">Client won't be able to accept this quote — for assessment purposes only</p>
-                )}
-              </div>
-
-              {/* Linked Quote — only shown when insurance assessment is on */}
-              {newQuoteForm.isInsuranceAssessment && quotesList && quotesList.length > 0 && (
-                <div className="mb-5">
-                  <p className="text-[11px] font-medium text-white/40 uppercase tracking-widest mb-2">Linked Quote (optional)</p>
-                  <select
-                    value={newQuoteForm.linkedQuoteSlug}
-                    onChange={(e) => setNewQuoteForm(f => ({ ...f, linkedQuoteSlug: e.target.value }))}
-                    className="w-full bg-zinc-800/50 border border-white/8 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-white/30 transition-colors"
-                  >
-                    <option value="">None — no linked quote</option>
-                    {quotesList.filter(q => !q.isInsuranceAssessment).map(q => (
-                      <option key={q.slug} value={q.slug}>
-                        {q.quoteNumber} — {q.clientName || q.propertyAddress || "Untitled"}
-                      </option>
-                    ))}
-                  </select>
-                  <p className="text-[11px] text-white/30 mt-1">Link to the full replacement quote so clients can navigate to it</p>
-                </div>
-              )}
-
-              {/* Divider */}
-              <div className="h-px bg-white/6 mb-6" />
-
-              {/* Property Details */}
-              <div className="mb-6">
-                <p className="text-[11px] font-medium text-white/40 uppercase tracking-widest mb-3">Property Details</p>
-                <div className="space-y-3">
-                  {/* Agency Name field — only for agent/real_estate/agency_single (homeowner uses contact name from Client Contact section) */}
-                  {(newQuoteForm.quoteType === "agent" || newQuoteForm.quoteType === "real_estate" || newQuoteForm.quoteType === "agency_single") && (
-                    <>
-                      {/* Load from Contacts populates Agency Name */}
-                      <ContactPicker
-                        password={password!}
-                        onSelect={(c) => setNewQuoteForm(f => ({
-                          ...f,
-                          clientName: c.agency || c.name || f.clientName,
-                          agentEmail: c.email || f.agentEmail,
-                          agentPhone: c.phone || f.agentPhone,
-                        }))}
-                      />
-                      <div>
-                        <input
-                          type="text"
-                          placeholder="Agency / Company Name *"
-                          value={newQuoteForm.clientName}
-                          onChange={(e) => setNewQuoteForm(f => ({ ...f, clientName: e.target.value }))}
-                          className="w-full bg-zinc-800/50 border border-white/8 rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:border-white/30 focus:bg-zinc-800 transition-colors"
-                        />
-                        <p className="text-[10px] text-white/25 mt-1.5 px-1">Business name — e.g. REMAX United, Kollosche, Woodroffe Hotel</p>
-                      </div>
-                    </>
-                  )}
-                  <input
-                    type="text"
-                    placeholder="Property Address"
-                    value={newQuoteForm.propertyAddress}
-                    onChange={(e) => setNewQuoteForm(f => ({ ...f, propertyAddress: e.target.value }))}
-                    className="w-full bg-zinc-800/50 border border-white/8 rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:border-white/30 focus:bg-zinc-800 transition-colors"
-                  />
-                </div>
-              </div>
-
-              {/* Divider */}
-              <div className="h-px bg-white/6 mb-6" />
-
-              {/* Agent Contact */}
-              <div className="mb-6">
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-[11px] font-medium text-white/40 uppercase tracking-widest">Contact Details</p>
-                </div>
-                {/* For homeowner: Load from Contacts fills the client name. For agency: plain manual fields (PM changes per job) */}
-                {(newQuoteForm.quoteType === "homeowner") && (
-                  <div className="mb-3">
-                    <ContactPicker
-                      password={password!}
-                      onSelect={(c) => setNewQuoteForm(f => ({
-                        ...f,
-                        agentName: c.name,
-                        agentEmail: c.email || f.agentEmail,
-                        agentPhone: c.phone || f.agentPhone,
-                      }))}
-                    />
-                  </div>
-                )}
-                <div className="space-y-3">
-                  <div>
-                    <input
-                      type="text"
-                      placeholder={(newQuoteForm.quoteType === "agent" || newQuoteForm.quoteType === "real_estate" || newQuoteForm.quoteType === "agency_single") ? "Property Manager *" : "Client Name *"}
-                      value={newQuoteForm.agentName}
-                      onChange={(e) => setNewQuoteForm(f => ({ ...f, agentName: e.target.value }))}
-                      className="w-full bg-zinc-800/50 border border-white/8 rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:border-white/30 focus:bg-zinc-800 transition-colors"
-                    />
-                    <p className="text-[10px] text-white/25 mt-1.5 px-1">
-                      {(newQuoteForm.quoteType === "agent" || newQuoteForm.quoteType === "real_estate" || newQuoteForm.quoteType === "agency_single")
-                        ? "Contact person at the agency — e.g. Sarah Jones, Eliana Marks"
-                        : "Client's full name — e.g. Helena Kowalski, John Smith"}
-                    </p>
-                  </div>
-
-                  <input
-                    type="email"
-                    placeholder="Email (quote link sent here)"
-                    value={newQuoteForm.agentEmail}
-                    onChange={(e) => setNewQuoteForm(f => ({ ...f, agentEmail: e.target.value }))}
-                    className="w-full bg-zinc-800/50 border border-white/8 rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:border-white/30 focus:bg-zinc-800 transition-colors"
-                  />
-                  <input
-                    type="tel"
-                    placeholder="Phone"
-                    value={newQuoteForm.agentPhone}
-                    onChange={(e) => setNewQuoteForm(f => ({ ...f, agentPhone: e.target.value }))}
-                    className="w-full bg-zinc-800/50 border border-white/8 rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:border-white/30 focus:bg-zinc-800 transition-colors"
-                  />
-                </div>
-              </div>
-
-              {/* Homeowner email required hint */}
-              {newQuoteForm.quoteType === "homeowner" && !newQuoteForm.agentEmail.trim() && (
-                <p className="text-[11px] text-amber-400/70 mb-3 text-center">
-                  Client email is required for homeowner quotes — acceptance emails need a destination.
-                </p>
-              )}
-              {/* Create button */}
-              <button
-                onClick={handleCreate}
-                disabled={creating || !newQuoteForm.agentName.trim() || (newQuoteForm.quoteType === "homeowner" && !newQuoteForm.agentEmail.trim())}
-                className="w-full py-4 bg-white text-black text-base font-bold rounded-2xl hover:bg-white/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-[0.98] shadow-lg shadow-white/10"
-              >
-                {creating ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin" /> Creating...
-                  </span>
-                ) : (
-                  "Create Quote →"
-                )}
-              </button>
-              {/* Extra bottom padding on mobile so the Manus badge doesn't overlap the button */}
-              <div className="h-6 sm:hidden" />
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-5 bg-[#0c0b0a]">
-        {/* Status filter — horizontal scrollable pill row */}
+      {/* Main content */}
+      <div className="px-6 lg:px-8 py-5">
+        {/* Status filter pills */}
         <div className="overflow-x-auto scrollbar-none -mx-1 px-1 mb-4">
           <div className="flex items-center gap-1.5 min-w-max">
             <button
               onClick={() => setStatusFilter("all")}
               className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                 statusFilter === "all"
-                  ? "bg-white text-black shadow-sm"
-                  : "bg-white/[0.04] text-white/40 hover:text-white hover:bg-white/[0.08] border border-white/[0.06]"
+                  ? "bg-zinc-900 text-white shadow-sm"
+                  : "bg-zinc-100 text-zinc-500 hover:text-zinc-700 hover:bg-zinc-200 border border-zinc-200"
               }`}
             >
-              All ({(quotesList || []).length})
+              All ({quotesList?.length || 0})
             </button>
-            {DASHBOARD_STATUSES.map((s) => {
-              const count = statusCounts[s.value] || 0;
-              const isActive = statusFilter === s.value;
+            {(["draft", "quote_sent", "accepted", "deposit_paid", "scheduled", "completed", "paid_in_full"] as JobStatus[]).map((s) => {
+              const count = (quotesList || []).filter((q) => q.jobStatus === s).length;
+              const isActive = statusFilter === s;
+              const label = s.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
               return (
                 <button
-                  key={s.value}
-                  onClick={() => setStatusFilter(isActive ? "all" : s.value)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                  key={s}
+                  onClick={() => setStatusFilter(isActive ? "all" : s)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
                     isActive
-                      ? `${s.bg} ${s.color} ring-1 ring-current/40`
-                      : "bg-white/[0.04] text-white/40 hover:text-white hover:bg-white/[0.08] border border-white/[0.06]"
+                      ? "bg-zinc-900 text-white shadow-sm"
+                      : "bg-zinc-100 text-zinc-500 hover:text-zinc-700 hover:bg-zinc-200 border border-zinc-200"
                   }`}
                 >
-                  {s.label} {count > 0 && <span className={isActive ? "" : "text-white/30"}>{count}</span>}
+                  {label} {count}
                 </button>
               );
             })}
             {expiredCount > 0 && (
               <button
                 onClick={() => setStatusFilter(statusFilter === "expired" ? "all" : "expired")}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
                   statusFilter === "expired"
-                    ? "bg-red-500/15 text-red-400 ring-1 ring-red-500/40"
-                    : "bg-zinc-800 text-red-400/60 hover:text-red-400 hover:bg-zinc-700"
+                    ? "bg-red-600 text-white shadow-sm"
+                    : "bg-red-50 text-red-600 hover:bg-red-100 border border-red-200"
                 }`}
               >
                 Expired {expiredCount}
@@ -1903,10 +1539,10 @@ function QuotesDashboard({
             )}
             <button
               onClick={() => setStatusFilter(statusFilter === "archived" ? "all" : "archived")}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
                 statusFilter === "archived"
-                  ? "bg-orange-500/15 text-orange-400 ring-1 ring-orange-500/40"
-                  : "bg-zinc-800 text-white/30 hover:text-white/60 hover:bg-zinc-700"
+                  ? "bg-zinc-900 text-white shadow-sm"
+                  : "bg-zinc-100 text-zinc-500 hover:text-zinc-700 hover:bg-zinc-200 border border-zinc-200"
               }`}
             >
               Archived
@@ -1914,181 +1550,132 @@ function QuotesDashboard({
           </div>
         </div>
 
-        {/* Search */}
-        <div className="relative mb-3">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-          <input
-            type="text"
-            placeholder="Search by quote #, client, address, or agent..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.07] text-white text-sm placeholder:text-white/25 focus:border-white/30 focus:outline-none transition-colors"
-          />
-        </div>
-
-        {/* Advanced Filters: Agent + Date Range */}
-        <div className="flex flex-wrap gap-2 mb-4">
-          {/* Agent dropdown */}
-          {uniqueAgents.length > 0 && (
-            <select
-              value={agentFilter}
-              onChange={(e) => setAgentFilter(e.target.value)}
-              className="px-3 py-2 rounded-lg bg-zinc-800/60 border border-white/10 text-white text-xs focus:border-white focus:outline-none [color-scheme:dark] appearance-none cursor-pointer min-w-[140px]"
-            >
-              <option value="all">All Agents</option>
-              {uniqueAgents.map((a) => (
-                <option key={a} value={a}>{a}</option>
-              ))}
-            </select>
-          )}
-          {/* Date from */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-white/40 uppercase tracking-wider">From</span>
+        {/* Search + Filters */}
+        <div className="flex flex-wrap items-center gap-3 mb-4">
+          <div className="relative flex-1 min-w-[200px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
             <input
-              type="date"
-              value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-              className="px-2.5 py-2 rounded-lg bg-zinc-800/60 border border-white/10 text-white text-xs focus:border-white focus:outline-none [color-scheme:dark]"
+              type="text"
+              placeholder="Search by quote #, client, address, or agent..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-9 pr-3 py-2 rounded-lg bg-white border border-zinc-200 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-200 transition-all"
             />
           </div>
-          {/* Date to */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-white/40 uppercase tracking-wider">To</span>
-            <input
-              type="date"
-              value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
-              className="px-2.5 py-2 rounded-lg bg-zinc-800/60 border border-white/10 text-white text-xs focus:border-white focus:outline-none [color-scheme:dark]"
-            />
+          <select
+            value={agentFilter}
+            onChange={(e) => setAgentFilter(e.target.value)}
+            className="px-3 py-2 rounded-lg bg-white border border-zinc-200 text-sm text-zinc-700 focus:outline-none focus:border-zinc-400 transition-all"
+          >
+            <option value="all">All Agents</option>
+            {uniqueAgents.map((a) => (
+              <option key={a} value={a}>{a}</option>
+            ))}
+          </select>
+          <div className="flex items-center gap-2 text-xs text-zinc-400">
+            <span>From</span>
+            <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="px-2 py-1.5 rounded-lg bg-white border border-zinc-200 text-sm text-zinc-700 focus:outline-none focus:border-zinc-400" />
+            <span>to</span>
+            <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="px-2 py-1.5 rounded-lg bg-white border border-zinc-200 text-sm text-zinc-700 focus:outline-none focus:border-zinc-400" />
           </div>
-          {/* Clear all filters */}
-          {(agentFilter !== "all" || dateFrom || dateTo || search) && (
-            <button
-              onClick={() => { setAgentFilter("all"); setDateFrom(""); setDateTo(""); setSearch(""); setStatusFilter("all"); }}
-              className="px-3 py-2 rounded-lg text-xs text-white/40 hover:text-white border border-white/10 hover:border-white/20 transition-colors"
-            >
-              Clear All
-            </button>
-          )}
+
         </div>
 
-        {/* Archived Quotes List */}
+        {/* Archived quotes */}
         {statusFilter === "archived" && (
-          <div className="space-y-3">
-            {(!archivedQuotes || archivedQuotes.length === 0) ? (
-              <div className="text-center py-16">
-                <Archive className="w-12 h-12 text-white/40 mx-auto mb-3" />
-                <p className="text-white/50 mb-1">No archived quotes</p>
-                <p className="text-white/40 text-sm">Deleted quotes will appear here and can be restored</p>
-              </div>
+          <div className="space-y-2">
+            {(archivedQuotes || []).length === 0 ? (
+              <div className="text-center py-12 text-zinc-400 text-sm">No archived quotes</div>
             ) : (
-              archivedQuotes.map((q) => (
-                <div key={q.slug} className="bg-zinc-800/50 rounded-xl border border-orange-500/20 overflow-hidden p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm font-semibold text-white">{q.quoteNumber}</span>
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20">Archived</span>
-                      </div>
-                      <p className="text-xs text-white/60">{q.clientName || q.agentName || 'Unknown'}</p>
-                      {q.propertyAddress && <p className="text-xs text-white/40">{q.propertyAddress}</p>}
-                      <p className="text-xs text-white/30 mt-1">Deleted: {q.deletedAt ? new Date(q.deletedAt).toLocaleDateString('en-AU') : 'Unknown'}</p>
-                    </div>
-                    <button
-                      onClick={async () => {
-                        if (!confirm(`Restore ${q.quoteNumber}? It will reappear in the main quotes list.`)) return;
-                        await restoreMutation.mutateAsync({ password, slug: q.slug });
-                        refetchArchived();
-                        refetch();
-                      }}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400 text-xs hover:bg-green-500/20 transition-all"
-                    >
-                      <RotateCcw className="w-3.5 h-3.5" />
-                      Restore
-                    </button>
+              (archivedQuotes || []).map((q) => (
+                <div key={q.slug} className="bg-white rounded-xl border border-zinc-200 p-4 flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-zinc-900">{q.quoteNumber}</p>
+                    <p className="text-xs text-zinc-400">{q.agentName || q.clientName || "No client"}</p>
                   </div>
+                  <button
+                    onClick={() => { if (confirm(`Restore ${q.quoteNumber}?`)) { restoreMutation.mutate({ password, slug: q.slug }, { onSuccess: () => { refetchArchived(); refetch(); } }); } }}
+                    className="px-3 py-1.5 text-xs font-medium text-zinc-600 bg-zinc-100 hover:bg-zinc-200 rounded-lg transition-colors"
+                  >
+                    Restore
+                  </button>
                 </div>
               ))
             )}
           </div>
         )}
 
-        {/* Quotes List */}
+        {/* Empty state */}
         {statusFilter !== "archived" && filteredQuotes.length === 0 ? (
           <div className="text-center py-16">
-            <FileText className="w-12 h-12 text-white/40 mx-auto mb-3" />
-            <p className="text-white/50 mb-1">
+            <p className="text-sm text-zinc-400">
               {(search || agentFilter !== "all" || dateFrom || dateTo || statusFilter !== "all") ? "No quotes match your filters" : "No quotes yet"}
             </p>
-            {!search && (
-              <p className="text-white/40 text-sm">
+            {!search && agentFilter === "all" && !dateFrom && !dateTo && statusFilter === "all" && (
+              <p className="text-xs text-zinc-300 mt-1">
                 Tap "New Quote" to create your first quote
               </p>
             )}
           </div>
         ) : statusFilter !== "archived" ? (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm border-collapse">
+          /* The Table */
+          <div className="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-x-auto">
+            <table className="w-full text-sm min-w-[700px]">
               <thead>
-                <tr className="border-b border-white/[0.06]">
-                  <th className="w-8 py-2.5 pr-2 text-left">
+                <tr className="border-b border-zinc-100 bg-zinc-50/50">
+                  <th className="w-10 py-3 pl-4 pr-2 text-left">
                     <input
                       type="checkbox"
-                      className="w-3.5 h-3.5 rounded border-white/20 bg-transparent accent-amber-400 cursor-pointer"
+                      className="w-3.5 h-3.5 rounded border-zinc-300 accent-zinc-900 cursor-pointer"
                       onChange={() => {}}
                     />
                   </th>
                   <th
-                    className="py-2.5 pr-4 text-left text-[10px] uppercase tracking-[0.14em] text-white/30 font-medium whitespace-nowrap cursor-pointer hover:text-white/60 transition-colors select-none"
+                    className="py-3 pr-3 text-left text-[10px] uppercase tracking-[0.12em] text-zinc-400 font-semibold whitespace-nowrap cursor-pointer hover:text-zinc-600 transition-colors select-none"
                     onClick={() => { setSortField("date"); setSortDir(sortField === "date" && sortDir === "desc" ? "asc" : "desc"); }}
                   >
                     Date {sortField === "date" ? (sortDir === "asc" ? "\u2191" : "\u2193") : ""}
                   </th>
                   <th
-                    className="py-2.5 pr-4 text-left text-[10px] uppercase tracking-[0.14em] text-white/30 font-medium whitespace-nowrap cursor-pointer hover:text-white/60 transition-colors select-none"
+                    className="py-3 pr-3 text-left text-[10px] uppercase tracking-[0.12em] text-zinc-400 font-semibold whitespace-nowrap cursor-pointer hover:text-zinc-600 transition-colors select-none"
                     onClick={() => { setSortField("quote"); setSortDir(sortField === "quote" && sortDir === "desc" ? "asc" : "desc"); }}
                   >
                     Quote {sortField === "quote" ? (sortDir === "asc" ? "\u2191" : "\u2193") : ""}
                   </th>
                   <th
-                    className="py-2.5 pr-4 text-left text-[10px] uppercase tracking-[0.14em] text-white/30 font-medium cursor-pointer hover:text-white/60 transition-colors select-none"
+                    className="py-3 pr-3 text-left text-[10px] uppercase tracking-[0.12em] text-zinc-400 font-semibold cursor-pointer hover:text-zinc-600 transition-colors select-none"
                     onClick={() => { setSortField("client"); setSortDir(sortField === "client" && sortDir === "desc" ? "asc" : "desc"); }}
                   >
                     Client {sortField === "client" ? (sortDir === "asc" ? "\u2191" : "\u2193") : ""}
                   </th>
-                  <th className="py-2.5 pr-4 text-left text-[10px] uppercase tracking-[0.14em] text-white/30 font-medium hidden lg:table-cell">
-                    Address
-                  </th>
                   <th
-                    className="py-2.5 pr-4 text-left text-[10px] uppercase tracking-[0.14em] text-white/30 font-medium whitespace-nowrap cursor-pointer hover:text-white/60 transition-colors select-none"
+                    className="py-3 pr-3 text-left text-[10px] uppercase tracking-[0.12em] text-zinc-400 font-semibold whitespace-nowrap cursor-pointer hover:text-zinc-600 transition-colors select-none"
                     onClick={() => { setSortField("status"); setSortDir(sortField === "status" && sortDir === "desc" ? "asc" : "desc"); }}
                   >
                     Status {sortField === "status" ? (sortDir === "asc" ? "\u2191" : "\u2193") : ""}
                   </th>
                   <th
-                    className="py-2.5 pr-4 text-right text-[10px] uppercase tracking-[0.14em] text-white/30 font-medium whitespace-nowrap cursor-pointer hover:text-white/60 transition-colors select-none"
+                    className="py-3 pr-3 text-right text-[10px] uppercase tracking-[0.12em] text-zinc-400 font-semibold whitespace-nowrap cursor-pointer hover:text-zinc-600 transition-colors select-none"
                     onClick={() => { setSortField("value"); setSortDir(sortField === "value" && sortDir === "desc" ? "asc" : "desc"); }}
                   >
                     Value {sortField === "value" ? (sortDir === "asc" ? "\u2191" : "\u2193") : ""}
                   </th>
-                  <th className="py-2.5 text-right text-[10px] uppercase tracking-[0.14em] text-white/30 font-medium">
-                    Actions
+                  <th className="py-3 pr-4 text-right text-[10px] uppercase tracking-[0.12em] text-zinc-400 font-semibold w-24">
                   </th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-zinc-100">
                 {sortedQuotes.map((q) => {
                   const qDaysLeft = getDaysRemaining(q.expiresAt);
                   const qIsOpenStatus = q.jobStatus === "draft" || q.jobStatus === "quote_sent";
                   const qExpired = qIsOpenStatus && qDaysLeft !== null && qDaysLeft <= 0;
                   const qExpiringSoon = qIsOpenStatus && qDaysLeft !== null && qDaysLeft > 0 && qDaysLeft <= 3;
                   const qCancelled = q.jobStatus === "cancelled";
-                  const rowOpacity = qCancelled ? "opacity-40" : "";
-                  const rowBorder = qExpired
-                    ? "border-red-500/20"
-                    : qExpiringSoon
-                    ? "border-amber-500/20"
-                    : "border-white/[0.04]";
+                  const rowClasses = [
+                    "group cursor-pointer transition-colors hover:bg-zinc-50",
+                    qCancelled ? "opacity-40" : "",
+                    qExpired ? "border-l-2 border-l-red-400" : qExpiringSoon ? "border-l-2 border-l-amber-400" : "border-l-2 border-l-transparent",
+                  ].join(" ");
                   const acceptedVal = (q.acceptedTotal ?? 0) > 0 ? q.acceptedTotal : null;
                   const displayValue = acceptedVal ?? (q.lowestPrice === q.highestPrice ? q.lowestPrice : null);
                   const valueRange =
@@ -2098,44 +1685,31 @@ function QuotesDashboard({
                   return (
                     <tr
                       key={q.slug}
-                      className={`border-b ${rowBorder} ${rowOpacity} hover:bg-white/[0.025] transition-colors group cursor-pointer`}
+                      className={rowClasses}
                       onClick={() => onEditQuote(q.slug)}
                     >
-                      <td className="py-2.5 pr-2" onClick={(e) => e.stopPropagation()}>
-                        <input
-                          type="checkbox"
-                          className="w-3.5 h-3.5 rounded border-white/20 bg-transparent accent-amber-400 cursor-pointer"
-                        />
+                      <td className="py-3 pl-4 pr-2" onClick={(e) => e.stopPropagation()}>
+                        <input type="checkbox" className="w-3.5 h-3.5 rounded border-zinc-300 accent-zinc-900 cursor-pointer" onChange={() => {}} />
                       </td>
-                      <td className="py-2.5 pr-4 whitespace-nowrap text-white/40 text-xs tabular-nums">
-                        {q.createdAt
-                          ? formatAESTDate(new Date(q.createdAt), { day: "2-digit", month: "short", year: "2-digit" })
-                          : ""}
+                      <td className="py-3 pr-3 whitespace-nowrap">
+                        <span className="text-xs text-zinc-400 tabular-nums">
+                          {q.createdAt ? new Date(q.createdAt).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "2-digit" }) : ""}
+                        </span>
                       </td>
-                      <td className="py-2.5 pr-4 whitespace-nowrap">
-                        <span className="quote-number text-white text-xs font-semibold">{q.quoteNumber}</span>
-                        {qExpired && (
-                          <span className="ml-1.5 text-[9px] text-red-400 uppercase tracking-wider">Expired</span>
-                        )}
-                        {qExpiringSoon && !qExpired && (
-                          <span className="ml-1.5 text-[9px] text-amber-400 uppercase tracking-wider">{qDaysLeft}d left</span>
-                        )}
+                      <td className="py-3 pr-3 whitespace-nowrap">
+                        <span className="text-xs font-semibold text-zinc-900 tracking-tight">{q.quoteNumber}</span>
+                        {qExpired && <span className="ml-1.5 text-[9px] font-bold text-red-500 uppercase tracking-wider">Expired</span>}
+                        {qExpiringSoon && <span className="ml-1.5 text-[9px] font-bold text-amber-500 uppercase tracking-wider">{qDaysLeft}D Left</span>}
                       </td>
-                      <td className="py-2.5 pr-4 max-w-[180px]">
-                        <p className="text-white text-xs font-medium truncate">
-                          {q.quoteType === "agent" || q.quoteType === "real_estate" || q.quoteType === "agency_single"
-                            ? q.clientName || q.agentName || "No agency"
-                            : q.clientName || "No client"}
+                      <td className="py-3 pr-3 max-w-[200px]">
+                        <p className="text-xs font-medium text-zinc-800 truncate">
+                          {q.agentName || q.clientName || "No client"}
                         </p>
-                        {(q.quoteType === "agent" || q.quoteType === "real_estate" || q.quoteType === "agency_single") &&
-                          q.agentName && (
-                            <p className="text-white/35 text-[10px] truncate">{q.agentName}</p>
-                          )}
+                        {q.propertyAddress && (
+                          <p className="text-[10px] text-zinc-400 truncate mt-0.5">{q.propertyAddress}</p>
+                        )}
                       </td>
-                      <td className="py-2.5 pr-4 max-w-[200px] hidden lg:table-cell">
-                        <p className="text-white/45 text-xs truncate">{q.propertyAddress || ""}</p>
-                      </td>
-                      <td className="py-2.5 pr-4 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                      <td className="py-3 pr-3 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                         <StatusDropdown
                           currentStatus={q.jobStatus as JobStatus}
                           quoteType={q.quoteType}
@@ -2153,36 +1727,32 @@ function QuotesDashboard({
                           compact
                         />
                       </td>
-                      <td className="py-2.5 pr-4 text-right whitespace-nowrap">
+                      <td className="py-3 pr-3 text-right whitespace-nowrap">
                         {displayValue ? (
-                          <span
-                            className={`text-xs font-semibold tabular-nums ${
-                              acceptedVal ? "text-amber-400" : "text-white/70"
-                            }`}
-                          >
+                          <span className={`text-xs font-semibold tabular-nums ${acceptedVal ? "text-emerald-600" : "text-zinc-700"}`}>
                             ${displayValue.toLocaleString()}
                           </span>
                         ) : valueRange ? (
-                          <span className="text-xs text-white/40 tabular-nums">{valueRange}</span>
+                          <span className="text-xs text-zinc-400 tabular-nums">{valueRange}</span>
                         ) : (
-                          <span className="text-xs text-white/20">\u2014</span>
+                          <span className="text-xs text-zinc-300">\u2014</span>
                         )}
                       </td>
-                      <td className="py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
+                      <td className="py-3 pr-4 text-right" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                           <a
                             href={`/quote/${q.slug}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             title="View quote"
-                            className="p-1.5 rounded hover:bg-white/10 text-white/40 hover:text-white transition-colors"
+                            className="p-1.5 rounded hover:bg-zinc-100 text-zinc-400 hover:text-zinc-700 transition-colors"
                           >
                             <ExternalLink className="w-3.5 h-3.5" />
                           </a>
                           <button
                             title="Duplicate"
                             onClick={() => handleDuplicate(q.slug, q.quoteNumber)}
-                            className="p-1.5 rounded hover:bg-white/10 text-white/40 hover:text-white transition-colors"
+                            className="p-1.5 rounded hover:bg-zinc-100 text-zinc-400 hover:text-zinc-700 transition-colors"
                           >
                             <Copy className="w-3.5 h-3.5" />
                           </button>
@@ -2198,7 +1768,7 @@ function QuotesDashboard({
                           <button
                             title="Delete"
                             onClick={() => handleDelete(q.slug, q.quoteNumber)}
-                            className="p-1.5 rounded hover:bg-red-500/10 text-white/20 hover:text-red-400 transition-colors"
+                            className="p-1.5 rounded hover:bg-red-50 text-zinc-300 hover:text-red-500 transition-colors"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -2214,6 +1784,7 @@ function QuotesDashboard({
       </div>
     </div>
   );
+
 }
 
 // ─── Payment Terms Input (mobile-friendly clear-on-focus) ──────────────────
@@ -2764,8 +2335,8 @@ function QuoteEditor({
 
   if (isLoading || !config) {
     return (
-      <div className="min-h-screen bg-zinc-900 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-white animate-spin" />
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-zinc-400 animate-spin" />
       </div>
     );
   }
@@ -5680,8 +5251,8 @@ function AgencyProfileView({
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-zinc-900 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-white animate-spin" />
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-zinc-400 animate-spin" />
       </div>
     );
   }
@@ -6113,7 +5684,7 @@ export default function Admin() {
   const MOBILE_NAV: AdminView[] = ["dashboard", "calendar", "invoices", "contacts", "agencies"];
 
   return (
-    <div className="min-h-screen bg-[#0d0d0e] text-white flex admin-root">
+    <div className="min-h-screen bg-[#f8f8f7] text-zinc-900 flex admin-root">
       {/* ── Left Sidebar (desktop) ── */}
       <aside className="hidden md:flex flex-col w-56 shrink-0 bg-[#080807] border-r border-white/[0.05] sticky top-0 h-screen overflow-y-auto">
         {/* Logo + subtitle */}
@@ -6166,10 +5737,10 @@ export default function Admin() {
       </aside>
 
       {/* ── Main content ── */}
-      <div className="flex-1 min-w-0 flex flex-col">
+      <div className="flex-1 min-w-0 flex flex-col bg-[#f8f8f7]">
         {/* Mobile top bar */}
-        <div className="md:hidden sticky top-0 z-50 bg-zinc-950/95 backdrop-blur border-b border-white/[0.06] px-4 py-3 flex items-center justify-between">
-          <img src={LOGO_WHITE_PNG} alt="Bell Carpets" className="h-5" />
+        <div className="md:hidden sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-zinc-200 px-4 py-3 flex items-center justify-between">
+          <img src={LOGO_PNG} alt="Bell Carpets" className="h-5" />
           <button
             onClick={handleLogout}
             className="flex items-center gap-1.5 text-xs text-white/30 hover:text-white/70 transition-colors px-2 py-1 rounded-lg hover:bg-white/5"
@@ -6191,7 +5762,7 @@ export default function Admin() {
         </div>
 
         {/* ── Mobile bottom tab bar ── */}
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-zinc-950/95 backdrop-blur border-t border-white/[0.06] flex">
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-t border-zinc-200 flex">
           {NAV_ITEMS.filter(i => MOBILE_NAV.includes(i.view)).map(item => {
             const Icon = item.icon;
             const active = view === item.view;
@@ -6200,10 +5771,10 @@ export default function Admin() {
                 key={item.view}
                 onClick={() => setView(item.view)}
                 className={`flex-1 flex flex-col items-center gap-1 py-2.5 text-[10px] font-medium transition-colors ${
-                  active ? "text-white" : "text-white/35 hover:text-white/60"
+                  active ? "text-zinc-900" : "text-zinc-400 hover:text-zinc-600"
                 }`}
               >
-                <Icon className={`w-5 h-5 ${active ? "text-white" : "text-white/35"}`} />
+                <Icon className={`w-5 h-5 ${active ? "text-zinc-900" : "text-zinc-400"}`} />
                 {item.label}
               </button>
             );
@@ -6216,13 +5787,13 @@ export default function Admin() {
               <div className="flex-1 relative group">
                 <button
                   className={`w-full flex flex-col items-center gap-1 py-2.5 text-[10px] font-medium transition-colors ${
-                    moreActive ? "text-white" : "text-white/35 hover:text-white/60"
+                    moreActive ? "text-zinc-900" : "text-zinc-400 hover:text-zinc-600"
                   }`}
                 >
-                  <Layers className={`w-5 h-5 ${moreActive ? "text-white" : "text-white/35"}`} />
+                  <Layers className={`w-5 h-5 ${moreActive ? "text-zinc-900" : "text-zinc-400"}`} />
                   More
                 </button>
-                <div className="absolute bottom-full right-0 mb-1 bg-zinc-900 border border-white/10 rounded-xl shadow-xl overflow-hidden hidden group-focus-within:block">
+                <div className="absolute bottom-full right-0 mb-1 bg-white border border-zinc-200 rounded-xl shadow-xl overflow-hidden hidden group-focus-within:block">
                   {moreItems.map(item => {
                     const Icon = item.icon;
                     const active = view === item.view;
@@ -6231,7 +5802,7 @@ export default function Admin() {
                         key={item.view}
                         onClick={() => setView(item.view)}
                         className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors ${
-                          active ? "text-white bg-white/10" : "text-white/50 hover:text-white hover:bg-white/[0.04]"
+                          active ? "text-zinc-900 bg-zinc-100" : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50"
                         }`}
                       >
                         <Icon className="w-4 h-4" />
