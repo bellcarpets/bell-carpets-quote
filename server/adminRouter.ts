@@ -379,7 +379,7 @@ export async function sendQuoteLinkEmail(data: QuoteLinkEmailData): Promise<bool
         <tr><td style="padding:48px 48px 40px;">
 
           <p style="color:#333;font-size:14px;margin:0 0 32px;font-family:Arial,sans-serif;line-height:1.6;">
-            Dear ${data.agentPropertyManager ? data.agentPropertyManager : data.agentName},
+            Dear ${data.clientName || data.agentName},
           </p>
 
           <h1 style="color:#111;font-size:28px;font-weight:400;margin:0 0 8px;line-height:1.2;letter-spacing:-0.01em;">
@@ -521,7 +521,7 @@ export async function sendReminderEmail(data: QuoteLinkEmailData & { daysLeft: n
         <tr><td style="padding:48px 48px 40px;">
 
           <p style="color:#333;font-size:14px;margin:0 0 32px;font-family:Arial,sans-serif;line-height:1.6;">
-            Dear ${data.agentPropertyManager ? data.agentPropertyManager : data.agentName},
+            Dear ${data.clientName || data.agentName},
           </p>
 
           <h1 style="color:#111;font-size:28px;font-weight:400;margin:0 0 8px;line-height:1.2;letter-spacing:-0.01em;">

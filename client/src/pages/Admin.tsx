@@ -1587,7 +1587,7 @@ function QuotesDashboard({
                 <div key={q.slug} className="bg-white rounded-xl border border-zinc-200 p-4 flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-zinc-900">{q.quoteNumber}</p>
-                    <p className="text-xs text-zinc-400">{q.agentName || q.clientName || "No client"}</p>
+                    <p className="text-xs text-zinc-400">{q.quoteType === "homeowner" ? (q.agentName || q.clientName || "No client") : (q.clientName || "No client")}</p>
                   </div>
                   <button
                     onClick={() => { if (confirm(`Restore ${q.quoteNumber}?`)) { restoreMutation.mutate({ password, slug: q.slug }, { onSuccess: () => { refetchArchived(); refetch(); } }); } }}
@@ -1699,7 +1699,7 @@ function QuotesDashboard({
                       </td>
                       <td className="py-3 pr-3 max-w-[200px]">
                         <p className="text-xs font-medium text-zinc-800 truncate">
-                          {q.agentName || q.clientName || "No client"}
+                          {q.quoteType === "homeowner" ? (q.agentName || q.clientName || "No client") : (q.clientName || "No client")}
                         </p>
                         {q.propertyAddress && (
                           <p className="text-[10px] text-zinc-400 truncate mt-0.5">{q.propertyAddress}</p>
@@ -2617,7 +2617,7 @@ function QuoteEditor({
           {(config.quoteType === 'agent' || config.quoteType === 'real_estate' || config.quoteType === 'agency_single') && (
             <div className="mb-2">
               <EmailTemplateButton
-                clientName={agentFields.name || config.client?.name}
+                clientName={config.client?.name || agentFields.name}
                 quoteLink={`${window.location.origin}/quote/${slug}`}
                 propertyAddress={config.property?.address || undefined}
                 onCopied={() => {
@@ -2628,7 +2628,7 @@ function QuoteEditor({
             </div>
           )}
           <TemplateMessageButtons
-            clientName={(config.quoteType === 'agent' || config.quoteType === 'real_estate' || config.quoteType === 'agency_single') ? (agentFields.name || config.client?.name) : config.client?.name}
+            clientName={config.client?.name || agentFields.name}
             quoteLink={`${window.location.origin}/quote/${slug}`}
             quoteSlug={slug}
             phone={agentFields.phone || undefined}
@@ -3021,8 +3021,8 @@ function QuoteEditor({
           const contactDesc = isHomeowner
             ? "The quote link will be emailed to the homeowner. You can update these details and resend at any time."
             : "The quote link will be emailed to the agent. You can update these details and resend at any time.";
-          // For agency quotes: Agent Name IS the property manager — relabel and remove separate PM field
-          const nameLabel = isHomeowner ? "Homeowner Name" : "Property Manager";
+          // For agency quotes: no PM name shown. For homeowner: show their name.
+          const showNameField = isHomeowner;
           const emailLabel = isHomeowner ? "Homeowner Email" : "Agent Email";
           const phoneLabel = isHomeowner ? "Homeowner Phone" : "Agent Phone";
           const emailErrorMsg = isHomeowner ? "Enter a homeowner email first" : "Enter an agent email first";
@@ -3033,12 +3033,13 @@ function QuoteEditor({
             <Section title={contactLabel} defaultOpen={true}>
               <p className="text-xs text-zinc-400 mb-3">{contactDesc}</p>
               <div className="space-y-2 mb-3">
-                <Field
-                  label={nameLabel}
-                  value={agentFields.name}
-                  onChange={(v) => setAgentFields(f => ({ ...f, name: v }))}
-                />
-                {/* Property Manager field removed — Agent Name is relabelled to Property Manager for agency quotes */}
+                {showNameField && (
+                  <Field
+                    label="Homeowner Name"
+                    value={agentFields.name}
+                    onChange={(v) => setAgentFields(f => ({ ...f, name: v }))}
+                  />
+                )}
                 <Field
                   label={emailLabel}
                   value={agentFields.email}

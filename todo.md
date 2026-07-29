@@ -168,3 +168,14 @@
 - [x] Optional chaining on config.client, config.property (prevent crash on undefined)
 - [x] Safe array access on config.addons, config.scopeOfWorks, config.terms (prevent .map crash)
 - [x] Fix "undefined" showing in quote number/date/days input fields
+
+## Phase 18: CLIENT Column Fix
+- [x] Show agency name (clientName) for agency/real_estate quotes in CLIENT column
+- [x] Show property manager name (agentName) only for homeowner quotes in CLIENT column
+- [x] Backfill agency names from email domains into configJson.client.name for all agency quotes
+- [x] Remove Property Manager name field from quote editor for agency quotes
+
+## Phase 18b: Expiry Reminder Email Fixes
+- [x] Fix "Dear [name]" to use agency name instead of PM name for agency quotes
+- [x] Fix empty PROPERTY field in expiry reminder emails (populates from configJson when quote is saved from editor)
+- [x] Fix empty CLIENT field in expiry reminder emails (backfill populated config.client.name)
