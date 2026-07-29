@@ -154,3 +154,17 @@
 - [x] Remove Agencies from mobile bottom nav
 - [x] Remove Agencies tab component/view routing
 - [x] Keep Contacts as the single contact management view
+
+## Phase 17: Light Theme Consistency Fixes
+- [x] Remove revenue dollar amount from Calendar monthly summary
+- [x] Contacts tab: white cards with dark text to match light theme
+- [x] Library tab: white cards with dark text to match light theme
+- [x] Notifications tab: light theme input and styling
+- [x] Field component updated to light theme (all inputs across CRM)
+- [x] Quote editor: light theme (white bg, dark text, proper borders)
+- [x] Section accordion component: light theme
+- [x] ContactPicker dropdown: light theme
+- [x] Quote editor loading guard (prevent crash when config is null)
+- [x] Optional chaining on config.client, config.property (prevent crash on undefined)
+- [x] Safe array access on config.addons, config.scopeOfWorks, config.terms (prevent .map crash)
+- [x] Fix "undefined" showing in quote number/date/days input fields

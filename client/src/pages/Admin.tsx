@@ -146,18 +146,18 @@ function PasswordGate({
             alt="Bell Carpets"
             className="h-10 mx-auto mb-1"
           />
-          <p className="text-[9px] tracking-[0.25em] text-white/50 uppercase font-light mb-4">RESIDENTIAL | COMMERCIAL | PROJECTS</p>
+          <p className="text-[9px] tracking-[0.25em] text-zinc-500 uppercase font-light mb-4">RESIDENTIAL | COMMERCIAL | PROJECTS</p>
           <h1 className="text-xl text-white font-semibold">
             Admin Panel
           </h1>
-          <p className="text-sm text-white/40 mt-1">Quote Manager</p>
+          <p className="text-sm text-zinc-400 mt-1">Quote Manager</p>
         </div>
         <input
           type="password"
           placeholder="Enter password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full px-4 py-3 rounded-xl bg-zinc-900 border border-white/10 text-white placeholder:text-white/30 focus:border-white/50 focus:outline-none mb-3"
+          className="w-full px-4 py-3 rounded-xl bg-zinc-900 border border-white/10 text-white placeholder:text-zinc-400 focus:border-white/50 focus:outline-none mb-3"
         />
         {error && <p className="text-red-400 text-sm mb-3">{error}</p>}
         <button
@@ -185,17 +185,17 @@ function Section({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="mb-4 bg-zinc-800/50 rounded-xl border border-white/10 overflow-hidden">
+    <div className="mb-4 bg-white rounded-xl border border-zinc-200 overflow-hidden shadow-sm">
       <button
         type="button"
         onClick={() => setOpen(!open)}
         className="w-full px-4 py-3 flex items-center justify-between text-left"
       >
-        <span className="text-sm font-medium text-white">{title}</span>
+        <span className="text-sm font-medium text-zinc-900">{title}</span>
         {open ? (
-          <ChevronUp className="w-4 h-4 text-white/50" />
+          <ChevronUp className="w-4 h-4 text-zinc-400" />
         ) : (
-          <ChevronDown className="w-4 h-4 text-white/50" />
+          <ChevronDown className="w-4 h-4 text-zinc-400" />
         )}
       </button>
       {open && <div className="px-4 pb-4 space-y-3">{children}</div>}
@@ -236,7 +236,7 @@ function Field({
   if (multiline) {
     return (
       <div>
-        <label className="block text-xs text-white/50 mb-1">{label}</label>
+        <label className="block text-xs text-zinc-500 mb-1">{label}</label>
         <textarea
           value={String(value)}
           onChange={(e) => {
@@ -254,7 +254,7 @@ function Field({
           }}
           placeholder={placeholder}
           rows={2}
-          className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-white focus:outline-none resize-none overflow-hidden"
+          className="w-full px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none resize-none overflow-hidden"
         />
       </div>
     );
@@ -262,7 +262,7 @@ function Field({
 
   return (
     <div>
-      <label className="block text-xs text-white/50 mb-1">{label}</label>
+      <label className="block text-xs text-zinc-500 mb-1">{label}</label>
       <input
         type={isNumber ? 'text' : type}
         inputMode={isNumber ? 'numeric' : undefined}
@@ -293,7 +293,7 @@ function Field({
           }
         }}
         placeholder={placeholder}
-        className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-white focus:outline-none"
+        className="w-full px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none"
       />
     </div>
   );
@@ -325,7 +325,7 @@ function ComboSelect({
   const showCustom = isCustom || forceCustom;
   return (
     <div>
-      <label className="block text-xs text-white/50 mb-1">{label}</label>
+      <label className="block text-xs text-zinc-500 mb-1">{label}</label>
       {!showCustom ? (
         <div className="relative">
           <select
@@ -335,14 +335,14 @@ function ComboSelect({
               else onChange(e.target.value);
             }}
             style={{ WebkitAppearance: "none", appearance: "none" }}
-            className="w-full px-3 py-2 pr-8 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-white focus:outline-none"
+            className="w-full px-3 py-2 pr-8 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none"
           >
             <option value="">{placeholder || `Select ${label}`}</option>
             {options.map((o) => <option key={o} value={o}>{o}</option>)}
             <option value="__custom__">Other (type custom)…</option>
           </select>
           {/* Custom chevron visible on all platforms */}
-          <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 text-xs">▾</span>
+          <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 text-xs">▾</span>
         </div>
       ) : (
         <div className="flex gap-2">
@@ -351,9 +351,9 @@ function ComboSelect({
             placeholder={`Type custom ${label.toLowerCase()}`}
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            className="flex-1 px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-white focus:outline-none"
+            className="flex-1 px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none"
           />
-          <button type="button" onClick={() => { setForceCustom(false); onChange(""); }} className="px-2 py-1 text-xs text-white/40 hover:text-white border border-white/10 rounded-lg">List</button>
+          <button type="button" onClick={() => { setForceCustom(false); onChange(""); }} className="px-2 py-1 text-xs text-zinc-400 hover:text-zinc-900 border border-zinc-200 rounded-lg">List</button>
         </div>
       )}
     </div>
@@ -379,13 +379,13 @@ function HomeownerProductEditor({
       </div>
       {/* Row 2: Colour Name */}
       <div>
-        <label className="block text-xs text-white/50 mb-1">Colour Name</label>
+        <label className="block text-xs text-zinc-500 mb-1">Colour Name</label>
         <input
           type="text"
           placeholder="e.g. Charcoal, Silver Birch, Ocean Mist"
           value={product.colourName || ""}
           onChange={(e) => update({ colourName: e.target.value })}
-          className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-white focus:outline-none"
+          className="w-full px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none"
         />
       </div>
       {/* Row 3: Fibre + Style */}
@@ -395,18 +395,18 @@ function HomeownerProductEditor({
       </div>
       {/* Row 4: Underlay */}
       <div>
-        <label className="block text-xs text-white/50 mb-1">Underlay</label>
+        <label className="block text-xs text-zinc-500 mb-1">Underlay</label>
         <div className="relative">
           <select
             value={product.underlay || ""}
             onChange={(e) => update({ underlay: e.target.value as import("../../../shared/quoteConfigTypes").UnderlayOption })}
             style={{ WebkitAppearance: "none", appearance: "none" }}
-            className="w-full px-3 py-2 pr-8 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-white focus:outline-none"
+            className="w-full px-3 py-2 pr-8 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none"
           >
             <option value="">No underlay selected</option>
             {UNDERLAY_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
           </select>
-          <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 text-xs">▾</span>
+          <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 text-xs">▾</span>
         </div>
       </div>
       <Field label="Price (inc GST, whole dollars)" value={product.price} onChange={(v) => update({ price: parseInt(v) || 0 })} type="number" />
@@ -414,10 +414,10 @@ function HomeownerProductEditor({
 
       {/* Badges */}
       <div>
-        <label className="block text-xs text-white/50 mb-1">Badges / Certifications</label>
+        <label className="block text-xs text-zinc-500 mb-1">Badges / Certifications</label>
         <div className="flex flex-wrap gap-2 mb-2">
           {product.badges.map((badge, i) => (
-            <div key={i} className="flex items-center gap-1 bg-zinc-900 px-2 py-1 rounded border border-white/10 text-xs text-white/60">
+            <div key={i} className="flex items-center gap-1 bg-zinc-100 px-2 py-1 rounded border border-zinc-200 text-xs text-zinc-600">
               <input
                 value={badge}
                 onChange={(e) => {
@@ -425,14 +425,14 @@ function HomeownerProductEditor({
                   badges[i] = e.target.value;
                   update({ badges });
                 }}
-                className="bg-transparent border-none text-xs text-white/60 focus:outline-none w-24"
+                className="bg-transparent border-none text-xs text-zinc-600 focus:outline-none w-24"
               />
               <button type="button" onClick={() => update({ badges: product.badges.filter((_, bi) => bi !== i) })} className="text-red-400">
                 <Trash2 className="w-3 h-3" />
               </button>
             </div>
           ))}
-          <button type="button" onClick={() => update({ badges: [...product.badges, ""] })} className="text-xs text-white border border-dashed border-white/20 px-2 py-1 rounded hover:bg-white/10">
+          <button type="button" onClick={() => update({ badges: [...product.badges, ""] })} className="text-xs text-zinc-600 border border-dashed border-zinc-300 px-2 py-1 rounded hover:bg-zinc-100">
             <Plus className="w-3 h-3 inline mr-1" />Add
           </button>
         </div>
@@ -523,41 +523,41 @@ function TierEditor({
 
       {/* Carpet Colour */}
       <div>
-        <label className="block text-xs text-white/50 mb-1">Carpet Colour</label>
+        <label className="block text-xs text-zinc-500 mb-1">Carpet Colour</label>
         <input
           type="text"
           placeholder="e.g. Charcoal, Silver Birch, Ocean Mist"
           value={tier.colourName || ""}
           onChange={(e) => update({ colourName: e.target.value })}
-          className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-white focus:outline-none"
+          className="w-full px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none"
         />
       </div>
       {/* Underlay */}
       <div>
-        <label className="block text-xs text-white/50 mb-1">Underlay</label>
+        <label className="block text-xs text-zinc-500 mb-1">Underlay</label>
         <div className="relative">
           <select
             value={tier.underlay || ""}
             onChange={(e) => update({ underlay: e.target.value as import("../../../shared/quoteConfigTypes").UnderlayOption })}
             style={{ WebkitAppearance: "none", appearance: "none" }}
-            className="w-full px-3 py-2 pr-8 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-white focus:outline-none"
+            className="w-full px-3 py-2 pr-8 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none"
           >
             <option value="">No underlay selected</option>
             {UNDERLAY_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
           </select>
-          <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 text-xs">▾</span>
+          <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 text-xs">▾</span>
         </div>
       </div>
       {/* Badges */}
       <div>
-        <label className="block text-xs text-white/50 mb-1">
+        <label className="block text-xs text-zinc-500 mb-1">
           Badges / Certifications
         </label>
         <div className="flex flex-wrap gap-2 mb-2">
           {tier.badges.map((badge, i) => (
             <div
               key={i}
-              className="flex items-center gap-1 bg-zinc-900 px-2 py-1 rounded border border-white/10 text-xs text-white/60"
+              className="flex items-center gap-1 bg-zinc-100 px-2 py-1 rounded border border-zinc-200 text-xs text-zinc-600"
             >
               <input
                 value={badge}
@@ -566,7 +566,7 @@ function TierEditor({
                   badges[i] = e.target.value;
                   update({ badges });
                 }}
-                className="bg-transparent border-none text-xs text-white/60 focus:outline-none w-24"
+                className="bg-transparent border-none text-xs text-zinc-600 focus:outline-none w-24"
               />
               <button
                 type="button"
@@ -582,7 +582,7 @@ function TierEditor({
           <button
             type="button"
             onClick={() => update({ badges: [...tier.badges, ""] })}
-            className="text-xs text-white border border-dashed border-white/20 px-2 py-1 rounded hover:bg-white/10"
+            className="text-xs text-zinc-600 border border-dashed border-zinc-300 px-2 py-1 rounded hover:bg-zinc-100"
           >
             <Plus className="w-3 h-3 inline mr-1" />
             Add
@@ -742,7 +742,7 @@ function TemplateMessageButtons({
     <div onClick={(e) => e.stopPropagation()}>
       <button
         onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
-        className="w-full py-1.5 rounded-lg text-xs text-white/50 hover:text-white/70 hover:bg-white/[0.04] transition-colors flex items-center justify-center gap-1.5"
+        className="w-full py-1.5 rounded-lg text-xs text-zinc-500 hover:text-zinc-700 hover:bg-zinc-100 transition-colors flex items-center justify-center gap-1.5"
       >
         <MessageSquare className="w-3 h-3" />
         {expanded ? "Hide Templates" : "Text Templates"}
@@ -754,13 +754,13 @@ function TemplateMessageButtons({
             <button
               key={t.id}
               onClick={(e) => openSms(e, t.template(clientName || "there", quoteLink, propertyAddress))}
-              className="w-full text-left px-3 py-2 rounded-lg bg-white/[0.03] hover:bg-white/[0.06] border border-white/5 transition-colors group"
+              className="w-full text-left px-3 py-2 rounded-lg bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 transition-colors group"
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-white/70 group-hover:text-white/90">{t.label}</span>
-                <MessageSquare className="w-3 h-3 text-white/30 group-hover:text-amber-400 transition-colors" />
+                <span className="text-xs font-medium text-zinc-700 group-hover:text-zinc-900">{t.label}</span>
+                <MessageSquare className="w-3 h-3 text-zinc-400 group-hover:text-amber-500 transition-colors" />
               </div>
-              <p className="text-[10px] text-white/30 mt-0.5 line-clamp-2">
+              <p className="text-[10px] text-zinc-400 mt-0.5 line-clamp-2">
                 {t.template(clientName || "there", quoteLink, propertyAddress).substring(0, 80)}...
               </p>
             </button>
@@ -775,7 +775,7 @@ function TemplateMessageButtons({
                 <span className="text-xs font-medium text-purple-300 group-hover:text-purple-200">Job Scheduled</span>
                 <MessageSquare className="w-3 h-3 text-purple-400/50 group-hover:text-purple-400 transition-colors" />
               </div>
-              <p className="text-[10px] text-white/30 mt-0.5 line-clamp-2">
+              <p className="text-[10px] text-zinc-400 mt-0.5 line-clamp-2">
                 {scheduledMsg.substring(0, 80)}...
               </p>
             </button>
@@ -790,7 +790,7 @@ function TemplateMessageButtons({
                 <span className="text-xs font-medium text-orange-300 group-hover:text-orange-200">Expiry Reminder</span>
                 <MessageSquare className="w-3 h-3 text-orange-400/50 group-hover:text-orange-400 transition-colors" />
               </div>
-              <p className="text-[10px] text-white/30 mt-0.5 line-clamp-2">
+              <p className="text-[10px] text-zinc-400 mt-0.5 line-clamp-2">
                 {expiryReminderMsg.substring(0, 80)}...
               </p>
             </button>
@@ -807,7 +807,7 @@ function TemplateMessageButtons({
                 </span>
                 <MessageSquare className="w-3 h-3 text-emerald-400/50 group-hover:text-emerald-400 transition-colors" />
               </div>
-              <p className="text-[10px] text-white/30 mt-0.5 line-clamp-2">
+              <p className="text-[10px] text-zinc-400 mt-0.5 line-clamp-2">
                 {balanceMsg.substring(0, 80)}...
               </p>
             </button>
@@ -827,7 +827,7 @@ function TemplateMessageButtons({
                   </span>
                   <MessageSquare className="w-3 h-3 text-amber-400/50 group-hover:text-amber-400 transition-colors" />
                 </div>
-                <p className="text-[10px] text-white/30 mt-0.5 line-clamp-2">
+                <p className="text-[10px] text-zinc-400 mt-0.5 line-clamp-2">
                   {reviewMsg.substring(0, 80)}...
                 </p>
               </button>
@@ -1816,7 +1816,7 @@ function PaymentTermsInput({ value, onChange }: { value: number; onChange: (v: n
         }
         setDisplayValue(null);
       }}
-      className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-amber-500/50 focus:outline-none"
+      className="w-full px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-amber-500/50 focus:outline-none"
     />
   );
 }
@@ -1831,7 +1831,7 @@ function ViewAnalyticsPanel({ password, slug, viewCount, lastViewedAt }: { passw
   );
 
   return (
-    <div className="mb-4 rounded-xl bg-zinc-800/30 border border-white/5 overflow-hidden">
+    <div className="mb-4 rounded-xl bg-white border border-zinc-200 overflow-hidden shadow-sm">
       {/* Summary row */}
       <button
         type="button"
@@ -1843,14 +1843,14 @@ function ViewAnalyticsPanel({ password, slug, viewCount, lastViewedAt }: { passw
           <div className="flex items-center gap-2 text-sm flex-1">
             <span className="text-cyan-400 font-medium">{viewCount} view{viewCount !== 1 ? 's' : ''}</span>
             {lastViewedAt && (
-              <span className="text-white/35">· Last viewed {formatRelativeTime(new Date(lastViewedAt as string))}</span>
+              <span className="text-zinc-400">· Last viewed {formatRelativeTime(new Date(lastViewedAt as string))}</span>
             )}
           </div>
         ) : (
-          <span className="text-sm text-white/30 flex-1">Not yet viewed by client</span>
+          <span className="text-sm text-zinc-400 flex-1">Not yet viewed by client</span>
         )}
         {viewCount > 0 && (
-          <ChevronDown className={`w-4 h-4 text-white/40 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+          <ChevronDown className={`w-4 h-4 text-zinc-400 transition-transform ${expanded ? 'rotate-180' : ''}`} />
         )}
         {analytics?.sharingAlert && (
           <span className="inline-flex items-center gap-1 text-amber-400 text-xs font-medium">
@@ -1861,20 +1861,20 @@ function ViewAnalyticsPanel({ password, slug, viewCount, lastViewedAt }: { passw
 
       {/* Expanded analytics */}
       {expanded && viewCount > 0 && (
-        <div className="px-4 pb-4 border-t border-white/5">
+        <div className="px-4 pb-4 border-t border-zinc-100">
           {isLoading ? (
-            <div className="py-4 text-center text-white/30 text-sm"><Loader2 className="w-4 h-4 animate-spin inline mr-2" />Loading analytics...</div>
+            <div className="py-4 text-center text-zinc-400 text-sm"><Loader2 className="w-4 h-4 animate-spin inline mr-2" />Loading analytics...</div>
           ) : analytics ? (
             <div className="mt-3 space-y-3">
               {/* Summary stats */}
               <div className="flex gap-4 text-xs">
                 <div className="px-3 py-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
                   <span className="text-cyan-400 font-semibold">{analytics.uniqueIPs}</span>
-                  <span className="text-white/40 ml-1">unique IP{analytics.uniqueIPs !== 1 ? 's' : ''}</span>
+                  <span className="text-zinc-400 ml-1">unique IP{analytics.uniqueIPs !== 1 ? 's' : ''}</span>
                 </div>
-                <div className="px-3 py-1.5 rounded-lg bg-zinc-700/50 border border-white/10">
-                  <span className="text-white/70 font-semibold">{analytics.visitors.length}</span>
-                  <span className="text-white/40 ml-1">visitor{analytics.visitors.length !== 1 ? 's' : ''}</span>
+                <div className="px-3 py-1.5 rounded-lg bg-zinc-100 border border-zinc-200">
+                  <span className="text-zinc-700 font-semibold">{analytics.visitors.length}</span>
+                  <span className="text-zinc-400 ml-1">visitor{analytics.visitors.length !== 1 ? 's' : ''}</span>
                 </div>
                 {analytics.sharingAlert && (
                   <div className="px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center gap-1">
@@ -1893,14 +1893,14 @@ function ViewAnalyticsPanel({ password, slug, viewCount, lastViewedAt }: { passw
                     .sort((a: Date, b: Date) => b.getTime() - a.getTime());
 
                   return (
-                    <div key={i} className="rounded-lg border border-white/10 bg-zinc-800/40 px-3 py-2.5">
+                    <div key={i} className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2.5">
                       {/* IP + meta row */}
                       <div className="flex items-center gap-2 flex-wrap mb-1.5">
-                        <span className="font-mono text-xs text-white/70">
+                        <span className="font-mono text-xs text-zinc-700">
                           {v.ipAddress === 'unknown' ? '—' : v.ipAddress}
                         </span>
                         {(v.city || v.country) && (
-                          <span className="text-[11px] text-white/40">
+                          <span className="text-[11px] text-zinc-400">
                             {v.city ? `${v.city}, ${v.country}` : v.country}
                           </span>
                         )}
@@ -1908,9 +1908,9 @@ function ViewAnalyticsPanel({ password, slug, viewCount, lastViewedAt }: { passw
                           v.deviceType === 'mobile' ? 'bg-purple-500/20 text-purple-300' :
                           v.deviceType === 'tablet' ? 'bg-blue-500/20 text-blue-300' :
                           v.deviceType === 'bot' ? 'bg-red-500/20 text-red-300' :
-                          'bg-zinc-600/50 text-white/60'
+                          'bg-zinc-600/50 text-zinc-500'
                         }`}>{v.deviceType || 'desktop'}</span>
-                        <span className="ml-auto text-[11px] text-white/40">
+                        <span className="ml-auto text-[11px] text-zinc-400">
                           {v.viewCount} view{v.viewCount !== 1 ? 's' : ''}
                         </span>
                       </div>
@@ -2352,7 +2352,7 @@ function QuoteEditor({
     field: keyof AddonConfig,
     value: string | number
   ) => {
-    const addons = [...config.addons];
+    const addons = [...(config.addons || [])];
     addons[idx] = { ...addons[idx]!, [field]: value };
     updateConfig({ addons });
   };
@@ -2367,7 +2367,7 @@ function QuoteEditor({
   };
 
   const removeAddon = (idx: number) => {
-    updateConfig({ addons: config.addons.filter((_, i) => i !== idx) });
+    updateConfig({ addons: (config.addons || []).filter((_, i) => i !== idx) });
   };
 
   const updateScope = (
@@ -2375,35 +2375,35 @@ function QuoteEditor({
     field: keyof ScopeItemConfig,
     value: string
   ) => {
-    const scopeOfWorks = [...config.scopeOfWorks];
+    const scopeOfWorks = [...(config.scopeOfWorks || [])];
     scopeOfWorks[idx] = { ...scopeOfWorks[idx]!, [field]: value };
     updateConfig({ scopeOfWorks });
   };
 
   const addScope = () => {
     updateConfig({
-      scopeOfWorks: [...config.scopeOfWorks, { title: "", description: "" }],
+      scopeOfWorks: [...(config.scopeOfWorks || []), { title: "", description: "" }],
     });
   };
 
   const removeScope = (idx: number) => {
     updateConfig({
-      scopeOfWorks: config.scopeOfWorks.filter((_, i) => i !== idx),
+      scopeOfWorks: (config.scopeOfWorks || []).filter((_, i) => i !== idx),
     });
   };
 
   const updateTerm = (idx: number, value: string) => {
-    const terms = [...config.terms];
+    const terms = [...(config.terms || [])];
     terms[idx] = value;
     updateConfig({ terms });
   };
 
   const addTerm = () => {
-    updateConfig({ terms: [...config.terms, ""] });
+    updateConfig({ terms: [...(config.terms || []), ""] });
   };
 
   const removeTerm = (idx: number) => {
-    updateConfig({ terms: config.terms.filter((_, i) => i !== idx) });
+    updateConfig({ terms: (config.terms || []).filter((_, i) => i !== idx) });
   };
 
   // Copy the public quote link to clipboard; auto-advance draft → quote_sent
@@ -2468,35 +2468,43 @@ function QuoteEditor({
     }
   };
 
+  if (!config || isLoading) {
+    return (
+      <div className="min-h-screen bg-zinc-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-zinc-400" />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-zinc-900 text-white">
+    <div className="min-h-screen bg-zinc-50 text-zinc-900">
       {/* Header */}
-      <div className="sticky top-0 z-50 bg-white/5 backdrop-blur border-b border-white/10">
+      <div className="sticky top-0 z-50 bg-white/80 backdrop-blur border-b border-zinc-200">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={onBack}
               className="p-1.5 rounded-lg hover:bg-white/[0.04] transition-colors"
             >
-              <ArrowLeft className="w-5 h-5 text-white/50" />
+              <ArrowLeft className="w-5 h-5 text-zinc-500" />
             </button>
             <div>
               <h1
-                className="text-lg text-white leading-tight"
+                className="text-lg text-zinc-900 leading-tight"
                 
               >
                 {quoteData?.quoteNumber || "Quote Editor"}
               </h1>
-              <p className="text-xs text-white/40">
-                {config.client.name || "No client"} ·{" "}
-                {config.property.address || "No address"}
+              <p className="text-xs text-zinc-500">
+                {config.client?.name || "No client"} ·{" "}
+                {config.property?.address || "No address"}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={handleExportPDF}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 text-white font-semibold text-sm hover:bg-white/20 transition-colors border border-white/20"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-100 text-zinc-700 font-semibold text-sm hover:bg-zinc-200 transition-colors border border-zinc-200"
             >
               <Download className="w-4 h-4" />
               PDF
@@ -2504,7 +2512,7 @@ function QuoteEditor({
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black font-semibold text-sm hover:bg-white/90 disabled:opacity-50 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-900 text-white font-semibold text-sm hover:bg-zinc-800 disabled:opacity-50 transition-colors"
             >
               {saving ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -2523,7 +2531,7 @@ function QuoteEditor({
         <div className="flex gap-2 mb-2">
           <button
             onClick={handleCopyQuoteLink}
-            className="flex-1 py-2.5 rounded-xl bg-zinc-800/50 border border-white/10 text-sm text-white/60 hover:border-white hover:text-white transition-colors flex items-center justify-center gap-2"
+            className="flex-1 py-2.5 rounded-xl bg-white border border-zinc-200 text-sm text-zinc-600 hover:border-zinc-900 hover:text-zinc-900 transition-colors flex items-center justify-center gap-2 shadow-sm"
           >
             <Copy className="w-4 h-4" /> Copy Quote Link
           </button>
@@ -2531,7 +2539,7 @@ function QuoteEditor({
             href={`/quote/${slug}?preview=1`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 py-2.5 rounded-xl bg-zinc-800/50 border border-white/10 text-sm text-white/60 hover:border-white hover:text-white transition-colors flex items-center justify-center gap-2"
+            className="flex-1 py-2.5 rounded-xl bg-white border border-zinc-200 text-sm text-zinc-600 hover:border-zinc-900 hover:text-zinc-900 transition-colors flex items-center justify-center gap-2 shadow-sm"
           >
             <ExternalLink className="w-4 h-4" /> Preview
           </a>
@@ -2546,7 +2554,7 @@ function QuoteEditor({
               }
             }}
             disabled={duplicateQuoteMutation.isPending}
-            className="flex-1 py-2.5 rounded-xl bg-zinc-800/50 border border-white/10 text-sm text-white/60 hover:border-white hover:text-white transition-colors flex items-center justify-center gap-2"
+            className="flex-1 py-2.5 rounded-xl bg-white border border-zinc-200 text-sm text-zinc-600 hover:border-zinc-900 hover:text-zinc-900 transition-colors flex items-center justify-center gap-2 shadow-sm"
           >
             {duplicateQuoteMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <CopyPlus className="w-4 h-4" />}
             Duplicate
@@ -2564,7 +2572,7 @@ function QuoteEditor({
               {reactivatingQuote ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
               Reactivate Quote
             </button>
-            <p className="text-xs text-white/30 text-center mt-1.5">Resets to Draft — new 10-day expiry</p>
+            <p className="text-xs text-zinc-400 text-center mt-1.5">Resets to Draft — new 10-day expiry</p>
           </div>
         )}
 
@@ -2581,7 +2589,7 @@ function QuoteEditor({
             ) : (
               <div className="rounded-xl border border-red-500/50 bg-red-950/40 p-4">
                 <p className="text-sm text-red-300 font-semibold mb-1">Cancel this quote?</p>
-                <p className="text-xs text-white/50 mb-3">The customer link will show a blocked page. You can restore the status manually if needed.</p>
+                <p className="text-xs text-zinc-500 mb-3">The customer link will show a blocked page. You can restore the status manually if needed.</p>
                 <div className="flex gap-2">
                   <button
                     onClick={handleCancelQuote}
@@ -2593,7 +2601,7 @@ function QuoteEditor({
                   </button>
                   <button
                     onClick={() => setCancelConfirmOpen(false)}
-                    className="flex-1 px-3 py-2.5 rounded-lg bg-white/[0.06] text-white/60 text-sm font-medium hover:text-white transition-colors"
+                    className="flex-1 px-3 py-2.5 rounded-lg bg-zinc-100 text-zinc-500 text-sm font-medium hover:text-zinc-900 transition-colors"
                   >
                     Keep Quote
                   </button>
@@ -2609,7 +2617,7 @@ function QuoteEditor({
           {(config.quoteType === 'agent' || config.quoteType === 'real_estate' || config.quoteType === 'agency_single') && (
             <div className="mb-2">
               <EmailTemplateButton
-                clientName={agentFields.name || config.client.name}
+                clientName={agentFields.name || config.client?.name}
                 quoteLink={`${window.location.origin}/quote/${slug}`}
                 propertyAddress={config.property?.address || undefined}
                 onCopied={() => {
@@ -2620,7 +2628,7 @@ function QuoteEditor({
             </div>
           )}
           <TemplateMessageButtons
-            clientName={(config.quoteType === 'agent' || config.quoteType === 'real_estate' || config.quoteType === 'agency_single') ? (agentFields.name || config.client.name) : config.client.name}
+            clientName={(config.quoteType === 'agent' || config.quoteType === 'real_estate' || config.quoteType === 'agency_single') ? (agentFields.name || config.client?.name) : config.client?.name}
             quoteLink={`${window.location.origin}/quote/${slug}`}
             quoteSlug={slug}
             phone={agentFields.phone || undefined}
@@ -2721,7 +2729,7 @@ function QuoteEditor({
                 <div className="flex-1 min-w-0">
                   <p className={`text-sm font-semibold ${currentCfg.color}`}>{currentCfg.label}</p>
                   {quoteData.acceptedTier && (
-                    <p className="text-xs text-white/40 truncate">
+                    <p className="text-xs text-zinc-400 truncate">
                       {quoteData.acceptedTier} · {quoteData.acceptedColour} · ${quoteData.acceptedTotal?.toLocaleString()}
                       {quoteData.acceptedAt && ` · ${formatAESTDate(new Date(quoteData.acceptedAt), { day: 'numeric', month: 'short' })}`}
                     </p>
@@ -2760,7 +2768,7 @@ function QuoteEditor({
                   </div>
                 )}
                 {nextCfgs.length === 0 && (
-                  <span className="text-xs text-white/30 flex-shrink-0">Final stage</span>
+                  <span className="text-xs text-zinc-400 flex-shrink-0">Final stage</span>
                 )}
               </div>
 
@@ -2790,11 +2798,11 @@ function QuoteEditor({
                               : "bg-zinc-800 border-white/10"
                           }`}>
                             <Icon className={`w-3.5 h-3.5 ${
-                              isCurrent ? s.color : isPast ? "text-white/60" : "text-white/20"
+                              isCurrent ? s.color : isPast ? "text-zinc-500" : "text-zinc-300"
                             }`} />
                           </div>
                           <span className={`text-[9px] leading-tight text-center max-w-[44px] ${
-                            isCurrent ? s.color : isFuture ? "text-white/20" : "text-white/40"
+                            isCurrent ? s.color : isFuture ? "text-zinc-300" : "text-zinc-400"
                           }`}>{s.label}</span>
                         </button>
                         {idx < edPipeline.length - 1 && (
@@ -2811,8 +2819,8 @@ function QuoteEditor({
               {/* Agent notes if present */}
               {quoteData.acceptedNotes && (
                 <div className="px-4 py-3 border-t border-white/10 bg-zinc-900/30">
-                  <p className="text-xs text-white/40 uppercase tracking-wider mb-1">Agent Notes</p>
-                  <p className="text-sm text-white/70 whitespace-pre-wrap">{quoteData.acceptedNotes}</p>
+                  <p className="text-xs text-zinc-400 uppercase tracking-wider mb-1">Agent Notes</p>
+                  <p className="text-sm text-zinc-600 whitespace-pre-wrap">{quoteData.acceptedNotes}</p>
                 </div>
               )}
             </div>
@@ -2829,19 +2837,19 @@ function QuoteEditor({
           <div className="grid grid-cols-2 gap-3">
             <Field
               label="Quote Number"
-              value={config.quoteNumber}
+              value={config.quoteNumber || ""}
               onChange={(v) => updateConfig({ quoteNumber: v })}
             />
             <Field
               label="Issue Date"
-              value={config.issueDate}
+              value={config.issueDate || ""}
               onChange={(v) => updateConfig({ issueDate: v })}
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <Field
               label="Valid Days"
-              value={config.validDays}
+              value={config.validDays ?? ""}
               onChange={(v) => updateConfig({ validDays: parseInt(v) || 10 })}
               type="number"
             />
@@ -2849,7 +2857,7 @@ function QuoteEditor({
             {config.quoteType === "homeowner" && (
               <Field
                 label="Deposit % (0 = full payment on completion)"
-                value={config.depositPercent}
+                value={config.depositPercent ?? 0}
                 onChange={(v) => {
                   const parsed = parseInt(v, 10);
                   updateConfig({ depositPercent: isNaN(parsed) ? 0 : Math.min(100, Math.max(0, parsed)) });
@@ -2860,7 +2868,7 @@ function QuoteEditor({
           </div>
           {/* Discount / Credit — available on all quote types */}
           <div className="mt-3">
-            <label className="block text-xs text-white/50 mb-1">Discount / Credit ($)</label>
+            <label className="block text-xs text-zinc-500 mb-1">Discount / Credit ($)</label>
             <input
               type="number"
               min="0"
@@ -2871,7 +2879,7 @@ function QuoteEditor({
                 const v = parseInt(e.target.value, 10);
                 setDiscountAmount(isNaN(v) ? 0 : Math.max(0, v));
               }}
-              className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-amber-500/30 text-white text-sm focus:border-amber-400 focus:outline-none placeholder-white/20"
+              className="w-full px-3 py-2 rounded-lg bg-amber-50 border border-amber-200 text-zinc-900 text-sm focus:border-amber-400 focus:outline-none placeholder-zinc-400"
             />
             {discountAmount > 0 && (
               <p className="text-xs text-amber-400/70 mt-1">
@@ -2881,25 +2889,25 @@ function QuoteEditor({
           </div>
           {/* Expiry Date */}
           <div className="mt-2">
-            <label className="block text-xs text-white/50 mb-1.5">Expiry Date</label>
+            <label className="block text-xs text-zinc-500 mb-1.5">Expiry Date</label>
             <div className="flex gap-2">
               <input
                 type="date"
                 value={expiryInput}
                 onChange={(e) => setExpiryInput(e.target.value)}
-                className="flex-1 px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-white focus:outline-none"
+                className="flex-1 px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none"
               />
               <button
                 onClick={handleSaveExpiry}
                 disabled={savingExpiry}
-                className="px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white text-xs hover:bg-white/10 disabled:opacity-50 transition-colors"
+                className="px-3 py-2 rounded-lg bg-zinc-100 border border-zinc-200 text-zinc-700 text-xs hover:bg-zinc-200 disabled:opacity-50 transition-colors"
               >
                 {savingExpiry ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Set"}
               </button>
               {expiryInput && (
                 <button
                   onClick={() => { setExpiryInput(""); }}
-                  className="px-3 py-2 rounded-lg bg-white/[0.04] text-white/50 text-xs hover:bg-white/10 transition-colors"
+                  className="px-3 py-2 rounded-lg bg-white/[0.04] text-zinc-500 text-xs hover:bg-white/10 transition-colors"
                 >
                   Clear
                 </button>
@@ -2922,7 +2930,7 @@ function QuoteEditor({
                 </div>
               );
               return (
-                <p className="text-xs text-white/40 mt-1">{daysLeft} day{daysLeft !== 1 ? "s" : ""} remaining</p>
+                <p className="text-xs text-zinc-400 mt-1">{daysLeft} day{daysLeft !== 1 ? "s" : ""} remaining</p>
               );
             })()}
           </div>
@@ -2939,9 +2947,9 @@ function QuoteEditor({
                 : contact.name || contact.agency || "";
               updateConfig({
                 client: {
-                  ...config.client,
+                  ...(config.client || {}),
                   name: displayName,
-                  type: contact.agency || config.client.type,
+                  type: contact.agency || config.client?.type,
                 },
               });
               // Also prefill agent contact fields from the selected contact
@@ -2957,14 +2965,14 @@ function QuoteEditor({
           <div className="grid grid-cols-2 gap-3">
             <Field
               label="Client Name"
-              value={config.client.name}
+              value={config.client?.name}
               onChange={(v) =>
-                updateConfig({ client: { ...config.client, name: v } })
+                updateConfig({ client: { ...(config.client || {}), name: v } })
               }
             />
             {/* Quote Type — switchable dropdown */}
             <div>
-              <label className="block text-xs text-white/50 mb-1">Quote Type</label>
+              <label className="block text-xs text-zinc-500 mb-1">Quote Type</label>
               <select
                 value={config.quoteType}
                 onChange={(e) => {
@@ -2975,12 +2983,12 @@ function QuoteEditor({
                     pricingMode: isSingleLayout ? "single" : "tiered",
                     depositPercent: newType === "homeowner" ? 50 : 0,
                     client: {
-                      ...config.client,
+                      ...(config.client || {}),
                       type: newType === "homeowner" ? "Residential" : "Real Estate Agency",
                     },
                   });
                 }}
-                className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-white focus:outline-none"
+                className="w-full px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none"
               >
                 <option value="homeowner">Homeowner</option>
                 <option value="real_estate">Real Estate Agency (3-Tier)</option>
@@ -2990,17 +2998,17 @@ function QuoteEditor({
           </div>
           <Field
             label="Property Address"
-            value={config.property.address}
+            value={config.property?.address}
             onChange={(v) =>
               updateConfig({
-                property: { ...config.property, address: v },
+                property: { ...(config.property || {}), address: v },
               })
             }
           />
           {/* Full Address removed — Property Address is the single source of truth */}
           <Field
             label="Scope Description"
-            value={config.scope}
+            value={config.scope || ""}
             onChange={(v) => updateConfig({ scope: v })}
           />
         </Section>
@@ -3023,7 +3031,7 @@ function QuoteEditor({
           const resendBtnLabel = "Resend Quote Link Email";
           return (
             <Section title={contactLabel} defaultOpen={true}>
-              <p className="text-xs text-white/40 mb-3">{contactDesc}</p>
+              <p className="text-xs text-zinc-400 mb-3">{contactDesc}</p>
               <div className="space-y-2 mb-3">
                 <Field
                   label={nameLabel}
@@ -3072,7 +3080,7 @@ function QuoteEditor({
                   setSendingLink(false);
                 }}
                 disabled={sendingLink || !agentFields.email}
-                className="w-full py-2.5 rounded-xl bg-zinc-800 border border-white/10 text-sm text-white/70 hover:border-white hover:text-white disabled:opacity-40 transition-colors flex items-center justify-center gap-2"
+                className="w-full py-2.5 rounded-xl bg-white border border-zinc-200 text-sm text-zinc-600 hover:border-zinc-900 hover:text-zinc-900 disabled:opacity-40 transition-colors flex items-center justify-center gap-2 shadow-sm"
               >
                 {sendingLink ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
                 {sendingLink ? "Sending..." : (quoteData?.quoteLinkEmailSent ? resendBtnLabel : sendBtnLabel)}
@@ -3094,7 +3102,7 @@ function QuoteEditor({
                     );
                   }
                 }}
-                className="w-full mt-2 py-2 rounded-xl bg-zinc-900 border border-white/10 text-sm text-white/50 hover:border-white/30 hover:text-white/80 transition-colors flex items-center justify-center gap-2"
+                className="w-full mt-2 py-2 rounded-xl bg-zinc-100 border border-zinc-200 text-sm text-zinc-500 hover:border-zinc-300 hover:text-zinc-900 transition-colors flex items-center justify-center gap-2"
               >
                 <Link2 className="w-4 h-4" />
                 Copy Quote Link
@@ -3141,9 +3149,9 @@ function QuoteEditor({
                       updateConfig({ rooms: [] });
                     }
                   }}
-                  className="w-4 h-4 rounded border-white/20 bg-zinc-900 text-white cursor-pointer"
+                  className="w-4 h-4 rounded border-zinc-300 bg-white text-zinc-900 cursor-pointer"
                 />
-                <label className="text-sm text-white/70">Enable room-by-room pricing</label>
+                <label className="text-sm text-zinc-600">Enable room-by-room pricing</label>
               </div>
 
               {(config.rooms?.length ?? 0) > 0 && (
@@ -3160,7 +3168,7 @@ function QuoteEditor({
                             updated[idx] = { ...room, name: e.target.value };
                             updateConfig({ rooms: updated });
                           }}
-                          className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-white focus:outline-none"
+                          className="w-full px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none"
                         />
                       </div>
                       <div className="w-32">
@@ -3173,7 +3181,7 @@ function QuoteEditor({
                             updated[idx] = { ...room, price: parseInt(e.target.value) || 0 };
                             updateConfig({ rooms: updated });
                           }}
-                          className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-white focus:outline-none"
+                          className="w-full px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none"
                         />
                       </div>
                       <button
@@ -3194,7 +3202,7 @@ function QuoteEditor({
                       const updated = [...(config.rooms || []), { id: `room-${Date.now()}`, name: "", price: 0 }];
                       updateConfig({ rooms: updated });
                     }}
-                    className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-dashed border-white/20 text-white/50 hover:border-white/40 hover:text-white/70 transition-colors text-sm flex items-center justify-center gap-2"
+                    className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-dashed border-white/20 text-zinc-500 hover:border-white/40 hover:text-zinc-600 transition-colors text-sm flex items-center justify-center gap-2"
                   >
                     <Plus className="w-4 h-4" />
                     Add Room
@@ -3202,8 +3210,8 @@ function QuoteEditor({
                   {(config.rooms?.length ?? 0) > 0 && (
                     <div className="pt-2 border-t border-white/10">
                       <div className="flex justify-between text-sm">
-                        <span className="text-white/50">Total from rooms (inc GST):</span>
-                        <span className="text-white font-semibold">${(config.rooms?.reduce((sum, r) => sum + r.price, 0) || 0).toLocaleString()}</span>
+                        <span className="text-zinc-500">Total from rooms (inc GST):</span>
+                        <span className="text-zinc-900 font-semibold">${(config.rooms?.reduce((sum, r) => sum + r.price, 0) || 0).toLocaleString()}</span>
                       </div>
                     </div>
                   )}
@@ -3215,7 +3223,7 @@ function QuoteEditor({
 
         {/* Add-on Services */}
         <Section title="Additional Services (Add-ons)">
-          {config.addons.map((addon, idx) => (
+          {(config.addons || []).map((addon, idx) => (
             <div
               key={addon.id}
               className="bg-zinc-900 rounded-lg p-3 border border-white/10"
@@ -3254,7 +3262,7 @@ function QuoteEditor({
           <button
             type="button"
             onClick={addAddon}
-            className="w-full py-2 rounded-lg border border-dashed border-white/15 text-white/50 text-sm hover:border-white hover:text-white transition-colors flex items-center justify-center gap-2"
+            className="w-full py-2 rounded-lg border border-dashed border-zinc-300 text-zinc-500 text-sm hover:border-zinc-900 hover:text-zinc-900 transition-colors flex items-center justify-center gap-2"
           >
             <Plus className="w-4 h-4" /> Add Service
           </button>
@@ -3266,10 +3274,10 @@ function QuoteEditor({
           <ScopeLibraryPicker
             onSelect={(title, description) => {
               updateConfig({
-                scopeOfWorks: [...config.scopeOfWorks, { title, description }],
+                scopeOfWorks: [...(config.scopeOfWorks || []), { title, description }],
               });
             }}
-            existingTitles={config.scopeOfWorks.map((s) => s.title)}
+            existingTitles={(config.scopeOfWorks || []).map((s) => s.title)}
           />
 
           {/* Drag-and-drop sortable list — works on desktop (pointer) and mobile (touch) */}
@@ -3279,19 +3287,19 @@ function QuoteEditor({
             onDragEnd={(event: DragEndEvent) => {
               const { active, over } = event;
               if (!over || active.id === over.id) return;
-              const oldIndex = config.scopeOfWorks.findIndex((_, i) => `scope-${i}` === active.id);
-              const newIndex = config.scopeOfWorks.findIndex((_, i) => `scope-${i}` === over.id);
+              const oldIndex = (config.scopeOfWorks || []).findIndex((_, i) => `scope-${i}` === active.id);
+              const newIndex = (config.scopeOfWorks || []).findIndex((_, i) => `scope-${i}` === over.id);
               if (oldIndex !== -1 && newIndex !== -1) {
                 updateConfig({ scopeOfWorks: arrayMove(config.scopeOfWorks, oldIndex, newIndex) });
               }
             }}
           >
             <SortableContext
-              items={config.scopeOfWorks.map((_, i) => `scope-${i}`)}
+              items={(config.scopeOfWorks || []).map((_, i) => `scope-${i}`)}
               strategy={verticalListSortingStrategy}
             >
               <div className="space-y-2">
-                {config.scopeOfWorks.map((item, idx) => (
+                {(config.scopeOfWorks || []).map((item, idx) => (
                   <SortableScopeItem
                     key={`scope-${idx}`}
                     id={`scope-${idx}`}
@@ -3308,7 +3316,7 @@ function QuoteEditor({
           <button
             type="button"
             onClick={addScope}
-            className="w-full py-2 rounded-lg border border-dashed border-white/15 text-white/50 text-sm hover:border-white hover:text-white transition-colors flex items-center justify-center gap-2"
+            className="w-full py-2 rounded-lg border border-dashed border-zinc-300 text-zinc-500 text-sm hover:border-zinc-900 hover:text-zinc-900 transition-colors flex items-center justify-center gap-2"
           >
             <Plus className="w-4 h-4" /> Add Custom Item
           </button>
@@ -3316,7 +3324,7 @@ function QuoteEditor({
 
         {/* Customer Notes */}
         <Section title="Customer Notes">
-          <p className="text-white/40 text-xs mb-2">Visible to the customer below the scope of works. Leave blank to hide.</p>
+          <p className="text-zinc-400 text-xs mb-2">Visible to the customer below the scope of works. Leave blank to hide.</p>
           <textarea
             value={config.customerNotes ?? ""}
             onChange={(e) => {
@@ -3332,18 +3340,18 @@ function QuoteEditor({
             }}
             placeholder="e.g. Furniture to be moved prior to install, access via side gate, colour sample to be confirmed..."
             rows={3}
-            className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-white focus:outline-none resize-none overflow-hidden placeholder:text-white/25"
+            className="w-full px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none resize-none overflow-hidden placeholder:text-zinc-300"
           />
         </Section>
 
         {/* Terms */}
         <Section title="Terms & Conditions">
-          {config.terms.map((term, idx) => (
+          {(config.terms || []).map((term, idx) => (
             <div key={idx} className="flex gap-2">
               <input
                 value={term}
                 onChange={(e) => updateTerm(idx, e.target.value)}
-                className="flex-1 px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-white focus:outline-none"
+                className="flex-1 px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none"
               />
               <button
                 type="button"
@@ -3357,7 +3365,7 @@ function QuoteEditor({
           <button
             type="button"
             onClick={addTerm}
-            className="w-full py-2 rounded-lg border border-dashed border-white/15 text-white/50 text-sm hover:border-white hover:text-white transition-colors flex items-center justify-center gap-2"
+            className="w-full py-2 rounded-lg border border-dashed border-zinc-300 text-zinc-500 text-sm hover:border-zinc-900 hover:text-zinc-900 transition-colors flex items-center justify-center gap-2"
           >
             <Plus className="w-4 h-4" /> Add Term
           </button>
@@ -3367,12 +3375,12 @@ function QuoteEditor({
         <Section title="Payment Terms" defaultOpen>
           <div className="flex items-center gap-3">
             <div className="flex-1">
-              <label className="block text-[10px] text-white/40 uppercase tracking-wider mb-1.5">Payment Due (days)</label>
+              <label className="block text-[10px] text-zinc-400 uppercase tracking-wider mb-1.5">Payment Due (days)</label>
               <PaymentTermsInput
                 value={paymentTermsDays}
                 onChange={(v) => setPaymentTermsDays(Math.max(1, v))}
               />
-              <p className="text-[10px] text-white/30 mt-1">Used for overdue detection and shown on invoice. Default: 30 days (agents). Use 7 days for homeowners.</p>
+              <p className="text-[10px] text-zinc-400 mt-1">Used for overdue detection and shown on invoice. Default: 30 days (agents). Use 7 days for homeowners.</p>
             </div>
             <button
               type="button"
@@ -3403,17 +3411,17 @@ function QuoteEditor({
                   isInsuranceAssessment ? "translate-x-5" : ""
                 }`} />
               </div>
-              <span className="text-sm text-white/70 group-hover:text-white/90 transition-colors">Insurance Assessment Only</span>
+              <span className="text-sm text-zinc-600 group-hover:text-zinc-900 transition-colors">Insurance Assessment Only</span>
             </label>
             {isInsuranceAssessment && (
               <>
                 <p className="text-xs text-amber-400/60">Accept button will be hidden on the client-facing page. This quote is for insurance assessment purposes only.</p>
                 <div>
-                  <p className="text-[11px] font-medium text-white/40 uppercase tracking-widest mb-2">Linked Quote (optional)</p>
+                  <p className="text-[11px] font-medium text-zinc-400 uppercase tracking-widest mb-2">Linked Quote (optional)</p>
                   <select
                     value={linkedQuoteSlug}
                     onChange={(e) => setLinkedQuoteSlug(e.target.value)}
-                    className="w-full bg-zinc-900 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500/50 transition-colors"
+                    className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2.5 text-sm text-zinc-900 focus:outline-none focus:border-amber-500/50 transition-colors"
                   >
                     <option value="">None — no linked quote</option>
                     {(allQuotes || []).filter(q => q.slug !== slug && !q.isInsuranceAssessment).map(q => (
@@ -3422,7 +3430,7 @@ function QuoteEditor({
                       </option>
                     ))}
                   </select>
-                  <p className="text-[10px] text-white/30 mt-1">Link to the full replacement quote so clients can navigate to it</p>
+                  <p className="text-[10px] text-zinc-400 mt-1">Link to the full replacement quote so clients can navigate to it</p>
                 </div>
               </>
             )}
@@ -3437,7 +3445,7 @@ function QuoteEditor({
               onChange={(e) => setInternalNotes(e.target.value)}
               placeholder="Private notes — keys under mat, dog in backyard, parking info, etc. These are NOT visible on the public quote page or invoices."
               rows={4}
-              className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-amber-500/50 focus:outline-none resize-none placeholder:text-white/25"
+              className="w-full px-3 py-2 rounded-lg bg-amber-50 border border-amber-200 text-zinc-900 text-sm focus:border-amber-400 focus:outline-none resize-none placeholder:text-zinc-400"
             />
             <button
               type="button"
@@ -3448,7 +3456,7 @@ function QuoteEditor({
               {savingNotes ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
               Save Notes
             </button>
-            <p className="text-[10px] text-white/25 mt-1.5">🔒 Private — only visible in admin panel</p>
+            <p className="text-[10px] text-zinc-300 mt-1.5">🔒 Private — only visible in admin panel</p>
           </div>
         </Section>
 
@@ -3484,18 +3492,18 @@ function QuoteEditor({
                 <Banknote className="w-5 h-5 text-emerald-400" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white">Record Deposit Received</h3>
-                <p className="text-xs text-white/40">Enter the actual amount paid by the client</p>
+                <h3 className="text-lg font-semibold text-zinc-900">Record Deposit Received</h3>
+                <p className="text-xs text-zinc-400">Enter the actual amount paid by the client</p>
               </div>
             </div>
             {quoteData?.acceptedTotal && (
-              <p className="text-xs text-white/40 mb-2">
+              <p className="text-xs text-zinc-400 mb-2">
                 Quote total: ${quoteData.acceptedTotal.toLocaleString()}
                 {quoteData.config?.depositPercent ? ` · ${quoteData.config.depositPercent}% deposit = $${Math.round(quoteData.acceptedTotal * quoteData.config.depositPercent / 100).toLocaleString()}` : ''}
               </p>
             )}
             <div className="relative mb-4">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 text-sm">$</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 text-sm">$</span>
               <input
                 type="number"
                 min="1"
@@ -3503,14 +3511,14 @@ function QuoteEditor({
                 value={editorDepositAmountInput}
                 onChange={(e) => setEditorDepositAmountInput(e.target.value)}
                 placeholder="e.g. 1250"
-                className="w-full pl-7 pr-4 py-3 rounded-xl bg-zinc-800/60 border border-white/10 text-white text-sm focus:outline-none focus:border-emerald-400 transition-colors"
+                className="w-full pl-7 pr-4 py-3 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:outline-none focus:border-emerald-400 transition-colors"
                 autoFocus
               />
             </div>
             <div className="flex gap-3">
               <button
                 onClick={() => setEditorDepositModal(false)}
-                className="flex-1 py-2.5 rounded-xl bg-zinc-800/50 border border-white/10 text-sm text-white/60 hover:text-white transition-colors"
+                className="flex-1 py-2.5 rounded-xl bg-zinc-100 border border-zinc-200 text-sm text-zinc-500 hover:text-zinc-900 transition-colors"
               >
                 Cancel
               </button>
@@ -3543,8 +3551,8 @@ function QuoteEditor({
                 <CheckCircle2 className="w-5 h-5 text-blue-400" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white">Which Tier Did They Choose?</h3>
-                <p className="text-xs text-white/40">Select the tier the client accepted</p>
+                <h3 className="text-lg font-semibold text-zinc-900">Which Tier Did They Choose?</h3>
+                <p className="text-xs text-zinc-400">Select the tier the client accepted</p>
               </div>
             </div>
             <div className="space-y-2 mb-4">
@@ -3555,12 +3563,12 @@ function QuoteEditor({
                   className={`w-full px-4 py-3 rounded-xl border text-left transition-colors ${
                     editorTierAcceptSelected === tier.name
                       ? "bg-blue-500/20 border-blue-500/50 text-white"
-                      : "bg-zinc-800/50 border-white/10 text-white/70 hover:border-white/20 hover:text-white"
+                      : "bg-zinc-50 border-zinc-200 text-zinc-600 hover:border-zinc-300 hover:text-zinc-900"
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-sm">{tier.name}</span>
-                    <span className="text-sm text-white/50">${tier.price.toLocaleString()}</span>
+                    <span className="text-sm text-zinc-500">${tier.price.toLocaleString()}</span>
                   </div>
                 </button>
               ))}
@@ -3568,7 +3576,7 @@ function QuoteEditor({
             <div className="flex gap-3">
               <button
                 onClick={() => setEditorTierAcceptModal(false)}
-                className="flex-1 py-2.5 rounded-xl bg-zinc-800/50 border border-white/10 text-sm text-white/60 hover:text-white transition-colors"
+                className="flex-1 py-2.5 rounded-xl bg-zinc-100 border border-zinc-200 text-sm text-zinc-500 hover:text-zinc-900 transition-colors"
               >
                 Cancel
               </button>
@@ -3601,20 +3609,20 @@ function QuoteEditor({
                 <Calendar className="w-5 h-5 text-purple-400" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white">Schedule Installation</h3>
-                <p className="text-xs text-white/40">Set the install date for this job</p>
+                <h3 className="text-lg font-semibold text-zinc-900">Schedule Installation</h3>
+                <p className="text-xs text-zinc-400">Set the install date for this job</p>
               </div>
             </div>
             <input
               type="date"
               value={editorScheduleDateInput}
               onChange={(e) => setEditorScheduleDateInput(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-zinc-800/60 border border-white/10 text-white text-sm focus:outline-none focus:border-purple-400 transition-colors mb-4 [color-scheme:dark]"
+              className="w-full px-4 py-3 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:outline-none focus:border-purple-400 transition-colors mb-4"
             />
             <div className="flex gap-3">
               <button
                 onClick={() => { setEditorScheduleModal(false); setPendingScheduleStatus(null); }}
-                className="flex-1 py-2.5 rounded-xl bg-zinc-800/50 border border-white/10 text-sm text-white/60 hover:text-white transition-colors"
+                className="flex-1 py-2.5 rounded-xl bg-zinc-100 border border-zinc-200 text-sm text-zinc-500 hover:text-zinc-900 transition-colors"
               >
                 Cancel
               </button>
@@ -3709,15 +3717,15 @@ function ContactsManager({ password }: { password: string }) {
   });
 
   if (isLoading) {
-    return <div className="min-h-screen bg-zinc-900 flex items-center justify-center"><Loader2 className="w-8 h-8 text-white animate-spin" /></div>;
+    return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 text-zinc-400 animate-spin" /></div>;
   }
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-4">
       {/* Add/Edit Form */}
       {showForm && (
-        <div className="mb-4 bg-zinc-800/50 rounded-xl border border-white/10 p-4 space-y-3">
-          <h3 className="text-sm font-medium text-white">{editingId ? "Edit Contact" : "New Contact"}</h3>
+        <div className="mb-4 bg-white rounded-xl border border-zinc-200 p-4 space-y-3 shadow-sm">
+          <h3 className="text-sm font-medium text-zinc-900">{editingId ? "Edit Contact" : "New Contact"}</h3>
           <Field label="Contact Name" value={form.name} onChange={(v) => setForm({ ...form, name: v })} placeholder="e.g. Eliana" />
           <Field label="Company / Agency" value={form.agency} onChange={(v) => setForm({ ...form, agency: v })} placeholder="e.g. Coronis" />
           <div className="grid grid-cols-2 gap-3">
@@ -3725,10 +3733,10 @@ function ContactsManager({ password }: { password: string }) {
             <Field label="Phone" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} placeholder="0400 000 000" />
           </div>
           <div className="flex gap-2 pt-1">
-            <button onClick={handleSave} className="flex-1 py-2.5 rounded-lg bg-white text-black font-semibold text-sm hover:bg-white/90 transition-colors">
+            <button onClick={handleSave} className="flex-1 py-2.5 rounded-lg bg-zinc-900 text-white font-semibold text-sm hover:bg-zinc-800 transition-colors">
               {editingId ? "Update" : "Add Contact"}
             </button>
-            <button onClick={resetForm} className="px-4 py-2.5 rounded-lg bg-white/[0.04] text-white/50 text-sm hover:text-white transition-colors">Cancel</button>
+            <button onClick={resetForm} className="px-4 py-2.5 rounded-lg bg-zinc-100 text-zinc-500 text-sm hover:text-zinc-900 transition-colors">Cancel</button>
           </div>
         </div>
       )}
@@ -3736,7 +3744,7 @@ function ContactsManager({ password }: { password: string }) {
       {!showForm && (
         <button
           onClick={() => { resetForm(); setShowForm(true); }}
-          className="w-full mb-4 py-3 rounded-xl border border-dashed border-white/15 text-white/50 text-sm hover:border-white hover:text-white transition-colors flex items-center justify-center gap-2"
+          className="w-full mb-4 py-3 rounded-xl border border-dashed border-zinc-300 text-zinc-500 text-sm hover:border-zinc-900 hover:text-zinc-900 transition-colors flex items-center justify-center gap-2"
         >
           <UserPlus className="w-4 h-4" /> Add New Contact
         </button>
@@ -3744,33 +3752,33 @@ function ContactsManager({ password }: { password: string }) {
 
       {/* Search */}
       <div className="relative mb-4">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-        <input type="text" placeholder="Search contacts..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-zinc-800/50 border border-white/10 text-white text-sm placeholder:text-white/30 focus:border-white focus:outline-none" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+        <input type="text" placeholder="Search contacts..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-zinc-200 text-zinc-900 text-sm placeholder:text-zinc-400 focus:border-zinc-900 focus:outline-none shadow-sm" />
       </div>
 
       {/* Contacts List */}
       {filtered.length === 0 ? (
         <div className="text-center py-16">
-          <BookUser className="w-12 h-12 text-white/40 mx-auto mb-3" />
-          <p className="text-white/50 mb-1">{search ? "No contacts match" : "No contacts yet"}</p>
+          <BookUser className="w-12 h-12 text-zinc-300 mx-auto mb-3" />
+          <p className="text-zinc-500 mb-1">{search ? "No contacts match" : "No contacts yet"}</p>
         </div>
       ) : (
         <div className="space-y-2">
           {filtered.map((c) => (
-            <div key={c.id} className="bg-zinc-800/50 rounded-xl border border-white/10 p-4">
+            <div key={c.id} className="bg-white rounded-xl border border-zinc-200 p-4 shadow-sm">
               <div className="flex items-start justify-between">
                 <div className="flex-1 min-w-0">
-                  <p className="text-white text-sm font-medium truncate">
+                  <p className="text-zinc-900 text-sm font-medium truncate">
                     {c.name && c.agency ? `${c.name} — ${c.agency}` : c.name || c.agency || "(no name)"}
                   </p>
                   <div className="flex flex-wrap gap-3 mt-1.5">
-                    {c.email && <span className="text-white/40 text-xs flex items-center gap-1"><Mail className="w-3 h-3" /> {c.email}</span>}
-                    {c.phone && <span className="text-white/40 text-xs flex items-center gap-1"><Phone className="w-3 h-3" /> {c.phone}</span>}
+                    {c.email && <span className="text-zinc-500 text-xs flex items-center gap-1"><Mail className="w-3 h-3" /> {c.email}</span>}
+                    {c.phone && <span className="text-zinc-500 text-xs flex items-center gap-1"><Phone className="w-3 h-3" /> {c.phone}</span>}
                   </div>
                 </div>
                 <div className="flex items-center gap-1 ml-2">
-                  <button onClick={() => handleEdit(c)} className="p-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors"><FileText className="w-3.5 h-3.5" /></button>
-                  <button onClick={() => handleDeleteClick(c.id, c.name)} className="p-1.5 rounded-lg text-white/50 hover:text-red-400 hover:bg-red-500/10 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => handleEdit(c)} className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 transition-colors"><FileText className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => handleDeleteClick(c.id, c.name)} className="p-1.5 rounded-lg text-zinc-400 hover:text-red-600 hover:bg-red-50 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
                 </div>
               </div>
             </div>
@@ -3780,13 +3788,13 @@ function ContactsManager({ password }: { password: string }) {
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-        <AlertDialogContent className="bg-zinc-800 border border-white/10 rounded-xl">
-          <AlertDialogTitle className="text-white">Delete Contact?</AlertDialogTitle>
-          <AlertDialogDescription className="text-white/60">
-            Are you sure you want to delete <span className="font-semibold text-white">"{deleteConfirmData?.name || 'this contact'}"</span>? This action cannot be undone.
+        <AlertDialogContent className="bg-white border border-zinc-200 rounded-xl">
+          <AlertDialogTitle className="text-zinc-900">Delete Contact?</AlertDialogTitle>
+          <AlertDialogDescription className="text-zinc-600">
+            Are you sure you want to delete <span className="font-semibold text-zinc-900">"{deleteConfirmData?.name || 'this contact'}"</span>? This action cannot be undone.
           </AlertDialogDescription>
           <div className="flex gap-3 justify-end mt-6">
-            <AlertDialogCancel onClick={handleDeleteCancel} className="bg-zinc-700 hover:bg-zinc-600 text-white border-0 rounded-lg">Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={handleDeleteCancel} className="bg-zinc-100 hover:bg-zinc-200 text-zinc-900 border-0 rounded-lg">Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-600 hover:bg-red-700 text-white rounded-lg">Delete</AlertDialogAction>
           </div>
         </AlertDialogContent>
@@ -3845,64 +3853,64 @@ function ContactPicker({
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="w-full py-2 rounded-lg border border-dashed border-white/15 text-white/50 text-xs hover:border-white hover:text-white transition-colors flex items-center justify-center gap-1.5"
+        className="w-full py-2 rounded-lg border border-dashed border-zinc-300 text-zinc-500 text-xs hover:border-zinc-900 hover:text-zinc-900 transition-colors flex items-center justify-center gap-1.5"
       >
         <BookUser className="w-3.5 h-3.5" /> Load from Contacts
       </button>
       {open && (
-        <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-[#1A1F28] border border-white/10 rounded-xl shadow-xl max-h-80 overflow-y-auto">
-          <div className="sticky top-0 bg-[#1A1F28] p-2 border-b border-white/10">
+        <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-white border border-zinc-200 rounded-xl shadow-xl max-h-80 overflow-y-auto">
+          <div className="sticky top-0 bg-white p-2 border-b border-zinc-200">
             <input
               type="text"
               placeholder="Search contacts..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full px-3 py-1.5 rounded-lg bg-zinc-900 border border-white/10 text-white text-xs placeholder:text-white/30 focus:border-white focus:outline-none"
+              className="w-full px-3 py-1.5 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-xs placeholder:text-zinc-400 focus:border-zinc-900 focus:outline-none"
               autoFocus
             />
           </div>
           {/* On-the-fly new contact form */}
           {showNewForm ? (
-            <div className="p-3 space-y-2 border-b border-white/10">
-              <p className="text-xs font-medium text-white">Quick Add Contact</p>
+            <div className="p-3 space-y-2 border-b border-zinc-200">
+              <p className="text-xs font-medium text-zinc-900">Quick Add Contact</p>
               <input
                 placeholder="Contact Name"
                 value={newContact.name}
                 onChange={(e) => setNewContact({ ...newContact, name: e.target.value })}
-                className="w-full px-2 py-1.5 rounded bg-zinc-900 border border-white/10 text-white text-xs placeholder:text-white/30 focus:border-white focus:outline-none"
+                className="w-full px-2 py-1.5 rounded bg-zinc-50 border border-zinc-200 text-zinc-900 text-xs placeholder:text-zinc-400 focus:border-zinc-900 focus:outline-none"
               />
               <input
                 placeholder="Company / Agency"
                 value={newContact.agency}
                 onChange={(e) => setNewContact({ ...newContact, agency: e.target.value })}
-                className="w-full px-2 py-1.5 rounded bg-zinc-900 border border-white/10 text-white text-xs placeholder:text-white/30 focus:border-white focus:outline-none"
+                className="w-full px-2 py-1.5 rounded bg-zinc-50 border border-zinc-200 text-zinc-900 text-xs placeholder:text-zinc-400 focus:border-zinc-900 focus:outline-none"
               />
               <div className="grid grid-cols-2 gap-2">
                 <input
                   placeholder="Email"
                   value={newContact.email}
                   onChange={(e) => setNewContact({ ...newContact, email: e.target.value })}
-                  className="px-2 py-1.5 rounded bg-zinc-900 border border-white/10 text-white text-xs placeholder:text-white/30 focus:border-white focus:outline-none"
+                  className="px-2 py-1.5 rounded bg-zinc-50 border border-zinc-200 text-zinc-900 text-xs placeholder:text-zinc-400 focus:border-zinc-900 focus:outline-none"
                 />
                 <input
                   placeholder="Phone"
                   value={newContact.phone}
                   onChange={(e) => setNewContact({ ...newContact, phone: e.target.value })}
-                  className="px-2 py-1.5 rounded bg-zinc-900 border border-white/10 text-white text-xs placeholder:text-white/30 focus:border-white focus:outline-none"
+                  className="px-2 py-1.5 rounded bg-zinc-50 border border-zinc-200 text-zinc-900 text-xs placeholder:text-zinc-400 focus:border-zinc-900 focus:outline-none"
                 />
               </div>
               <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={handleCreateAndSelect}
-                  className="flex-1 py-1.5 rounded bg-white text-black text-xs font-semibold hover:bg-white/90 transition-colors"
+                  className="flex-1 py-1.5 rounded bg-zinc-900 text-white text-xs font-semibold hover:bg-zinc-800 transition-colors"
                 >
                   Create & Use
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowNewForm(false)}
-                  className="px-3 py-1.5 rounded bg-white/[0.04] text-white/50 text-xs hover:text-white transition-colors"
+                  className="px-3 py-1.5 rounded bg-zinc-100 text-zinc-500 text-xs hover:text-zinc-900 transition-colors"
                 >
                   Cancel
                 </button>
@@ -3912,13 +3920,13 @@ function ContactPicker({
             <button
               type="button"
               onClick={() => setShowNewForm(true)}
-              className="w-full px-3 py-2 text-left text-xs text-white hover:bg-white/10 transition-colors border-b border-white/10 flex items-center gap-1.5"
+              className="w-full px-3 py-2 text-left text-xs text-zinc-700 hover:bg-zinc-50 transition-colors border-b border-zinc-200 flex items-center gap-1.5"
             >
               <UserPlus className="w-3 h-3" /> Add New Contact
             </button>
           )}
           {filtered.length === 0 ? (
-            <p className="text-white/40 text-xs text-center py-4">No contacts found</p>
+            <p className="text-zinc-400 text-xs text-center py-4">No contacts found</p>
           ) : (
             filtered.map((c) => (
               <button
@@ -3929,9 +3937,9 @@ function ContactPicker({
                   setOpen(false);
                   setSearch("");
                 }}
-                className="w-full px-3 py-2 text-left hover:bg-white/10 transition-colors border-b border-white/10 last:border-0"
+                className="w-full px-3 py-2 text-left hover:bg-zinc-50 transition-colors border-b border-zinc-100 last:border-0"
               >
-                <p className="text-white text-xs font-medium">
+                <p className="text-zinc-900 text-xs font-medium">
                   {c.name && c.agency ? `${c.name} — ${c.agency}` : c.name || c.agency || "(no name)"}
                 </p>
               </button>
@@ -3978,7 +3986,7 @@ function SortableScopeItem({
           type="button"
           {...attributes}
           {...listeners}
-          className="flex-shrink-0 mt-5 p-2 -ml-1 text-white/25 hover:text-white/60 cursor-grab active:cursor-grabbing touch-none"
+          className="flex-shrink-0 mt-5 p-2 -ml-1 text-zinc-300 hover:text-zinc-500 cursor-grab active:cursor-grabbing touch-none"
           aria-label="Drag to reorder"
         >
           <GripVertical className="w-4 h-4" />
@@ -4037,7 +4045,7 @@ function ScopeLibraryPicker({
       </button>
       {expanded && (
         <div className="mt-2 bg-zinc-900/80 rounded-lg border border-white/10 p-2">
-          <p className="text-white/30 text-[10px] mb-2 px-1">Tap to add to scope of works</p>
+          <p className="text-zinc-400 text-[10px] mb-2 px-1">Tap to add to scope of works</p>
           <div className="flex flex-col gap-1.5">
             {items.map((item) => {
               const added = alreadyAdded.has(item.text);
@@ -4054,14 +4062,14 @@ function ScopeLibraryPicker({
                   }`}
                 >
                   <div className={`flex items-center gap-1.5 text-xs font-medium ${
-                    added ? "text-green-400" : "text-white/70 group-hover:text-amber-400"
+                    added ? "text-green-400" : "text-zinc-600 group-hover:text-amber-400"
                   }`}>
                     {added && <Check className="w-3 h-3 flex-shrink-0" />}
                     <span>{item.text}</span>
                   </div>
                   {item.description && (
                     <p className={`text-[10px] mt-0.5 leading-snug ${
-                      added ? "text-green-400/60" : "text-white/35"
+                      added ? "text-green-500" : "text-zinc-300"
                     }`}>{item.description}</p>
                   )}
                 </button>
@@ -4130,19 +4138,19 @@ function ScopeLibraryManager() {
   };
 
   if (isLoading) {
-    return <div className="min-h-screen bg-zinc-900 flex items-center justify-center"><Loader2 className="w-8 h-8 text-white animate-spin" /></div>;
+    return <div className="min-h-screen bg-white flex items-center justify-center"><Loader2 className="w-8 h-8 text-zinc-400 animate-spin" /></div>;
   }
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-4">
       <div className="mb-4">
-        <p className="text-white/40 text-xs">Saved scope of work items for quick-pick in the quote editor. Each item has a title and optional description.</p>
+        <p className="text-zinc-500 text-xs">Saved scope of work items for quick-pick in the quote editor. Each item has a title and optional description.</p>
       </div>
 
       {/* Add new item */}
       {adding ? (
-        <div className="mb-4 bg-zinc-800/50 rounded-xl border border-white/10 p-4 space-y-3">
-          <p className="text-sm font-medium text-white">New Library Item</p>
+        <div className="mb-4 bg-white rounded-xl border border-zinc-200 p-4 space-y-3 shadow-sm">
+          <p className="text-sm font-medium text-zinc-900">New Library Item</p>
           <div className="space-y-2">
             <input
               autoFocus
@@ -4151,7 +4159,7 @@ function ScopeLibraryManager() {
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Escape') { setAdding(false); setNewTitle(''); setNewDesc(''); } }}
-              className="w-full px-3 py-2.5 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm placeholder:text-white/30 focus:border-white focus:outline-none"
+              className="w-full px-3 py-2.5 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm placeholder:text-zinc-400 focus:border-zinc-900 focus:outline-none"
             />
             <input
               type="text"
@@ -4159,20 +4167,20 @@ function ScopeLibraryManager() {
               value={newDesc}
               onChange={(e) => setNewDesc(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') handleAdd(); if (e.key === 'Escape') { setAdding(false); setNewTitle(''); setNewDesc(''); } }}
-              className="w-full px-3 py-2.5 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm placeholder:text-white/30 focus:border-white focus:outline-none"
+              className="w-full px-3 py-2.5 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm placeholder:text-zinc-400 focus:border-zinc-900 focus:outline-none"
             />
           </div>
           <div className="flex gap-2">
-            <button onClick={handleAdd} disabled={!newTitle.trim() || createMutation.isPending} className="flex-1 py-2.5 rounded-lg bg-white text-black font-semibold text-sm hover:bg-white/90 disabled:opacity-40 transition-colors flex items-center justify-center gap-2">
+            <button onClick={handleAdd} disabled={!newTitle.trim() || createMutation.isPending} className="flex-1 py-2.5 rounded-lg bg-zinc-900 text-white font-semibold text-sm hover:bg-zinc-800 disabled:opacity-40 transition-colors flex items-center justify-center gap-2">
               {createMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} Add Item
             </button>
-            <button onClick={() => { setAdding(false); setNewTitle(''); setNewDesc(''); }} className="px-4 py-2.5 rounded-lg bg-white/[0.04] text-white/50 text-sm hover:text-white transition-colors">Cancel</button>
+            <button onClick={() => { setAdding(false); setNewTitle(''); setNewDesc(''); }} className="px-4 py-2.5 rounded-lg bg-zinc-100 text-zinc-500 text-sm hover:text-zinc-900 transition-colors">Cancel</button>
           </div>
         </div>
       ) : (
         <button
           onClick={() => setAdding(true)}
-          className="w-full mb-4 py-3 rounded-xl border border-dashed border-white/15 text-white/50 text-sm hover:border-white hover:text-white transition-colors flex items-center justify-center gap-2"
+          className="w-full mb-4 py-3 rounded-xl border border-dashed border-zinc-300 text-zinc-500 text-sm hover:border-zinc-900 hover:text-zinc-900 transition-colors flex items-center justify-center gap-2"
         >
           <Plus className="w-4 h-4" /> Add Library Item
         </button>
@@ -4181,15 +4189,15 @@ function ScopeLibraryManager() {
       {/* Items list */}
       {(items || []).length === 0 ? (
         <div className="text-center py-16">
-          <BookOpen className="w-12 h-12 text-white/40 mx-auto mb-3" />
-          <p className="text-white/50 mb-1">No library items yet</p>
-          <p className="text-white/30 text-xs">Add common scope of work items to speed up quoting</p>
+          <BookOpen className="w-12 h-12 text-zinc-300 mx-auto mb-3" />
+          <p className="text-zinc-500 mb-1">No library items yet</p>
+          <p className="text-zinc-400 text-xs">Add common scope of work items to speed up quoting</p>
         </div>
       ) : (
         <div className="space-y-2">
           {(items || []).map((item) => (
-            <div key={item.id} className="bg-zinc-800/50 rounded-xl border border-white/10 px-4 py-3 flex items-start gap-3">
-              <GripVertical className="w-4 h-4 text-white/20 flex-shrink-0 mt-1" />
+            <div key={item.id} className="bg-white rounded-xl border border-zinc-200 px-4 py-3 flex items-start gap-3 shadow-sm">
+              <GripVertical className="w-4 h-4 text-zinc-300 flex-shrink-0 mt-1" />
               {editingId === item.id ? (
                 <div className="flex-1 space-y-2">
                   <input
@@ -4199,7 +4207,7 @@ function ScopeLibraryManager() {
                     value={editTitle}
                     onChange={(e) => setEditTitle(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Escape') setEditingId(null); }}
-                    className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-white/20 text-white text-sm focus:border-white focus:outline-none"
+                    className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none"
                   />
                   <input
                     type="text"
@@ -4207,25 +4215,25 @@ function ScopeLibraryManager() {
                     value={editDesc}
                     onChange={(e) => setEditDesc(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter') handleUpdate(item.id); if (e.key === 'Escape') setEditingId(null); }}
-                    className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-white/20 text-white text-sm placeholder:text-white/30 focus:border-white focus:outline-none"
+                    className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm placeholder:text-zinc-400 focus:border-zinc-900 focus:outline-none"
                   />
                   <div className="flex gap-2">
-                    <button onClick={() => handleUpdate(item.id)} disabled={!editTitle.trim() || updateMutation.isPending} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-black text-xs font-semibold hover:bg-white/90 disabled:opacity-40 transition-colors">
+                    <button onClick={() => handleUpdate(item.id)} disabled={!editTitle.trim() || updateMutation.isPending} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 text-white text-xs font-semibold hover:bg-zinc-800 disabled:opacity-40 transition-colors">
                       {updateMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />} Save
                     </button>
-                    <button onClick={() => setEditingId(null)} className="px-3 py-1.5 rounded-lg bg-white/[0.04] text-white/50 text-xs hover:text-white transition-colors">Cancel</button>
+                    <button onClick={() => setEditingId(null)} className="px-3 py-1.5 rounded-lg bg-zinc-100 text-zinc-500 text-xs hover:text-zinc-900 transition-colors">Cancel</button>
                   </div>
                 </div>
               ) : (
                 <>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-white/80 font-medium">{item.text}</p>
+                    <p className="text-sm text-zinc-900 font-medium">{item.text}</p>
                     {item.description && (
-                      <p className="text-xs text-white/40 mt-0.5 leading-snug">{item.description}</p>
+                      <p className="text-xs text-zinc-500 mt-0.5 leading-snug">{item.description}</p>
                     )}
                   </div>
-                  <button onClick={() => { setEditingId(item.id); setEditTitle(item.text); setEditDesc(item.description ?? ""); }} className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors flex-shrink-0"><Pencil className="w-3.5 h-3.5" /></button>
-                  <button onClick={() => handleDelete(item.id, item.text)} className="p-1.5 rounded-lg text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-colors flex-shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => { setEditingId(item.id); setEditTitle(item.text); setEditDesc(item.description ?? ""); }} className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 transition-colors flex-shrink-0"><Pencil className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => handleDelete(item.id, item.text)} className="p-1.5 rounded-lg text-zinc-400 hover:text-red-600 hover:bg-red-50 transition-colors flex-shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
                 </>
               )}
             </div>
@@ -4283,14 +4291,14 @@ function CalendarView({ password, onEditQuote }: { password: string; onEditQuote
       <div className="flex items-center justify-between mb-6">
         <button
           onClick={goToPrevMonth}
-          className="w-10 h-10 rounded-xl bg-zinc-800/50 border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:border-white/30 transition-colors"
+          className="w-10 h-10 rounded-xl bg-zinc-100 border border-zinc-200 flex items-center justify-center text-zinc-500 hover:text-zinc-900 hover:border-zinc-300 transition-colors"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
-        <h2 className="text-lg font-semibold text-white">{monthName}</h2>
+        <h2 className="text-lg font-semibold text-zinc-900">{monthName}</h2>
         <button
           onClick={goToNextMonth}
-          className="w-10 h-10 rounded-xl bg-zinc-800/50 border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:border-white/30 transition-colors"
+          className="w-10 h-10 rounded-xl bg-zinc-100 border border-zinc-200 flex items-center justify-center text-zinc-500 hover:text-zinc-900 hover:border-zinc-300 transition-colors"
         >
           <ChevronRight className="w-5 h-5" />
         </button>
@@ -4298,7 +4306,7 @@ function CalendarView({ password, onEditQuote }: { password: string; onEditQuote
 
       {isLoading && (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-6 h-6 animate-spin text-white/40" />
+          <Loader2 className="w-6 h-6 animate-spin text-zinc-400" />
         </div>
       )}
 
@@ -4307,7 +4315,7 @@ function CalendarView({ password, onEditQuote }: { password: string; onEditQuote
           {/* Day-of-week headers */}
           <div className="grid grid-cols-7 gap-1 mb-1">
             {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-              <div key={d} className="text-center text-[10px] font-medium text-white/30 py-1">{d}</div>
+              <div key={d} className="text-center text-[10px] font-medium text-zinc-400 py-1">{d}</div>
             ))}
           </div>
 
@@ -4332,25 +4340,25 @@ function CalendarView({ password, onEditQuote }: { password: string; onEditQuote
                   onClick={() => setSelectedDay(isSelected ? null : day)}
                   className={`aspect-square rounded-xl flex flex-col items-center justify-center gap-0.5 text-sm transition-all relative ${
                     isSelected
-                      ? "bg-white text-black font-bold ring-2 ring-white"
+                      ? "bg-zinc-900 text-white font-bold ring-2 ring-zinc-900"
                       : isToday
-                        ? "bg-zinc-800 text-white font-semibold border border-white/20"
+                        ? "bg-zinc-200 text-zinc-900 font-semibold border border-zinc-300"
                         : hasJobs
-                          ? "bg-purple-500/10 text-purple-300 hover:bg-purple-500/20"
-                          : "text-white/50 hover:bg-zinc-800/50"
+                          ? "bg-amber-50 text-amber-700 hover:bg-amber-100"
+                          : "text-zinc-400 hover:bg-zinc-100"
                   }`}
                 >
-                  <span className={isSelected ? "text-black" : ""}>{day}</span>
+                  <span className={isSelected ? "text-white" : ""}>{day}</span>
                   {hasJobs && (
                     <div className="flex gap-0.5">
                       {jobs.slice(0, 3).map((_, ji) => (
                         <div
                           key={ji}
-                          className={`w-1 h-1 rounded-full ${isSelected ? "bg-black/60" : "bg-purple-400"}`}
+                          className={`w-1 h-1 rounded-full ${isSelected ? "bg-white/60" : "bg-amber-500"}`}
                         />
                       ))}
                       {jobs.length > 3 && (
-                        <span className={`text-[8px] ${isSelected ? "text-black/60" : "text-purple-400"}`}>+</span>
+                        <span className={`text-[8px] ${isSelected ? "text-zinc-500" : "text-amber-500"}`}>+</span>
                       )}
                     </div>
                   )}
@@ -4362,16 +4370,16 @@ function CalendarView({ password, onEditQuote }: { password: string; onEditQuote
           {/* Selected day job list */}
           {selectedDay !== null && (
             <div className="mt-4">
-              <h3 className="text-sm font-semibold text-white/60 mb-3">
+              <h3 className="text-sm font-semibold text-zinc-500 mb-3">
                 {formatAESTDate(new Date(year, month - 1, selectedDay), { weekday: "long", day: "numeric", month: "long" })}
                 {selectedJobs.length > 0 && (
-                  <span className="ml-2 text-purple-400">({selectedJobs.length} job{selectedJobs.length !== 1 ? "s" : ""})</span>
+                  <span className="ml-2 text-amber-600">({selectedJobs.length} job{selectedJobs.length !== 1 ? "s" : ""})</span>
                 )}
               </h3>
               {selectedJobs.length === 0 ? (
-                <div className="rounded-xl border border-white/10 bg-zinc-800/30 py-8 text-center">
-                  <Calendar className="w-8 h-8 text-white/20 mx-auto mb-2" />
-                  <p className="text-sm text-white/30">No jobs scheduled</p>
+                <div className="rounded-xl border border-zinc-200 bg-zinc-50 py-8 text-center">
+                  <Calendar className="w-8 h-8 text-zinc-300 mx-auto mb-2" />
+                  <p className="text-sm text-zinc-400">No jobs scheduled</p>
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -4379,27 +4387,23 @@ function CalendarView({ password, onEditQuote }: { password: string; onEditQuote
                     <button
                       key={job.id}
                       onClick={() => onEditQuote(job.slug)}
-                      className="w-full text-left rounded-xl border border-white/10 bg-zinc-800/30 p-4 hover:border-white/20 hover:bg-zinc-800/50 transition-colors"
+                      className="w-full text-left rounded-xl border border-zinc-200 bg-white p-4 hover:border-zinc-300 hover:bg-zinc-50 transition-colors"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-semibold text-white truncate">
+                          <p className="text-sm font-semibold text-zinc-900 truncate">
                             {job.quoteNumber} · {job.clientName || "Unnamed"}
                           </p>
-                          <p className="text-xs text-white/40 truncate mt-0.5">
+                          <p className="text-xs text-zinc-500 truncate mt-0.5">
                             {job.propertyAddress || "No address"}
                           </p>
                           {job.agentName && (
-                            <p className="text-xs text-white/30 mt-0.5">{job.agentName}</p>
+                            <p className="text-xs text-zinc-400 mt-0.5">{job.agentName}</p>
                           )}
                         </div>
                         <div className="flex flex-col items-end gap-1 flex-shrink-0">
                           <StatusBadge status={job.jobStatus as JobStatus} />
-                          {job.acceptedTotal && (
-                            <span className="text-xs text-green-400 font-medium">
-                              ${job.acceptedTotal.toLocaleString()}
-                            </span>
-                          )}
+
                         </div>
                       </div>
                     </button>
@@ -4411,18 +4415,12 @@ function CalendarView({ password, onEditQuote }: { password: string; onEditQuote
 
           {/* Monthly summary */}
           {(calendarJobs || []).length > 0 && (
-            <div className="mt-6 rounded-xl border border-white/10 bg-zinc-800/30 p-4">
-              <p className="text-xs text-white/40 mb-1">Monthly Summary</p>
+            <div className="mt-6 rounded-xl border border-zinc-200 bg-zinc-50 p-4">
+              <p className="text-xs text-zinc-500 mb-1">Monthly Summary</p>
               <div className="flex items-center gap-4">
                 <div>
-                  <p className="text-2xl font-bold text-white">{(calendarJobs || []).length}</p>
-                  <p className="text-xs text-white/40">Jobs</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-green-400">
-                    ${(calendarJobs || []).reduce((sum, j) => sum + (j.acceptedTotal || 0), 0).toLocaleString()}
-                  </p>
-                  <p className="text-xs text-white/40">Revenue</p>
+                  <p className="text-2xl font-bold text-zinc-900">{(calendarJobs || []).length}</p>
+                  <p className="text-xs text-zinc-500">Jobs</p>
                 </div>
               </div>
             </div>
@@ -4925,8 +4923,8 @@ function XeroSettings({ password }: { password: string }) {
   // Renamed internally but kept component name for backward compat with tab references
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
-      <h2 className="text-lg font-semibold text-white mb-4">Saasu Integration</h2>
-      <p className="text-xs text-white/40 mb-6">
+      <h2 className="text-lg font-semibold text-zinc-900 mb-4">Saasu Integration</h2>
+      <p className="text-xs text-zinc-400 mb-6">
         Saasu accounting is connected via API key. Invoices are automatically created in Saasu when a job is marked as Completed. If a deposit was already paid, it’s recorded as a partial payment against the invoice.
       </p>
 
@@ -4938,14 +4936,14 @@ function XeroSettings({ password }: { password: string }) {
           </div>
           <div>
             <p className="text-sm font-medium text-emerald-400">Connected (API Key)</p>
-            <p className="text-xs text-white/40">Saasu File ID configured</p>
+            <p className="text-xs text-zinc-400">Saasu File ID configured</p>
           </div>
         </div>
       </div>
 
       {/* How It Works */}
       <div className="mt-4 space-y-3">
-        <h3 className="text-sm font-medium text-white/60">How It Works</h3>
+        <h3 className="text-sm font-medium text-zinc-500">How It Works</h3>
         <div className="space-y-2">
           {[
             { step: "1", text: "When a job is marked Completed, a sales invoice is auto-created in Saasu" },
@@ -4954,10 +4952,10 @@ function XeroSettings({ password }: { password: string }) {
             { step: "4", text: "Invoice summary uses quote code + property address for easy reference" },
           ].map((item) => (
             <div key={item.step} className="flex items-start gap-3">
-              <span className="w-5 h-5 rounded-full bg-white/5 flex items-center justify-center text-[10px] text-white/40 flex-shrink-0 mt-0.5">
+              <span className="w-5 h-5 rounded-full bg-white/5 flex items-center justify-center text-[10px] text-zinc-400 flex-shrink-0 mt-0.5">
                 {item.step}
               </span>
-              <p className="text-xs text-white/40">{item.text}</p>
+              <p className="text-xs text-zinc-400">{item.text}</p>
             </div>
           ))}
         </div>
@@ -4991,25 +4989,25 @@ function NotificationHistorySection({ quoteNumber }: { quoteNumber: string }) {
       <div className="px-4 py-3 flex items-center justify-between bg-zinc-800/40 border-b border-white/10">
         <div className="flex items-center gap-2">
           <Bell className="w-4 h-4 text-amber-400/80" />
-          <span className="text-sm font-semibold text-white">Notification History</span>
+          <span className="text-sm font-semibold text-zinc-900">Notification History</span>
           {entries.length > 0 && (
             <span className="text-xs bg-amber-500/15 text-amber-400 px-1.5 py-0.5 rounded-full">{entries.length}</span>
           )}
         </div>
         <button
           onClick={() => refetch()}
-          className="text-white/30 hover:text-white/60 transition-colors"
+          className="text-zinc-400 hover:text-zinc-500 transition-colors"
           title="Refresh"
         >
           <RefreshCw className="w-3.5 h-3.5" />
         </button>
       </div>
       {isLoading ? (
-        <div className="px-4 py-4 flex items-center gap-2 text-white/30 text-sm">
+        <div className="px-4 py-4 flex items-center gap-2 text-zinc-400 text-sm">
           <Loader2 className="w-4 h-4 animate-spin" /> Loading...
         </div>
       ) : entries.length === 0 ? (
-        <div className="px-4 py-4 flex items-center gap-2 text-white/30 text-sm">
+        <div className="px-4 py-4 flex items-center gap-2 text-zinc-400 text-sm">
           <BellOff className="w-4 h-4" /> No notifications sent yet
         </div>
       ) : (
@@ -5027,23 +5025,23 @@ function NotificationHistorySection({ quoteNumber }: { quoteNumber: string }) {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xs font-medium text-white/80">
+                  <span className="text-xs font-medium text-zinc-700">
                     {triggerLabels[entry.statusTrigger] ?? entry.statusTrigger}
                   </span>
-                  <span className="text-xs text-white/30 uppercase tracking-wide">{entry.channel}</span>
+                  <span className="text-xs text-zinc-400 uppercase tracking-wide">{entry.channel}</span>
                   {!entry.success && (
                     <span className="text-xs text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded-full">Failed</span>
                   )}
                 </div>
-                <div className="text-xs text-white/35 mt-0.5 truncate">
+                <div className="text-xs text-zinc-400 mt-0.5 truncate">
                   {entry.recipientEmail || entry.recipientPhone || "—"}
                   {entry.recipientName ? ` · ${entry.recipientName}` : ""}
                 </div>
                 {entry.errorMessage && (
-                  <div className="text-xs text-red-400/70 mt-0.5 truncate">{entry.errorMessage}</div>
+                  <div className="text-xs text-red-500 mt-0.5 truncate">{entry.errorMessage}</div>
                 )}
               </div>
-              <div className="text-xs text-white/25 flex-shrink-0 mt-0.5">
+              <div className="text-xs text-zinc-300 flex-shrink-0 mt-0.5">
                 {new Date(entry.sentAt).toLocaleString("en-AU", {
                   day: "2-digit", month: "short",
                   hour: "2-digit", minute: "2-digit",
@@ -5086,14 +5084,14 @@ function NotificationLogView() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <Bell className="w-5 h-5 text-amber-400" /> Notification Log
+          <h2 className="text-lg font-bold text-zinc-900 flex items-center gap-2">
+            <Bell className="w-5 h-5 text-amber-500" /> Notification Log
           </h2>
-          <p className="text-xs text-white/35 mt-0.5">Every SMS and email the system has attempted to send</p>
+          <p className="text-xs text-zinc-500 mt-0.5">Every SMS and email the system has attempted to send</p>
         </div>
         <button
           onClick={() => refetch()}
-          className="text-white/30 hover:text-white/60 transition-colors p-2"
+          className="text-zinc-400 hover:text-zinc-600 transition-colors p-2"
           title="Refresh"
         >
           <RefreshCw className="w-4 h-4" />
@@ -5108,7 +5106,7 @@ function NotificationLogView() {
           onChange={(e) => setFilterQuote(e.target.value.toUpperCase())}
           onKeyDown={(e) => { if (e.key === "Enter") setAppliedFilter(filterQuote.trim()); }}
           placeholder="Filter by quote number (e.g. BC-008)"
-          className="flex-1 px-3 py-2 rounded-xl bg-zinc-800/60 border border-white/10 text-white text-sm placeholder-white/25 focus:outline-none focus:border-amber-400/50"
+          className="flex-1 px-3 py-2 rounded-xl bg-white border border-zinc-200 text-zinc-900 text-sm placeholder-zinc-400 focus:outline-none focus:border-zinc-900 shadow-sm"
         />
         <button
           onClick={() => setAppliedFilter(filterQuote.trim())}
@@ -5119,7 +5117,7 @@ function NotificationLogView() {
         {appliedFilter && (
           <button
             onClick={() => { setFilterQuote(""); setAppliedFilter(""); }}
-            className="px-3 py-2 rounded-xl bg-zinc-800/60 border border-white/10 text-white/50 hover:text-white text-sm transition-colors"
+            className="px-3 py-2 rounded-xl bg-zinc-100 border border-zinc-200 text-zinc-500 hover:text-zinc-900 text-sm transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -5129,39 +5127,39 @@ function NotificationLogView() {
       {/* Summary stats */}
       {!isLoading && entries.length > 0 && (
         <div className="grid grid-cols-3 gap-2 mb-4">
-          <div className="rounded-xl bg-zinc-800/40 border border-white/8 px-3 py-2.5 text-center">
-            <p className="text-lg font-bold text-white">{entries.length}</p>
-            <p className="text-xs text-white/35">Total</p>
+          <div className="rounded-xl bg-white border border-zinc-200 px-3 py-2.5 text-center shadow-sm">
+            <p className="text-lg font-bold text-zinc-900">{entries.length}</p>
+            <p className="text-xs text-zinc-500">Total</p>
           </div>
-          <div className="rounded-xl bg-emerald-900/20 border border-emerald-500/15 px-3 py-2.5 text-center">
-            <p className="text-lg font-bold text-emerald-400">{entries.filter(e => e.success).length}</p>
-            <p className="text-xs text-white/35">Delivered</p>
+          <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2.5 text-center">
+            <p className="text-lg font-bold text-emerald-600">{entries.filter(e => e.success).length}</p>
+            <p className="text-xs text-zinc-500">Delivered</p>
           </div>
-          <div className="rounded-xl bg-red-900/20 border border-red-500/15 px-3 py-2.5 text-center">
-            <p className="text-lg font-bold text-red-400">{entries.filter(e => !e.success).length}</p>
-            <p className="text-xs text-white/35">Failed</p>
+          <div className="rounded-xl bg-red-50 border border-red-200 px-3 py-2.5 text-center">
+            <p className="text-lg font-bold text-red-600">{entries.filter(e => !e.success).length}</p>
+            <p className="text-xs text-zinc-500">Failed</p>
           </div>
         </div>
       )}
 
       {/* Log table */}
       {isLoading ? (
-        <div className="flex items-center gap-2 text-white/30 text-sm py-8 justify-center">
+        <div className="flex items-center gap-2 text-zinc-400 text-sm py-8 justify-center">
           <Loader2 className="w-5 h-5 animate-spin" /> Loading notifications...
         </div>
       ) : entries.length === 0 ? (
         <div className="text-center py-12">
-          <BellOff className="w-10 h-10 text-white/15 mx-auto mb-3" />
-          <p className="text-white/30 text-sm">
+          <BellOff className="w-10 h-10 text-zinc-300 mx-auto mb-3" />
+          <p className="text-zinc-500 text-sm">
             {appliedFilter ? `No notifications found for ${appliedFilter}` : "No notifications logged yet"}
           </p>
-          <p className="text-white/20 text-xs mt-1">Notifications will appear here as quotes are processed</p>
+          <p className="text-zinc-400 text-xs mt-1">Notifications will appear here as quotes are processed</p>
         </div>
       ) : (
-        <div className="rounded-xl border border-white/10 overflow-hidden">
-          <div className="divide-y divide-white/5">
+        <div className="rounded-xl border border-zinc-200 overflow-hidden bg-white shadow-sm">
+          <div className="divide-y divide-zinc-100">
             {entries.map((entry) => (
-              <div key={entry.id} className="px-4 py-3 flex items-start gap-3 hover:bg-white/2 transition-colors">
+              <div key={entry.id} className="px-4 py-3 flex items-start gap-3 hover:bg-zinc-50 transition-colors">
                 <div className={`mt-0.5 flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
                   entry.success ? "bg-emerald-500/15" : "bg-red-500/15"
                 }`}>
@@ -5173,24 +5171,24 @@ function NotificationLogView() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-xs font-semibold text-amber-400">{entry.quoteNumber}</span>
-                    <span className="text-xs font-medium text-white/80">
+                    <span className="text-xs font-semibold text-amber-600">{entry.quoteNumber}</span>
+                    <span className="text-xs font-medium text-zinc-700">
                       {triggerLabels[entry.statusTrigger] ?? entry.statusTrigger}
                     </span>
-                    <span className="text-xs text-white/30 uppercase tracking-wide">{entry.channel}</span>
+                    <span className="text-xs text-zinc-400 uppercase tracking-wide">{entry.channel}</span>
                     {!entry.success && (
                       <span className="text-xs text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded-full">Failed</span>
                     )}
                   </div>
-                  <div className="text-xs text-white/35 mt-0.5 truncate">
+                  <div className="text-xs text-zinc-500 mt-0.5 truncate">
                     {entry.recipientEmail || entry.recipientPhone || "—"}
                     {entry.recipientName ? ` · ${entry.recipientName}` : ""}
                   </div>
                   {entry.errorMessage && (
-                    <div className="text-xs text-red-400/70 mt-0.5 truncate">{entry.errorMessage}</div>
+                    <div className="text-xs text-red-500 mt-0.5 truncate">{entry.errorMessage}</div>
                   )}
                 </div>
-                <div className="text-xs text-white/25 flex-shrink-0 mt-0.5 text-right">
+                <div className="text-xs text-zinc-400 flex-shrink-0 mt-0.5 text-right">
                   <div>{formatAESTDate(new Date(entry.sentAt), { day: "2-digit", month: "short" })}</div>
                   <div>{formatAESTDateTime(new Date(entry.sentAt), { hour: "2-digit", minute: "2-digit" })}</div>
                 </div>
@@ -5247,14 +5245,14 @@ function AgencyProfileView({
 
   if (!data) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-8 text-white/40 text-sm">
+      <div className="max-w-2xl mx-auto px-4 py-8 text-zinc-400 text-sm">
         Agency not found.
       </div>
     );
   }
 
   const statusColors: Record<string, string> = {
-    draft: "text-white/30",
+    draft: "text-zinc-400",
     quote_sent: "text-blue-400",
     accepted: "text-emerald-400",
     deposit_paid: "text-amber-400",
@@ -5280,7 +5278,7 @@ function AgencyProfileView({
       {/* Back button */}
       <button
         onClick={onBack}
-        className="flex items-center gap-2 text-white/40 hover:text-white text-sm transition-colors"
+        className="flex items-center gap-2 text-zinc-400 hover:text-white text-sm transition-colors"
       >
         <ChevronLeft className="w-4 h-4" /> All Agencies
       </button>
@@ -5294,16 +5292,16 @@ function AgencyProfileView({
           <div className="flex-1 min-w-0">
             <h2 className="text-white font-semibold text-lg leading-tight">{data.agencyName}</h2>
             {data.contactPerson && (
-              <p className="text-white/50 text-sm mt-0.5">{data.contactPerson}</p>
+              <p className="text-zinc-500 text-sm mt-0.5">{data.contactPerson}</p>
             )}
             <div className="flex flex-wrap gap-3 mt-3">
               {data.email && (
-                <a href={`mailto:${data.email}`} className="flex items-center gap-1.5 text-white/50 hover:text-white text-xs transition-colors">
+                <a href={`mailto:${data.email}`} className="flex items-center gap-1.5 text-zinc-500 hover:text-white text-xs transition-colors">
                   <Mail className="w-3.5 h-3.5" /> {data.email}
                 </a>
               )}
               {data.phone && (
-                <a href={`tel:${data.phone}`} className="flex items-center gap-1.5 text-white/50 hover:text-white text-xs transition-colors">
+                <a href={`tel:${data.phone}`} className="flex items-center gap-1.5 text-zinc-500 hover:text-white text-xs transition-colors">
                   <Phone className="w-3.5 h-3.5" /> {data.phone}
                 </a>
               )}
@@ -5315,32 +5313,32 @@ function AgencyProfileView({
       {/* Revenue summary */}
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-zinc-800/50 rounded-xl border border-white/10 p-4">
-          <p className="text-white/40 text-xs mb-1">Total Revenue</p>
+          <p className="text-zinc-400 text-xs mb-1">Total Revenue</p>
           <p className="text-white font-bold text-xl">{fmt(data.revenue.totalQuoted)}</p>
-          <p className="text-white/30 text-xs mt-0.5">{data.quotes.length} quote{data.quotes.length !== 1 ? "s" : ""}</p>
+          <p className="text-zinc-400 text-xs mt-0.5">{data.quotes.length} quote{data.quotes.length !== 1 ? "s" : ""}</p>
         </div>
         <div className="bg-zinc-800/50 rounded-xl border border-white/10 p-4">
-          <p className="text-white/40 text-xs mb-1">Outstanding</p>
+          <p className="text-zinc-400 text-xs mb-1">Outstanding</p>
           <p className={`font-bold text-xl ${data.revenue.outstanding > 0 ? "text-amber-400" : "text-emerald-400"}`}>
             {fmt(data.revenue.outstanding)}
           </p>
-          <p className="text-white/30 text-xs mt-0.5">{data.invoices.length} invoice{data.invoices.length !== 1 ? "s" : ""}</p>
+          <p className="text-zinc-400 text-xs mt-0.5">{data.invoices.length} invoice{data.invoices.length !== 1 ? "s" : ""}</p>
         </div>
         <div className="bg-zinc-800/50 rounded-xl border border-white/10 p-4">
-          <p className="text-white/40 text-xs mb-1">Total Invoiced</p>
+          <p className="text-zinc-400 text-xs mb-1">Total Invoiced</p>
           <p className="text-white font-semibold text-lg">{fmt(data.revenue.totalInvoiced)}</p>
         </div>
         <div className="bg-zinc-800/50 rounded-xl border border-white/10 p-4">
-          <p className="text-white/40 text-xs mb-1">Total Paid</p>
+          <p className="text-zinc-400 text-xs mb-1">Total Paid</p>
           <p className="text-emerald-400 font-semibold text-lg">{fmt(data.revenue.totalPaid)}</p>
         </div>
       </div>
 
       {/* Quotes */}
       <div>
-        <h3 className="text-white/60 text-xs font-semibold uppercase tracking-wider mb-3">Quotes</h3>
+        <h3 className="text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-3">Quotes</h3>
         {data.quotes.length === 0 ? (
-          <p className="text-white/30 text-sm">No quotes yet.</p>
+          <p className="text-zinc-400 text-sm">No quotes yet.</p>
         ) : (
           <div className="space-y-2">
             {data.quotes.map((q) => (
@@ -5353,12 +5351,12 @@ function AgencyProfileView({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="text-white font-medium text-sm">{q.quoteNumber}</span>
-                      <span className={`text-xs font-medium ${statusColors[q.jobStatus || "draft"] || "text-white/40"}`}>
+                      <span className={`text-xs font-medium ${statusColors[q.jobStatus || "draft"] || "text-zinc-400"}`}>
                         {statusLabels[q.jobStatus || "draft"] || q.jobStatus}
                       </span>
                     </div>
                     {q.propertyAddress && (
-                      <p className="text-white/40 text-xs mt-0.5 truncate">{q.propertyAddress}</p>
+                      <p className="text-zinc-400 text-xs mt-0.5 truncate">{q.propertyAddress}</p>
                     )}
                     {q.scheduledDate && (
                       <p className="text-cyan-400 text-xs mt-0.5">
@@ -5371,7 +5369,7 @@ function AgencyProfileView({
                     {q.acceptedTotal ? (
                       <p className="text-white font-semibold text-sm">${q.acceptedTotal.toLocaleString("en-AU")}</p>
                     ) : null}
-                    <p className="text-white/25 text-xs">
+                    <p className="text-zinc-300 text-xs">
                       {formatAESTDate(new Date(q.createdAt), { day: "numeric", month: "short", year: "numeric" })}
                     </p>
                   </div>
@@ -5385,7 +5383,7 @@ function AgencyProfileView({
       {/* Invoices */}
       {data.invoices.length > 0 && (
         <div>
-          <h3 className="text-white/60 text-xs font-semibold uppercase tracking-wider mb-3">Invoices</h3>
+          <h3 className="text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-3">Invoices</h3>
           <div className="space-y-2">
             {data.invoices.map((inv) => {
               const paymentConfig = getPaymentStatusConfig(inv.paymentStatus);
@@ -5402,8 +5400,8 @@ function AgencyProfileView({
                           {paymentConfig.label}
                         </span>
                       </div>
-                      <p className="text-white/40 text-xs mt-0.5">{inv.propertyAddress}</p>
-                      <p className="text-white/25 text-xs mt-0.5">
+                      <p className="text-zinc-400 text-xs mt-0.5">{inv.propertyAddress}</p>
+                      <p className="text-zinc-300 text-xs mt-0.5">
                         {formatAESTDate(new Date(inv.createdAt), { day: "numeric", month: "short", year: "numeric" })}
                       </p>
                     </div>
@@ -5415,7 +5413,7 @@ function AgencyProfileView({
                           target="_blank"
                           rel="noreferrer"
                           onClick={(e) => e.stopPropagation()}
-                          className="inline-flex items-center gap-1 text-white/30 hover:text-white text-xs mt-1 transition-colors"
+                          className="inline-flex items-center gap-1 text-zinc-400 hover:text-white text-xs mt-1 transition-colors"
                         >
                           <Download className="w-3 h-3" /> PDF
                         </a>
@@ -5478,28 +5476,28 @@ function AgenciesTab({
         <div className="grid grid-cols-3 gap-2">
           <div className="bg-zinc-800/50 rounded-xl border border-white/10 p-3 text-center">
             <p className="text-white font-bold text-lg">{agencies.length}</p>
-            <p className="text-white/40 text-xs">Agencies</p>
+            <p className="text-zinc-400 text-xs">Agencies</p>
           </div>
           <div className="bg-zinc-800/50 rounded-xl border border-white/10 p-3 text-center">
             <p className="text-white font-bold text-lg">{totalQuotes}</p>
-            <p className="text-white/40 text-xs">Quotes</p>
+            <p className="text-zinc-400 text-xs">Quotes</p>
           </div>
           <div className="bg-zinc-800/50 rounded-xl border border-white/10 p-3 text-center">
             <p className="text-white font-bold text-lg">{fmt(totalRevenue)}</p>
-            <p className="text-white/40 text-xs">Revenue</p>
+            <p className="text-zinc-400 text-xs">Revenue</p>
           </div>
         </div>
       )}
 
       {/* Search */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
         <input
           type="text"
           placeholder="Search agencies..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-zinc-800/50 border border-white/10 text-white text-sm placeholder:text-white/30 focus:border-white/30 focus:outline-none"
+          className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-zinc-800/50 border border-white/10 text-white text-sm placeholder:text-zinc-400 focus:border-white/30 focus:outline-none"
         />
       </div>
 
@@ -5509,7 +5507,7 @@ function AgenciesTab({
           <Loader2 className="w-6 h-6 text-white animate-spin" />
         </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-12 text-white/30 text-sm">
+        <div className="text-center py-12 text-zinc-400 text-sm">
           {search ? "No agencies match your search." : "No agency quotes yet."}
         </div>
       ) : (
@@ -5529,14 +5527,14 @@ function AgenciesTab({
                     <div className="min-w-0">
                       <p className="text-white font-medium text-sm leading-tight truncate">{agency.agencyName}</p>
                       {agency.contactPerson && (
-                        <p className="text-white/40 text-xs mt-0.5">{agency.contactPerson}</p>
+                        <p className="text-zinc-400 text-xs mt-0.5">{agency.contactPerson}</p>
                       )}
                     </div>
                     <div className="text-right flex-shrink-0">
                       {agency.totalRevenue > 0 ? (
                         <p className="text-white font-semibold text-sm">{fmt(agency.totalRevenue)}</p>
                       ) : null}
-                      <p className="text-white/30 text-xs">
+                      <p className="text-zinc-400 text-xs">
                         {agency.quoteCount} quote{agency.quoteCount !== 1 ? "s" : ""}
                         {agency.acceptedCount > 0 ? ` · ${agency.acceptedCount} accepted` : ""}
                       </p>
@@ -5544,18 +5542,18 @@ function AgenciesTab({
                   </div>
                   <div className="flex items-center gap-3 mt-2">
                     {agency.email && (
-                      <span className="flex items-center gap-1 text-white/30 text-xs">
+                      <span className="flex items-center gap-1 text-zinc-400 text-xs">
                         <Mail className="w-3 h-3" /> {agency.email}
                       </span>
                     )}
                     {agency.lastActivityAt && (
-                      <span className="text-white/20 text-xs">
+                      <span className="text-zinc-300 text-xs">
                         {formatRelativeTime(new Date(agency.lastActivityAt))}
                       </span>
                     )}
                   </div>
                 </div>
-                <ChevronRight className="w-4 h-4 text-white/20 group-hover:text-white/40 flex-shrink-0 mt-1 transition-colors" />
+                <ChevronRight className="w-4 h-4 text-zinc-300 group-hover:text-zinc-400 flex-shrink-0 mt-1 transition-colors" />
               </div>
             </button>
           ))}
@@ -5677,7 +5675,7 @@ export default function Admin() {
         {/* Logo + subtitle */}
         <div className="px-5 pt-6 pb-5">
           <img src={LOGO_WHITE_PNG} alt="Bell Carpets" className="h-[18px] mb-1.5" />
-          <p className="sidebar-subtitle text-[11px] text-white/25">Quote Manager</p>
+          <p className="sidebar-subtitle text-[11px] text-zinc-300">Quote Manager</p>
         </div>
         {/* Nav groups */}
         <nav className="flex-1 px-3 pb-4 space-y-6">
@@ -5685,7 +5683,7 @@ export default function Admin() {
             const items = NAV_ITEMS.filter(i => i.group === group.key);
             return (
               <div key={group.key}>
-                <p className="px-2 mb-1.5 text-[9px] font-semibold tracking-[0.18em] uppercase text-white/20">{group.label}</p>
+                <p className="px-2 mb-1.5 text-[9px] font-semibold tracking-[0.18em] uppercase text-zinc-300">{group.label}</p>
                 {items.map(item => {
                   const Icon = item.icon;
                   const active = view === item.view;
@@ -5696,13 +5694,13 @@ export default function Admin() {
                       className={`relative w-full flex items-center gap-3 px-3 py-[7px] rounded-lg text-[13px] font-medium transition-all duration-150 mb-0.5 ${
                         active
                           ? "text-white bg-white/[0.07]"
-                          : "text-white/35 hover:text-white/70 hover:bg-white/[0.03]"
+                          : "text-zinc-400 hover:text-zinc-600 hover:bg-white/[0.03]"
                       }`}
                     >
                       {active && (
                         <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-white rounded-r-full" />
                       )}
-                      <Icon className={`w-[15px] h-[15px] shrink-0 ${active ? "text-white" : "text-white/30"}`} />
+                      <Icon className={`w-[15px] h-[15px] shrink-0 ${active ? "text-white" : "text-zinc-400"}`} />
                       {item.label}
                     </button>
                   );
@@ -5715,7 +5713,7 @@ export default function Admin() {
         <div className="px-3 py-4 border-t border-white/[0.05]">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-[7px] rounded-lg text-[13px] text-white/25 hover:text-white/60 hover:bg-white/[0.03] transition-all duration-150"
+            className="w-full flex items-center gap-3 px-3 py-[7px] rounded-lg text-[13px] text-zinc-300 hover:text-zinc-500 hover:bg-white/[0.03] transition-all duration-150"
           >
             <Lock className="w-[15px] h-[15px] shrink-0" />
             Lock
@@ -5730,7 +5728,7 @@ export default function Admin() {
           <img src={LOGO_PNG} alt="Bell Carpets" className="h-5" />
           <button
             onClick={handleLogout}
-            className="flex items-center gap-1.5 text-xs text-white/30 hover:text-white/70 transition-colors px-2 py-1 rounded-lg hover:bg-white/5"
+            className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-600 transition-colors px-2 py-1 rounded-lg hover:bg-white/5"
           >
             <Lock className="w-3 h-3" />
           </button>
