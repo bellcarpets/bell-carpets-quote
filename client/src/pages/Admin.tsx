@@ -2006,8 +2006,9 @@ function QuotesDashboard({
           <div className="space-y-3">
             {filteredQuotes.map((q) => {
               const qDaysLeft = getDaysRemaining(q.expiresAt);
-              const qExpired = qDaysLeft !== null && qDaysLeft <= 0;
-              const qExpiringSoon = qDaysLeft !== null && qDaysLeft > 0 && qDaysLeft <= 3;
+              const qIsOpenStatus = q.jobStatus === 'draft' || q.jobStatus === 'quote_sent';
+              const qExpired = qIsOpenStatus && qDaysLeft !== null && qDaysLeft <= 0;
+              const qExpiringSoon = qIsOpenStatus && qDaysLeft !== null && qDaysLeft > 0 && qDaysLeft <= 3;
               const qCancelled = q.jobStatus === "cancelled";
               const cardBorder = qCancelled
                 ? "border-zinc-700/40"
@@ -3513,7 +3514,7 @@ function QuoteEditor({
                 </button>
               )}
             </div>
-            {quoteData?.expiresAt && (() => {
+            {quoteData?.expiresAt && !['accepted','deposit_paid','scheduled','completed','paid_in_full','cancelled'].includes(quoteData.jobStatus ?? '') && (() => {
               const now = new Date();
               const exp = new Date(quoteData.expiresAt);
               const daysLeft = Math.ceil((exp.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
