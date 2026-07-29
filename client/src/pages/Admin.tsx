@@ -1427,7 +1427,7 @@ function QuotesDashboard({
             </button>
           </div>
           {/* Stat cards */}
-          <div className="grid grid-cols-4 gap-3 pb-4">
+          <div className="grid grid-cols-3 gap-3 pb-4">
             <div className="bg-zinc-50 rounded-xl px-4 py-3 border border-zinc-200/60">
               <p className="text-[10px] uppercase tracking-[0.12em] text-zinc-400 font-medium mb-1">Open</p>
               <p className="text-2xl font-bold text-zinc-900 leading-none tabular-nums">{openQuoteCount}</p>
@@ -1435,10 +1435,6 @@ function QuotesDashboard({
             <div className="bg-zinc-50 rounded-xl px-4 py-3 border border-zinc-200/60">
               <p className="text-[10px] uppercase tracking-[0.12em] text-zinc-400 font-medium mb-1">Scheduled</p>
               <p className="text-2xl font-bold text-zinc-900 leading-none tabular-nums">{scheduledCount}</p>
-            </div>
-            <div className="bg-zinc-50 rounded-xl px-4 py-3 border border-zinc-200/60">
-              <p className="text-[10px] uppercase tracking-[0.12em] text-zinc-400 font-medium mb-1">Pipeline</p>
-              <p className="text-2xl font-bold text-zinc-900 leading-none tabular-nums">${pipelineValue.toLocaleString()}</p>
             </div>
             {expiredCount > 0 ? (
               <div className="bg-red-50 rounded-xl px-4 py-3 border border-red-200/60">
