@@ -5570,7 +5570,7 @@ function AgenciesTab({
 }
 
 // ─── Export ─────────────────────────────────────────────────────────────────────
-type AdminView = "dashboard" | "calendar" | "contacts" | "library" | "invoices" | "xero" | "notifications" | "agencies";;
+type AdminView = "dashboard" | "calendar" | "contacts" | "library" | "invoices" | "xero" | "notifications";
 
 const ADMIN_SESSION_KEY = "bell_admin_session";
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
@@ -5661,7 +5661,6 @@ export default function Admin() {
     { view: "calendar",      label: "Calendar",      icon: Calendar,        group: "pipeline" },
     { view: "invoices",      label: "Invoices",      icon: FileText,        group: "finance" },
     { view: "contacts",      label: "Contacts",      icon: BookUser,        group: "people" },
-    { view: "agencies",      label: "Agencies",      icon: Building2,       group: "people" },
     { view: "library",       label: "Library",       icon: BookOpen,        group: "tools" },
     { view: "xero",          label: "Saasu",         icon: Settings,        group: "tools" },
     { view: "notifications", label: "Notifications", icon: Bell,            group: "tools" },
@@ -5673,7 +5672,7 @@ export default function Admin() {
     { key: "tools",    label: "Tools" },
   ];
   // Mobile bottom bar: 5 primary items
-  const MOBILE_NAV: AdminView[] = ["dashboard", "calendar", "invoices", "contacts", "agencies"];
+  const MOBILE_NAV: AdminView[] = ["dashboard", "calendar", "invoices", "contacts"];
 
   return (
     <div className="min-h-screen bg-[#f8f8f7] text-zinc-900 flex admin-root">
@@ -5750,7 +5749,6 @@ export default function Admin() {
           {view === "library"       && <ScopeLibraryManager />}
           {view === "xero"          && <XeroSettings password={password} />}
           {view === "notifications" && <NotificationLogView />}
-          {view === "agencies"      && <AgenciesTab password={password} onEditQuote={(slug) => { setEditingSlug(slug); setView("dashboard"); }} />}
         </div>
 
         {/* ── Mobile bottom tab bar ── */}

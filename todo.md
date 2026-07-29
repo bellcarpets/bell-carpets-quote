@@ -148,3 +148,9 @@
 ## Phase 15: BCC on All Outgoing Emails
 - [x] Add bcc: hello@bellcarpets.com.au to all Resend email sends across the codebase
 - [x] Strip Invoices tab to workflow tracker (remove dollar amounts, keep job/status/dates only)
+
+## Phase 16: Remove Agencies Tab
+- [x] Remove Agencies from sidebar nav
+- [x] Remove Agencies from mobile bottom nav
+- [x] Remove Agencies tab component/view routing
+- [x] Keep Contacts as the single contact management view
