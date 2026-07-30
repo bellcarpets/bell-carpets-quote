@@ -255,7 +255,7 @@ export const QUOTE_DATA = {
   business: {
     name: "Bell Carpets",
     established: "1987",
-    tagline: "RESIDENTIAL | COMMERCIAL | PROJECTS",
+    tagline: "",
     address: "1/39-41 Olympic Circuit, Southport QLD 4215",
     phone: "07 5571 1177",
     website: "www.bellcarpets.com.au",

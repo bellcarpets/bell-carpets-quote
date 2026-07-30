@@ -245,7 +245,7 @@ export async function sendSchedulingConfirmationEmail(data: SchedulingConfirmati
 
   const htmlBody = `<!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Installation Scheduled from Bell Carpets</title></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Installation Scheduled — Bell Carpets</title></head>
 <body style="margin:0;padding:0;background:#ffffff;font-family:Georgia,'Times New Roman',serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;">
     <tr><td align="center" style="padding:40px 16px 0;">
@@ -316,8 +316,7 @@ export async function sendSchedulingConfirmationEmail(data: SchedulingConfirmati
         from: "Bell Carpets <quotes@bellcarpets.com.au>",
         reply_to: "hello@bellcarpets.com.au",
         to: [data.recipientEmail],
-        bcc: ["hello@bellcarpets.com.au"],
-        subject: `Installation Scheduled: ${data.propertyAddress} on ${dateStr}`,
+        subject: `Installation Scheduled — ${data.propertyAddress} on ${dateStr}`,
         html: htmlBody,
       }),
     });
@@ -362,7 +361,7 @@ export async function sendQuoteLinkEmail(data: QuoteLinkEmailData): Promise<bool
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Your Flooring Quote from Bell Carpets</title>
+  <title>Your Flooring Quote — Bell Carpets</title>
 </head>
 <body style="margin:0;padding:0;background:#f5f5f5;font-family:Georgia,'Times New Roman',serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;">
@@ -379,7 +378,7 @@ export async function sendQuoteLinkEmail(data: QuoteLinkEmailData): Promise<bool
         <tr><td style="padding:48px 48px 40px;">
 
           <p style="color:#333;font-size:14px;margin:0 0 32px;font-family:Arial,sans-serif;line-height:1.6;">
-            Dear ${data.clientName || data.agentName},
+            Dear ${data.agentPropertyManager ? data.agentPropertyManager : data.agentName},
           </p>
 
           <h1 style="color:#111;font-size:28px;font-weight:400;margin:0 0 8px;line-height:1.2;letter-spacing:-0.01em;">
@@ -429,7 +428,7 @@ export async function sendQuoteLinkEmail(data: QuoteLinkEmailData): Promise<bool
           <!-- CTA Button -->
           <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:40px;">
             <tr><td>
-              <a href="${quoteUrl}" style="display:inline-block;background:#111111;color:#ffffff;text-decoration:none;padding:16px 40px;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;font-family:Arial,sans-serif;border-radius:6px;">
+              <a href="${quoteUrl}" style="display:inline-block;background:#ffffff;color:#fff;text-decoration:none;padding:16px 40px;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;font-family:Arial,sans-serif;">
                 View Your Quote
               </a>
             </td></tr>
@@ -471,7 +470,7 @@ export async function sendQuoteLinkEmail(data: QuoteLinkEmailData): Promise<bool
         reply_to: "hello@bellcarpets.com.au",
         to: [data.agentEmail],
         bcc: ["hello@bellcarpets.com.au"],
-        subject: `Your Flooring Quote ${data.quoteNumber} from Bell Carpets`,
+        subject: `Your Flooring Quote ${data.quoteNumber} — Bell Carpets`,
         html: htmlBody,
       }),
     });
@@ -504,7 +503,7 @@ export async function sendReminderEmail(data: QuoteLinkEmailData & { daysLeft: n
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Quote Reminder from Bell Carpets</title>
+  <title>Quote Reminder — Bell Carpets</title>
 </head>
 <body style="margin:0;padding:0;background:#f5f5f5;font-family:Georgia,'Times New Roman',serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;">
@@ -521,7 +520,7 @@ export async function sendReminderEmail(data: QuoteLinkEmailData & { daysLeft: n
         <tr><td style="padding:48px 48px 40px;">
 
           <p style="color:#333;font-size:14px;margin:0 0 32px;font-family:Arial,sans-serif;line-height:1.6;">
-            Dear ${data.clientName || data.agentName},
+            Dear ${data.agentPropertyManager ? data.agentPropertyManager : data.agentName},
           </p>
 
           <h1 style="color:#111;font-size:28px;font-weight:400;margin:0 0 8px;line-height:1.2;letter-spacing:-0.01em;">
@@ -571,7 +570,7 @@ export async function sendReminderEmail(data: QuoteLinkEmailData & { daysLeft: n
           <!-- CTA Button -->
           <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:40px;">
             <tr><td>
-              <a href="${quoteUrl}" style="display:inline-block;background:#111111;color:#ffffff;text-decoration:none;padding:16px 40px;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;font-family:Arial,sans-serif;border-radius:6px;">
+              <a href="${quoteUrl}" style="display:inline-block;background:#ffffff;color:#fff;text-decoration:none;padding:16px 40px;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;font-family:Arial,sans-serif;">
                 ${isUrgent ? "Accept Now" : "Review Quote"}
               </a>
             </td></tr>
@@ -614,7 +613,7 @@ export async function sendReminderEmail(data: QuoteLinkEmailData & { daysLeft: n
         reply_to: "hello@bellcarpets.com.au",
         to: [data.agentEmail],
         bcc: ["hello@bellcarpets.com.au"],
-        subject: `Reminder: Your Quote ${data.quoteNumber} ${urgencyText} from Bell Carpets`,
+        subject: `Reminder: Your Quote ${data.quoteNumber} ${urgencyText} — Bell Carpets`,
         html: htmlBody,
       }),
     });

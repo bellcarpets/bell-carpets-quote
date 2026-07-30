@@ -2,8 +2,7 @@
  * TierCard — Flat select card with inline colour picker
  * Step 1: Select tier (card highlights)
  * Step 2: Pick colour (swatches appear inline)
- * Tap magnify icon on any swatch to open swatch lightbox
- * "View product specs" link opens specs lightbox
+ * White background, dark text — professional trade document
  */
 
 import { useState, useEffect, useCallback } from "react";
@@ -92,7 +91,7 @@ function SpecsLightbox({ productName, manufacturer, specs, onClose }: SpecsLight
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
       className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6"
-      style={{ backgroundColor: "rgba(0,0,0,0.92)" }}
+      style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
       onClick={onClose}
     >
       <motion.div
@@ -101,21 +100,21 @@ function SpecsLightbox({ productName, manufacturer, specs, onClose }: SpecsLight
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.92, y: 20 }}
         transition={{ duration: 0.25, ease: "easeOut" }}
-        className="relative w-full max-w-md max-h-[85vh] overflow-hidden rounded-2xl bg-zinc-900 border border-white/15 shadow-2xl flex flex-col"
+        className="relative w-full max-w-md max-h-[85vh] overflow-hidden rounded-2xl bg-white border border-zinc-200 shadow-2xl flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-white/10 flex-shrink-0">
+        <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-zinc-100 flex-shrink-0">
           <div>
-            <p className="text-white font-semibold text-base leading-tight">{productName}</p>
-            <p className="text-white/40 text-xs mt-0.5">{manufacturer} — Product Specifications</p>
+            <p className="text-zinc-900 font-semibold text-base leading-tight">{productName}</p>
+            <p className="text-zinc-400 text-xs mt-0.5">{manufacturer} — Product Specifications</p>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-white/10 border border-white/20 flex items-center justify-center hover:bg-white/20 transition-colors flex-shrink-0"
+            className="w-8 h-8 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center hover:bg-zinc-200 transition-colors flex-shrink-0"
             aria-label="Close"
           >
-            <X className="w-4 h-4 text-white" />
+            <X className="w-4 h-4 text-zinc-600" />
           </button>
         </div>
 
@@ -125,12 +124,12 @@ function SpecsLightbox({ productName, manufacturer, specs, onClose }: SpecsLight
             {specs.map((spec, i) => (
               <div
                 key={spec.label}
-                className={`flex gap-3 py-2.5 ${i < specs.length - 1 ? "border-b border-white/[0.06]" : ""}`}
+                className={`flex gap-3 py-2.5 ${i < specs.length - 1 ? "border-b border-zinc-100" : ""}`}
               >
-                <span className="text-white/40 text-xs font-medium w-28 sm:w-32 flex-shrink-0 pt-0.5">
+                <span className="text-zinc-400 text-xs font-medium w-28 sm:w-32 flex-shrink-0 pt-0.5">
                   {spec.label}
                 </span>
-                <span className="text-white/80 text-sm leading-snug">
+                <span className="text-zinc-700 text-sm leading-snug">
                   {spec.value}
                 </span>
               </div>
@@ -139,8 +138,8 @@ function SpecsLightbox({ productName, manufacturer, specs, onClose }: SpecsLight
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3 border-t border-white/10 flex-shrink-0">
-          <p className="text-white/25 text-[10px] text-center">Tap outside to close</p>
+        <div className="px-5 py-3 border-t border-zinc-100 flex-shrink-0">
+          <p className="text-zinc-300 text-[10px] text-center">Tap outside to close</p>
         </div>
       </motion.div>
     </motion.div>
@@ -178,7 +177,7 @@ function SwatchLightbox({ colour, onClose }: LightboxProps) {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
       className="fixed inset-0 z-[9999] flex items-center justify-center p-6"
-      style={{ backgroundColor: "rgba(0,0,0,0.90)" }}
+      style={{ backgroundColor: "rgba(0,0,0,0.7)" }}
       onClick={onClose}
     >
       <motion.div
@@ -192,13 +191,13 @@ function SwatchLightbox({ colour, onClose }: LightboxProps) {
       >
         <button
           onClick={onClose}
-          className="absolute -top-2 -right-2 z-10 w-9 h-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center hover:bg-white/20 transition-colors"
+          className="absolute -top-2 -right-2 z-10 w-9 h-9 rounded-full bg-white/90 border border-zinc-200 flex items-center justify-center hover:bg-white transition-colors"
           aria-label="Close"
         >
-          <X className="w-4 h-4 text-white" />
+          <X className="w-4 h-4 text-zinc-700" />
         </button>
 
-        <div className="w-full aspect-square rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/15">
+        <div className="w-full aspect-square rounded-2xl overflow-hidden shadow-2xl ring-1 ring-zinc-200">
           <img
             src={colour.swatchImage}
             alt={`${colour.name} carpet swatch`}
@@ -209,11 +208,11 @@ function SwatchLightbox({ colour, onClose }: LightboxProps) {
         <div className="text-center">
           <p className="text-white text-lg font-semibold leading-tight">{colour.name}</p>
           {colour.code && (
-            <p className="text-white/50 text-sm mt-0.5">Code {colour.code}</p>
+            <p className="text-white/70 text-sm mt-0.5">Code {colour.code}</p>
           )}
         </div>
 
-        <p className="text-white/30 text-xs">Tap outside to close</p>
+        <p className="text-white/50 text-xs">Tap outside to close</p>
       </motion.div>
     </motion.div>
   );
@@ -280,17 +279,17 @@ export default function TierCard({
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.15 * index, ease: "easeOut" }}
-        className="relative w-full"
+        className="relative w-full h-full"
       >
         <div
           className={`
-            relative w-full rounded-2xl overflow-hidden
+            relative w-full h-full rounded-2xl overflow-hidden
             transition-all duration-500 ease-out
-            bg-zinc-900 border
+            bg-white border
             ${
               isSelected
-                ? "border-white/40 shadow-[0_0_32px_-4px_rgba(255,255,255,0.12)] ring-1 ring-white/20"
-                : "border-white/10 hover:border-white/20 shadow-lg hover:shadow-xl"
+                ? "border-zinc-400 shadow-lg ring-1 ring-zinc-300"
+                : "border-zinc-200 hover:border-zinc-300 shadow-sm hover:shadow-md"
             }
           `}
         >
@@ -301,14 +300,14 @@ export default function TierCard({
           >
             {/* Top row: label + selection indicator */}
             <div className="relative px-5 pt-5 pb-1 flex items-start justify-between gap-3">
-              <div className="px-3 py-1 rounded-full text-xs font-semibold tracking-[0.15em] uppercase bg-white/[0.07] text-white/70 border border-white/15">
+              <div className="px-3 py-1 rounded-full text-xs font-semibold tracking-[0.15em] uppercase bg-zinc-100 text-zinc-600 border border-zinc-200">
                 {tier.label}
               </div>
               <div
                 className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
                   isSelected
-                    ? "bg-white text-black scale-110"
-                    : "bg-white/[0.07] text-white/30 border border-white/10"
+                    ? "bg-zinc-900 text-white scale-110"
+                    : "bg-zinc-100 text-zinc-400 border border-zinc-200"
                 }`}
               >
                 {isSelected ? (
@@ -320,39 +319,39 @@ export default function TierCard({
             </div>
 
             {/* Product info + price */}
-            <div className="relative px-5 pb-5 pt-3 bg-zinc-900">
-              <div className="flex items-end justify-between gap-3">
+            <div className="relative px-5 pb-5 pt-3">
+              <div className="flex items-end justify-between gap-3 min-h-[72px]">
                 <div className="min-w-0">
-                  <p className="text-xs tracking-wide mb-0.5 truncate text-white/40">
+                  <p className="text-xs tracking-wide mb-0.5 truncate text-zinc-400">
                     {tier.manufacturer}
                   </p>
-                  <p className="text-lg font-medium leading-tight text-white">
+                  <p className="text-lg font-medium leading-tight text-zinc-900">
                     {tier.productName}
                   </p>
                   {selectedColour && (
                     <div className="flex items-center gap-1.5 mt-2">
-                      <div className="w-4 h-4 rounded-full border border-white/20 overflow-hidden flex-shrink-0">
+                      <div className="w-4 h-4 rounded-full border border-zinc-200 overflow-hidden flex-shrink-0">
                         <img
                           src={selectedColour.swatchImage}
                           alt={selectedColour.name}
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <span className="text-xs text-white/50">
+                      <span className="text-xs text-zinc-500">
                         {selectedColour.name}
                       </span>
-                      <Check className="w-3 h-3 text-white/60" />
+                      <Check className="w-3 h-3 text-zinc-500" />
                     </div>
                   )}
                 </div>
                 <div className="text-right flex-shrink-0">
                   <div className="flex items-baseline gap-1 justify-end">
-                    <span className="text-2xl sm:text-3xl font-semibold tracking-tight text-white">
-                      ${Math.round(tier.price / 1.1).toLocaleString("en-AU")}
+                    <span className="text-2xl sm:text-3xl font-semibold tracking-tight text-zinc-900">
+                      ${Math.round(tier.price).toLocaleString("en-AU")}
                     </span>
                   </div>
-                  <span className="text-[11px] text-white/40 block -mt-0.5">
-                    ex GST
+                  <span className="text-[11px] text-zinc-400 block -mt-0.5">
+                    inc GST
                   </span>
                 </div>
               </div>
@@ -367,26 +366,26 @@ export default function TierCard({
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
                 transition={{ duration: 0.4, ease: "easeInOut" }}
-                className="overflow-hidden bg-zinc-900"
+                className="overflow-hidden"
               >
                 <div className="relative px-5 pb-6">
-                  <div className="h-px w-full mb-4 bg-white/10" />
+                  <div className="h-px w-full mb-4 bg-zinc-200" />
 
                   {/* Fibre & pile info */}
                   <div className="flex flex-wrap gap-x-5 gap-y-1.5 mb-4">
                     <div>
-                      <span className="text-[10px] uppercase tracking-wider text-white/30">Fibre</span>
-                      <p className="text-sm text-white/70">{tier.fibre}</p>
+                      <span className="text-[10px] uppercase tracking-wider text-zinc-400">Fibre</span>
+                      <p className="text-sm text-zinc-700">{tier.fibre}</p>
                     </div>
                     <div>
-                      <span className="text-[10px] uppercase tracking-wider text-white/30">Style</span>
-                      <p className="text-sm text-white/70">{tier.pileType}</p>
+                      <span className="text-[10px] uppercase tracking-wider text-zinc-400">Style</span>
+                      <p className="text-sm text-zinc-700">{tier.pileType}</p>
                     </div>
 
                     {tier.colourName && (
                       <div>
-                        <span className="text-[10px] uppercase tracking-wider text-white/30">Colour</span>
-                        <p className="text-sm text-white/70">{tier.colourName}</p>
+                        <span className="text-[10px] uppercase tracking-wider text-zinc-400">Colour</span>
+                        <p className="text-sm text-zinc-700">{tier.colourName}</p>
                       </div>
                     )}
                   </div>
@@ -398,7 +397,7 @@ export default function TierCard({
                         e.stopPropagation();
                         setShowSpecs(true);
                       }}
-                      className="inline-flex items-center gap-1.5 mb-4 text-xs text-white/50 hover:text-white/80 transition-colors underline underline-offset-2 decoration-white/20 hover:decoration-white/50"
+                      className="inline-flex items-center gap-1.5 mb-4 text-xs text-zinc-500 hover:text-zinc-800 transition-colors underline underline-offset-2 decoration-zinc-300 hover:decoration-zinc-500"
                     >
                       <FileText className="w-3.5 h-3.5" />
                       View product specs
@@ -411,7 +410,7 @@ export default function TierCard({
                       {tier.badges.map((badge) => (
                         <div
                           key={badge}
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] tracking-wide uppercase bg-white/[0.06] text-white/60 border border-white/10"
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] tracking-wide uppercase bg-zinc-50 text-zinc-500 border border-zinc-200"
                         >
                           {badge.toLowerCase().includes("warranty") ? (
                             <Shield className="w-3 h-3" />
@@ -429,10 +428,10 @@ export default function TierCard({
                   {/* Step 2 — Colour selection */}
                   <div className="mb-3">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="w-5 h-5 rounded-full bg-white text-black text-[10px] font-bold flex items-center justify-center flex-shrink-0">2</span>
-                      <p className="text-xs uppercase tracking-[0.15em] text-white/60 font-medium">Pick your colour</p>
+                      <span className="w-5 h-5 rounded-full bg-zinc-900 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">2</span>
+                      <p className="text-xs uppercase tracking-[0.15em] text-zinc-500 font-medium">Pick your colour</p>
                     </div>
-                    <p className="text-[11px] text-white/30 ml-7">
+                    <p className="text-[11px] text-zinc-400 ml-7">
                       Tap to select · tap{" "}
                       <ZoomIn className="inline w-3 h-3 mb-0.5" /> to enlarge
                     </p>
@@ -456,8 +455,8 @@ export default function TierCard({
                                   w-13 h-13 sm:w-15 sm:h-15 rounded-full overflow-hidden
                                   transition-all duration-300
                                   ${isChosen
-                                    ? "scale-110 ring-2 ring-white/70 ring-offset-2 ring-offset-zinc-900"
-                                    : "ring-1 ring-white/10 hover:scale-105 hover:ring-white/25"
+                                    ? "scale-110 ring-2 ring-zinc-700 ring-offset-2 ring-offset-white"
+                                    : "ring-1 ring-zinc-200 hover:scale-105 hover:ring-zinc-400"
                                   }
                                 `}
                               >
@@ -482,22 +481,22 @@ export default function TierCard({
                             {/* Magnify button — opens lightbox */}
                             <button
                               onClick={(e) => openLightbox(colour, e)}
-                              className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-zinc-800 border border-white/20 flex items-center justify-center hover:bg-white/20 transition-colors z-10"
+                              className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-white border border-zinc-200 flex items-center justify-center hover:bg-zinc-100 transition-colors z-10 shadow-sm"
                               aria-label={`Enlarge ${colour.name} swatch`}
                             >
-                              <ZoomIn className="w-2.5 h-2.5 text-white/60" />
+                              <ZoomIn className="w-2.5 h-2.5 text-zinc-500" />
                             </button>
                           </div>
 
                           <div className="text-center">
                             {colour.code && (
-                              <p className={`text-[9px] leading-none ${isChosen ? "text-white/70" : "text-white/25"}`}>
+                              <p className={`text-[9px] leading-none ${isChosen ? "text-zinc-600" : "text-zinc-300"}`}>
                                 {colour.code}
                               </p>
                             )}
                             <p
                               className={`text-[10px] sm:text-[11px] leading-tight mt-0.5 transition-colors duration-200 ${
-                                isChosen ? "font-medium text-white" : "text-white/45"
+                                isChosen ? "font-medium text-zinc-900" : "text-zinc-400"
                               }`}
                             >
                               {colour.name}
@@ -521,11 +520,11 @@ export default function TierCard({
                           e.stopPropagation();
                           onAccept?.();
                         }}
-                        className="w-full py-4 rounded-xl text-sm font-semibold tracking-[0.12em] uppercase bg-white text-zinc-900 hover:bg-zinc-100 active:scale-[0.98] transition-all duration-200 shadow-lg"
+                        className="w-full py-4 rounded-xl text-sm font-semibold tracking-[0.12em] uppercase bg-zinc-900 text-white hover:bg-zinc-800 active:scale-[0.98] transition-all duration-200 shadow-lg"
                       >
                         Accept Quote
                       </button>
-                      <p className="mt-2 text-center text-[10px] text-white/30">
+                      <p className="mt-2 text-center text-[10px] text-zinc-400">
                         {tier.name} — {selectedColour.name}
                       </p>
                     </motion.div>
