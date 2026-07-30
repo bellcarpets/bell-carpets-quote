@@ -29,18 +29,13 @@ export default function QuoteTerms({ terms, validUntil }: QuoteTermsProps) {
         <div className="h-px flex-1 bg-white/10" />
       </div>
 
-      <div className="space-y-3">
-        {terms.map((term, i) => (
-          <div
-            key={i}
-            className="flex items-start gap-3 px-4 py-3 rounded-xl bg-white/[0.02]"
-          >
-            <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 text-xs font-medium bg-white/10 text-white/40">
-              {i + 1}
-            </div>
-            <p className="text-sm text-white/60">
-              {term}
-            </p>
+      <div className="divide-y divide-white/[0.06]">
+        {terms.filter(t => t && t.trim()).map((term, i) => (
+          <div key={i} className="flex items-center gap-4 py-3">
+            <span className="text-[10px] font-medium text-white/20 w-5 flex-shrink-0 text-right tabular-nums">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <p className="text-sm text-white/70">{term}</p>
           </div>
         ))}
       </div>

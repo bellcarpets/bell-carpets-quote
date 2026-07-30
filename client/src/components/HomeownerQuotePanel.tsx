@@ -208,11 +208,7 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
               <span className="text-white">{selectedColour.name}</span>
             </div>
           )}
-          <div className="flex justify-between text-sm pt-1 border-t border-white/10">
-            <span className="text-white/50">GST (10%)</span>
-            <span className="text-white/60">{formatPrice(Math.round(grandTotal / 11))}</span>
-          </div>
-          <div className="flex justify-between text-sm font-semibold pt-1">
+          <div className="flex justify-between text-sm font-semibold pt-1 border-t border-white/10">
             <span className="text-white/70">Total (inc GST)</span>
             <span className="text-white">{formatPrice(grandTotal)}</span>
           </div>
@@ -453,11 +449,7 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
             <span className="text-sm text-white/60">Total (inc GST)</span>
             <span className="text-3xl font-bold text-white tracking-tight">{formatPrice(grandTotal)}</span>
           </div>
-          <div className="h-px mb-1 bg-white/[0.06]" />
-          <div className="flex justify-between text-xs text-white/40">
-            <span>GST (10%)</span>
-            <span>{formatPrice(Math.round(grandTotal / 11))}</span>
-          </div>
+
           {!usesAgentPaymentTerms(config.quoteType) && (
             <>
               <div className="h-px mt-1 mb-1 bg-white/[0.06]" />
@@ -512,9 +504,7 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
                 >
                   Accept This Quote
                 </button>
-                <p className="text-xs text-white/50 text-center mt-3">
-                  Once accepted, we'll lock in your installation date.
-                </p>
+
               </>
             )}
           </div>

@@ -642,12 +642,18 @@ export default function QuotePage({ slug }: QuotePageProps) {
       className="mt-10 mb-10 max-w-2xl mx-auto"
     >
       <h2 className="text-2xl sm:text-3xl font-semibold leading-snug mb-5 text-white">
-        {quoteType === "homeowner" ? (
-          <>Hi {greetingName},{" "}<span className="text-white/40">here is your flooring quote for</span></>
-        ) : (isSinglePriceAgent || isAgencySingle) ? (
-          <>Hi {greetingName},{" "}<span className="text-white/40">here is your flooring quote for</span></>
+        {greetingName ? (
+          quoteType === "homeowner" || isSinglePriceAgent || isAgencySingle ? (
+            <>Hi {greetingName},{" "}<span className="text-white/40">here is your flooring quote for</span></>
+          ) : (
+            <>Hi {greetingName},{" "}<span className="text-white/40">here are your flooring options for</span></>
+          )
         ) : (
-          <>Hi {greetingName},{" "}<span className="text-white/40">here are your flooring options for</span></>
+          quoteType === "homeowner" || isSinglePriceAgent || isAgencySingle ? (
+            <span className="text-white/40">Your flooring quote for</span>
+          ) : (
+            <span className="text-white/40">Your flooring options for</span>
+          )
         )}
       </h2>
       <div className="rounded-xl overflow-hidden border border-white/10 bg-white/[0.02]">
@@ -694,7 +700,7 @@ export default function QuotePage({ slug }: QuotePageProps) {
     return (
       <div className="min-h-screen bg-zinc-900">
         <PreviewBackButton />
-        <div className="max-w-2xl lg:max-w-3xl mx-auto px-5 sm:px-8 lg:px-12">
+        <div className="max-w-2xl lg:max-w-4xl mx-auto px-5 sm:px-8 lg:px-16">
           <Header />
           <Greeting />
 
@@ -710,27 +716,19 @@ export default function QuotePage({ slug }: QuotePageProps) {
               linkedQuoteNumber={linkedQuoteNumber}
             />
           </div>
-          <div className="max-w-2xl mx-auto">
-            <ScopeOfWorks
+          <ScopeOfWorks
               areas={config.scope}
               items={config.scopeOfWorks}
             />
-          </div>
           {config.customerNotes && config.customerNotes.trim() && (
-            <div className="max-w-2xl mx-auto">
-              <div className="bg-amber-950/30 border border-amber-400/20 rounded-xl p-5 mt-1">
-                <h3 className="text-amber-300/80 text-xs font-semibold uppercase tracking-widest mb-2">Notes</h3>
-                <p className="text-white/70 text-sm leading-relaxed whitespace-pre-wrap">{config.customerNotes.trim()}</p>
-              </div>
+            <div className="bg-amber-950/30 border border-amber-400/20 rounded-xl p-5 mt-1">
+              <h3 className="text-amber-300/80 text-xs font-semibold uppercase tracking-widest mb-2">Notes</h3>
+              <p className="text-white/70 text-sm leading-relaxed whitespace-pre-wrap">{config.customerNotes.trim()}</p>
             </div>
           )}
-          <div className="max-w-2xl mx-auto">
-            <QuoteTerms terms={config.terms} validUntil={validUntil} />
-          </div>
+          <QuoteTerms terms={config.terms} validUntil={validUntil} />
           <DownloadQuotePDF />
-          <div className="max-w-2xl mx-auto">
-            <Footer />
-          </div>
+          <Footer />
         </div>
       </div>
     );
@@ -776,7 +774,7 @@ export default function QuotePage({ slug }: QuotePageProps) {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className="mt-8 max-w-2xl mx-auto"
+            className="mt-8"
           >
             <AddonSelector
               addons={addons}
@@ -790,26 +788,18 @@ export default function QuotePage({ slug }: QuotePageProps) {
 
 
 
-        <div className="max-w-2xl mx-auto">
-          <ScopeOfWorks
+        <ScopeOfWorks
             areas={config.scope}
             items={withUnderlayItem(config.scopeOfWorks, config.underlay || selectedTier?.underlay || tiers[0]?.underlay)}
           />
-        </div>
         {config.customerNotes && config.customerNotes.trim() && (
-          <div className="max-w-2xl mx-auto">
-            <div className="bg-amber-950/30 border border-amber-400/20 rounded-xl p-5 mt-1">
-              <h3 className="text-amber-300/80 text-xs font-semibold uppercase tracking-widest mb-2">Notes</h3>
-              <p className="text-white/70 text-sm leading-relaxed whitespace-pre-wrap">{config.customerNotes.trim()}</p>
-            </div>
+          <div className="bg-amber-950/30 border border-amber-400/20 rounded-xl p-5 mt-1">
+            <h3 className="text-amber-300/80 text-xs font-semibold uppercase tracking-widest mb-2">Notes</h3>
+            <p className="text-white/70 text-sm leading-relaxed whitespace-pre-wrap">{config.customerNotes.trim()}</p>
           </div>
         )}
-        <div className="max-w-2xl mx-auto">
-          <QuoteTerms terms={config.terms} validUntil={validUntil} />
-        </div>
-        <div className="max-w-2xl mx-auto">
-          <Footer />
-        </div>
+        <QuoteTerms terms={config.terms} validUntil={validUntil} />
+        <Footer />
       </div>
 
       {/* Accept Modal */}

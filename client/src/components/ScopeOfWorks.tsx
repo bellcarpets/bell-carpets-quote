@@ -1,9 +1,7 @@
 /**
- * ScopeOfWorks — Displays the included works as a vertical timeline
- * Clean black & white premium design with subtle numbered timeline
+ * ScopeOfWorks — Clean flat list, document style.
+ * No numbered timeline, no animation cascade — just the work items.
  */
-
-import { motion } from "framer-motion";
 
 interface ScopeItem {
   title: string;
@@ -16,62 +14,36 @@ interface ScopeOfWorksProps {
 }
 
 export default function ScopeOfWorks({ items, areas }: ScopeOfWorksProps) {
-  // Build display items: areas as first item (if present), then scope items (title only)
+  // Build display items: areas as first item (if present), then scope item titles only
   const displayItems: string[] = [
     ...(areas && areas.trim() ? [areas.trim()] : []),
-    ...items.map(item => item.title).filter(Boolean),
+    ...items.map((item) => item.title).filter(Boolean),
   ];
 
   if (displayItems.length === 0) return null;
 
   return (
-    <motion.section
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.6 }}
-      className="mt-14"
-    >
+    <section className="mt-14">
       {/* Section header */}
       <div className="flex items-center gap-3 mb-6">
         <div className="h-px flex-1 bg-white/10" />
-        <h2 className="text-sm font-medium tracking-[0.2em] uppercase text-white/50">
+        <h2 className="text-xs font-medium tracking-[0.2em] uppercase text-white/40">
           Scope of Works
         </h2>
         <div className="h-px flex-1 bg-white/10" />
       </div>
 
-      {/* Timeline container */}
-      <div className="relative pl-8">
-        {/* Vertical timeline line */}
-        <div className="absolute left-3 top-2 bottom-0 w-px bg-gradient-to-b from-amber-400/40 via-amber-300/20 to-amber-400/10" />
-
-        {/* Scope items */}
-        <div className="space-y-4">
-          {displayItems.map((title, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: -10 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: i * 0.1 }}
-              className="relative"
-            >
-              {/* Numbered circle on timeline */}
-              <div className="absolute -left-8 top-0.5 w-6 h-6 rounded-full flex items-center justify-center bg-zinc-900 border border-amber-400/40 flex-shrink-0">
-                <span className="text-xs font-medium text-amber-300/80">{i + 1}</span>
-              </div>
-
-              {/* Item content */}
-              <div className="rounded-xl px-4 py-3.5 bg-white/[0.02]">
-                <p className="text-sm font-medium text-white">
-                  {title}
-                </p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+      {/* Flat item list */}
+      <div className="divide-y divide-white/[0.06]">
+        {displayItems.map((title, i) => (
+          <div key={i} className="flex items-center gap-4 py-3">
+            <span className="text-[10px] font-medium text-white/20 w-5 flex-shrink-0 text-right tabular-nums">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <span className="text-sm text-white/70">{title}</span>
+          </div>
+        ))}
       </div>
-    </motion.section>
+    </section>
   );
 }

@@ -119,20 +119,22 @@ export default function AddonSelector({
         })}
       </div>
 
-      {/* Live price summary */}
+      {/* Live price summary — only show breakdown when an addon is selected */}
       <motion.div
         layout
         className="mt-4 rounded-xl px-4 py-4 bg-white/[0.02] border border-white/10"
       >
         <div className="space-y-2">
-          <div className="flex justify-between items-center">
-            <span className="text-xs text-white/40">
-              {tierName} base price
-            </span>
-            <span className="text-sm text-white/60">
-              {formatPrice(baseTierPrice)}
-            </span>
-          </div>
+          {addonsTotal > 0 && (
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-white/40">
+                {tierName} base price
+              </span>
+              <span className="text-sm text-white/60">
+                {formatPrice(baseTierPrice)}
+              </span>
+            </div>
+          )}
 
           {addons
             .filter((a) => selectedAddonIds.includes(a.id))
