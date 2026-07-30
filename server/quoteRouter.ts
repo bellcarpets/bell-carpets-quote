@@ -20,6 +20,7 @@ import { generateInvoicePdf, type InvoiceData } from "./invoiceGenerator";
 import { storagePut } from "./storage";
 import type { QuoteConfigData, QuoteType } from "../shared/quoteConfigTypes";
 import { usesAgentPaymentTerms, routeNotificationsToAgent } from "../shared/quoteConfigTypes";
+import { getDescriptionLines } from "../shared/quoteDescription";
 import { sendAcceptanceSmsToBellCarpets } from "./smsHelper";
 
 // Zod schema for the quote acceptance input
@@ -63,162 +64,123 @@ async function sendEmailNotification(data: AcceptQuoteInput, pdfAttachment?: { c
   }
 
   const formatPrice = (n: number) => "$" + n.toLocaleString("en-AU");
-
-  const htmlBody = `
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#111111;">
-      <tr><td align="center" style="padding:40px 16px;">
-        <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#111111;">
-          <tr><td style="padding:40px 40px 0;text-align:center;">
-            <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663449952732/EvSxkTrWsYNTCIAI.jpg" alt="Bell Carpets" style="width:120px;display:block;margin:0 auto;" />
-          </td></tr>
-          <tr><td style="padding:32px 40px;">
-            <p style="color:#ffffff;font-size:16px;line-height:1.6;margin:0 0 24px;font-family:Arial,sans-serif;">Hi ${data.clientName || 'there'},</p>
-            <p style="color:#cccccc;font-size:14px;line-height:1.6;margin:0 0 24px;font-family:Arial,sans-serif;">Thank you for accepting quote <strong>${data.quoteNumber}</strong> for <strong>${data.propertyAddress}</strong>. We'll be in touch shortly to confirm the next steps.</p>
-            <p style="color:#999999;font-size:12px;line-height:1.6;margin:0;font-family:Arial,sans-serif;">Questions? Call us on <a href="tel:0755711177" style="color:#d4a853;text-decoration:none;">07 5571 1177</a>.</p>
-          </td></tr>
-          <tr><td style="padding:40px 40px 32px;text-align:center;">
-            <p style="color:#888888;font-size:12px;margin:0;font-family:Arial,sans-serif;">Leon Bell / Bell Carpets / 07 5571 1177</p>
-          </td></tr>
-        </table>
-      </td></tr>
-    </table>
-  `;
-
-  // Legacy code below kept for reference but not used in new minimal design
-  const addonsTotal = data.addons.reduce((sum, a) => sum + a.price, 0);
   const pct = depositPct ?? 50;
   const deposit = Math.round(data.grandTotal * (pct / 100));
 
-  const addonsHtml = data.addons.length > 0
-    ? data.addons.map(a => `<tr><td style="padding:6px 12px;border-bottom:1px solid #eee;">${a.title}</td><td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right;">${formatPrice(a.price)}</td></tr>`).join("")
-    : "";
+  const htmlBody = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
+  <meta name="x-apple-disable-message-reformatting">
+  <title>New Quote Accepted — Bell Carpets</title>
+  <style>a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important;font-size:inherit!important;font-family:inherit!important;font-weight:inherit!important;line-height:inherit!important;}</style>
+</head>
+<body style="margin:0;padding:0;background:#f5f5f5;font-family:Georgia,'Times New Roman',serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;">
+    <tr><td align="center" style="padding:48px 16px;">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;">
 
-  const addonsRowsHtml = data.addons.length > 0
-    ? data.addons.map(a => `<tr><td style="padding:10px 0;border-bottom:1px solid #e8e8e8;">
-        <table width="100%" cellpadding="0" cellspacing="0"><tr>
-          <td style="color:#555555;font-size:13px;font-family:Arial,sans-serif;">${a.title}</td>
-          <td style="color:#111111;font-size:13px;font-family:Arial,sans-serif;font-weight:600;text-align:right;">${formatPrice(a.price)}</td>
-        </tr></table>
-      </td></tr>`).join("")
-    : "";
+        <!-- Header -->
+        <tr><td style="padding:48px 48px 32px;text-align:center;border-bottom:1px solid #e8e8e8;">
+          <img src="https://quote.bellcarpets.com.au/images/logo.jpg" alt="Bell Carpets" style="width:200px;display:block;margin:0 auto;" />
+        </td></tr>
 
-  // Legacy HTML body kept for reference
-  const legacyHtmlBody = `
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;">
-      <tr><td align="center" style="padding:40px 16px;">
-        <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;">
-          <tr><td style="padding:40px 40px 28px;text-align:center;border-bottom:1px solid #e8e8e8;">
-            <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663449952732/EvSxkTrWsYNTCIAI.jpg" alt="Bell Carpets" style="width:180px;display:block;margin:0 auto;" />
-          </td></tr>
-          <tr><td style="padding:40px 40px 8px;">
-            <h1 style="color:#111111;font-size:24px;font-weight:600;margin:0 0 24px;font-family:Arial,sans-serif;">New Quote Accepted</h1>
+        <!-- Body -->
+        <tr><td style="padding:48px 48px 40px;">
 
-            <table width="100%" cellpadding="0" cellspacing="0" style="border-top:2px solid #111111;margin-bottom:24px;">
-              <tr><td style="padding:12px 0;border-bottom:1px solid #e8e8e8;">
-                <table width="100%" cellpadding="0" cellspacing="0"><tr>
-                  <td style="color:#999999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:160px;">Quote</td>
-                  <td style="color:#111111;font-size:14px;font-family:Arial,sans-serif;font-weight:600;">${data.quoteNumber}</td>
-                </tr></table>
-              </td></tr>
-              <tr><td style="padding:12px 0;border-bottom:1px solid #e8e8e8;">
-                <table width="100%" cellpadding="0" cellspacing="0"><tr>
-                  <td style="color:#999999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:160px;">Property</td>
-                  <td style="color:#111111;font-size:14px;font-family:Arial,sans-serif;font-weight:600;">${data.propertyAddress}</td>
-                </tr></table>
-              </td></tr>
-              <tr><td style="padding:12px 0;">
-                <table width="100%" cellpadding="0" cellspacing="0"><tr>
-                  <td style="color:#999999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:160px;">Client</td>
-                  <td style="color:#111111;font-size:14px;font-family:Arial,sans-serif;font-weight:600;">${data.clientName}</td>
-                </tr></table>
-              </td></tr>
-            </table>
+          <h1 style="color:#111;font-size:28px;font-weight:400;margin:0 0 8px;line-height:1.2;letter-spacing:-0.01em;">
+            New quote accepted.
+          </h1>
 
-            <p style="color:#111111;font-size:13px;font-weight:600;font-family:Arial,sans-serif;margin:0 0 8px;text-transform:uppercase;letter-spacing:0.1em;">Selection</p>
-            <table width="100%" cellpadding="0" cellspacing="0" style="border-top:2px solid #111111;margin-bottom:24px;">
-              <tr><td style="padding:12px 0;border-bottom:1px solid #e8e8e8;">
-                <table width="100%" cellpadding="0" cellspacing="0"><tr>
-                  <td style="color:#999999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:160px;">Tier</td>
-                  <td style="color:#111111;font-size:14px;font-family:Arial,sans-serif;font-weight:600;">${data.tierName}</td>
-                </tr></table>
-              </td></tr>
-              <tr><td style="padding:12px 0;border-bottom:1px solid #e8e8e8;">
-                <table width="100%" cellpadding="0" cellspacing="0"><tr>
-                  <td style="color:#999999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:160px;">Product</td>
-                  <td style="color:#111111;font-size:14px;font-family:Arial,sans-serif;font-weight:600;">${data.manufacturer} — ${data.productName}</td>
-                </tr></table>
-              </td></tr>
-              <tr><td style="padding:12px 0;">
-                <table width="100%" cellpadding="0" cellspacing="0"><tr>
-                  <td style="color:#999999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:160px;">Colour</td>
-                  <td style="color:#111111;font-size:14px;font-family:Arial,sans-serif;font-weight:600;">${data.colourCode ? data.colourCode + " " : ""}${data.colourName}</td>
-                </tr></table>
-              </td></tr>
-            </table>
+          <p style="color:#666;font-size:13px;margin:0 0 40px;font-family:Arial,sans-serif;line-height:1.7;">
+            ${data.quoteNumber} — <a href="x-apple-data-detectors://0" dir="ltr" style="color:#666;text-decoration:none;pointer-events:none;">${data.propertyAddress}</a>
+          </p>
 
-            <p style="color:#111111;font-size:13px;font-weight:600;font-family:Arial,sans-serif;margin:0 0 8px;text-transform:uppercase;letter-spacing:0.1em;">Pricing</p>
-            <table width="100%" cellpadding="0" cellspacing="0" style="border-top:2px solid #111111;margin-bottom:24px;">
-              <tr><td style="padding:10px 0;border-bottom:1px solid #e8e8e8;">
-                <table width="100%" cellpadding="0" cellspacing="0"><tr>
-                  <td style="color:#555555;font-size:13px;font-family:Arial,sans-serif;">${data.tierName} carpet supply &amp; install</td>
-                  <td style="color:#111111;font-size:13px;font-family:Arial,sans-serif;font-weight:600;text-align:right;">${formatPrice(data.basePrice)}</td>
-                </tr></table>
-              </td></tr>
-              ${addonsRowsHtml}
-              <tr><td style="padding:12px 0;">
-                <table width="100%" cellpadding="0" cellspacing="0"><tr>
-                  <td style="color:#111111;font-size:15px;font-family:Arial,sans-serif;font-weight:700;">Total (inc GST)</td>
-                  <td style="color:#111111;font-size:15px;font-family:Arial,sans-serif;font-weight:700;text-align:right;">${formatPrice(data.grandTotal)}</td>
-                </tr></table>
-              </td></tr>
-              ${!usesAgentPaymentTerms(quoteType) ? `<tr><td style="padding:6px 0;border-top:1px solid #e8e8e8;">
-                <table width="100%" cellpadding="0" cellspacing="0"><tr>
-                  <td style="color:#999999;font-size:12px;font-family:Arial,sans-serif;">${pct}% Deposit</td>
-                  <td style="color:#555555;font-size:12px;font-family:Arial,sans-serif;text-align:right;">${formatPrice(deposit)}</td>
-                </tr></table>
-              </td></tr>
-              <tr><td style="padding:6px 0;">
-                <table width="100%" cellpadding="0" cellspacing="0"><tr>
-                  <td style="color:#999999;font-size:12px;font-family:Arial,sans-serif;">Balance on completion</td>
-                  <td style="color:#555555;font-size:12px;font-family:Arial,sans-serif;text-align:right;">${formatPrice(data.grandTotal - deposit)}</td>
-                </tr></table>
-              </td></tr>` : ''}
-            </table>
+          <!-- Quote details -->
+          <table width="100%" cellpadding="0" cellspacing="0" style="border-top:2px solid #111;margin-bottom:40px;">
+            <tr><td style="padding:16px 0;border-bottom:1px solid #e8e8e8;">
+              <table width="100%" cellpadding="0" cellspacing="0"><tr>
+                <td style="color:#999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:140px;">Quote</td>
+                <td style="color:#111;font-size:14px;font-family:Arial,sans-serif;font-weight:600;">${data.quoteNumber}</td>
+              </tr></table>
+            </td></tr>
+            <tr><td style="padding:16px 0;border-bottom:1px solid #e8e8e8;">
+              <table width="100%" cellpadding="0" cellspacing="0"><tr>
+                <td style="color:#999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:140px;">Property</td>
+                <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;"><a href="x-apple-data-detectors://0" dir="ltr" style="color:#333;text-decoration:none;pointer-events:none;">${data.propertyAddress}</a></td>
+              </tr></table>
+            </td></tr>
+            <tr><td style="padding:16px 0;border-bottom:1px solid #e8e8e8;">
+              <table width="100%" cellpadding="0" cellspacing="0"><tr>
+                <td style="color:#999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:140px;">Client</td>
+                <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;">${data.clientName}</td>
+              </tr></table>
+            </td></tr>
+            <tr><td style="padding:16px 0;border-bottom:1px solid #e8e8e8;">
+              <table width="100%" cellpadding="0" cellspacing="0"><tr>
+                <td style="color:#999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:140px;">Tier</td>
+                <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;">${data.tierName}</td>
+              </tr></table>
+            </td></tr>
+            <tr><td style="padding:16px 0;border-bottom:1px solid #e8e8e8;">
+              <table width="100%" cellpadding="0" cellspacing="0"><tr>
+                <td style="color:#999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:140px;">Product</td>
+                <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;">${data.manufacturer} — ${data.productName}</td>
+              </tr></table>
+            </td></tr>
+            <tr><td style="padding:16px 0;border-bottom:1px solid #e8e8e8;">
+              <table width="100%" cellpadding="0" cellspacing="0"><tr>
+                <td style="color:#999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:140px;">Colour</td>
+                <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;">${data.colourCode ? data.colourCode + " " : ""}${data.colourName}</td>
+              </tr></table>
+            </td></tr>
+            <tr><td style="padding:16px 0;border-bottom:1px solid #e8e8e8;">
+              <table width="100%" cellpadding="0" cellspacing="0"><tr>
+                <td style="color:#999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:140px;">Total (inc GST)</td>
+                <td style="color:#111;font-size:14px;font-family:Arial,sans-serif;font-weight:600;">${formatPrice(data.grandTotal)}</td>
+              </tr></table>
+            </td></tr>
+            ${!usesAgentPaymentTerms(quoteType) ? `<tr><td style="padding:16px 0;border-bottom:1px solid #e8e8e8;">
+              <table width="100%" cellpadding="0" cellspacing="0"><tr>
+                <td style="color:#999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:140px;">${pct}% Deposit</td>
+                <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;">${formatPrice(deposit)}</td>
+              </tr></table>
+            </td></tr>
+            <tr><td style="padding:16px 0;border-bottom:1px solid #e8e8e8;">
+              <table width="100%" cellpadding="0" cellspacing="0"><tr>
+                <td style="color:#999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:140px;">Balance on completion</td>
+                <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;">${formatPrice(data.grandTotal - deposit)}</td>
+              </tr></table>
+            </td></tr>` : ""}
+            <tr><td style="padding:16px 0;border-bottom:1px solid #e8e8e8;">
+              <table width="100%" cellpadding="0" cellspacing="0"><tr>
+                <td style="color:#999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:140px;">Contact</td>
+                <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;">${data.agentName} &nbsp;&middot;&nbsp; <a href="mailto:${data.agentEmail}" style="color:#555;">${data.agentEmail}</a> &nbsp;&middot;&nbsp; <a href="tel:${data.agentPhone}" style="color:#555;">${data.agentPhone}</a></td>
+              </tr></table>
+            </td></tr>
+            ${data.agentNotes ? `<tr><td style="padding:16px 0;">
+              <table width="100%" cellpadding="0" cellspacing="0"><tr>
+                <td style="color:#999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:140px;">Notes</td>
+                <td style="color:#333;font-size:13px;font-family:Arial,sans-serif;line-height:1.7;white-space:pre-wrap;">${data.agentNotes.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</td>
+              </tr></table>
+            </td></tr>` : ""}
+          </table>
 
-            <p style="color:#111111;font-size:13px;font-weight:600;font-family:Arial,sans-serif;margin:0 0 8px;text-transform:uppercase;letter-spacing:0.1em;">Contact</p>
-            <table width="100%" cellpadding="0" cellspacing="0" style="border-top:2px solid #111111;margin-bottom:${data.agentNotes ? '24px' : '8px'};">
-              <tr><td style="padding:12px 0;border-bottom:1px solid #e8e8e8;">
-                <table width="100%" cellpadding="0" cellspacing="0"><tr>
-                  <td style="color:#999999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:160px;">Name</td>
-                  <td style="color:#111111;font-size:14px;font-family:Arial,sans-serif;font-weight:600;">${data.agentName}</td>
-                </tr></table>
-              </td></tr>
-              <tr><td style="padding:12px 0;border-bottom:1px solid #e8e8e8;">
-                <table width="100%" cellpadding="0" cellspacing="0"><tr>
-                  <td style="color:#999999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:160px;">Email</td>
-                  <td style="color:#111111;font-size:14px;font-family:Arial,sans-serif;"><a href="mailto:${data.agentEmail}" style="color:#111111;">${data.agentEmail}</a></td>
-                </tr></table>
-              </td></tr>
-              <tr><td style="padding:12px 0;">
-                <table width="100%" cellpadding="0" cellspacing="0"><tr>
-                  <td style="color:#999999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:160px;">Phone</td>
-                  <td style="color:#111111;font-size:14px;font-family:Arial,sans-serif;"><a href="tel:${data.agentPhone}" style="color:#111111;">${data.agentPhone}</a></td>
-                </tr></table>
-              </td></tr>
-            </table>
+        </td></tr>
 
-            ${data.agentNotes ? `<p style="color:#111111;font-size:13px;font-weight:600;font-family:Arial,sans-serif;margin:0 0 8px;text-transform:uppercase;letter-spacing:0.1em;">Notes</p>
-            <p style="color:#333333;font-size:14px;line-height:1.7;font-family:Arial,sans-serif;margin:0;white-space:pre-wrap;">${data.agentNotes.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>` : ''}
+        <!-- Footer -->
+        <tr><td style="padding:32px 48px;text-align:center;background:#ffffff;border-top:1px solid #e8e8e8;">
+          <img src="https://quote.bellcarpets.com.au/images/logo.jpg" alt="Bell Carpets" style="height:30px;display:block;margin:0 auto;" />
+        </td></tr>
 
-          </td></tr>
-          <tr><td style="padding:24px 40px 32px;text-align:center;border-top:1px solid #e8e8e8;background:#fafafa;">
-            <p style="color:#999999;font-size:11px;margin:0;font-family:Arial,sans-serif;">Bell Carpets &nbsp;&middot;&nbsp; 41 Olympic Circuit, Southport QLD 4215 &nbsp;&middot;&nbsp; 07 5571 1177</p>
-            <p style="color:#bbbbbb;font-size:10px;margin:6px 0 0;font-family:Arial,sans-serif;">Gold Coast's premium flooring specialists since 1987</p>
-          </td></tr>
-        </table>
-      </td></tr>
-    </table>
-  `;
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+
 
   try {
     const response = await fetch("https://api.resend.com/emails", {
@@ -492,8 +454,12 @@ export const quoteRouter = router({
               agentName: input.agentName,
               agentEmail: input.agentEmail,
               agentPhone: input.agentPhone,
-              // Room itemisation — pass through for homeowner/agency_single quotes with room breakdown
+              // Room itemisation: pass through for homeowner/agency_single quotes with room breakdown
               rooms: (input.rooms && input.rooms.length > 0) ? input.rooms : (config.rooms && config.rooms.length > 0 ? config.rooms : undefined),
+              // Flowing description lines: same shared source as the web page + quote PDF.
+              descriptionLines: getDescriptionLines(config, { tiered: (config.pricingMode ?? "tiered") !== "single" }),
+              quoteType: config.quoteType,
+              isSingleProduct: (config.pricingMode ?? "tiered") === "single",
             };
 
             // Resolve fibre/pileType based on quote type
@@ -639,14 +605,7 @@ export const quoteRouter = router({
       // Pass depositPercent so notifications use the correct % from config (not hardcoded 50%)
       const [emailSent, smsSent, notificationSent, confirmationSent] = await Promise.all([
         sendEmailNotification(input, pdfAttachment, quoteType, depositPercent),
-        sendAcceptanceSmsToBellCarpets({
-          agentName: input.agentName,
-          agentPhone: input.agentPhone,
-          quoteNumber: input.quoteNumber,
-          tierName: input.tierName,
-          grandTotal: input.grandTotal,
-          propertyAddress: input.propertyAddress,
-        }),
+        Promise.resolve(false), // SMS to Leon disabled — email-only for owner notifications
         sendOwnerNotification(input, quoteType, depositPercent),
         sendAcceptanceConfirmationEmail(input, quoteType, invoiceNumber, pdfAttachment, depositPercent),
       ]);

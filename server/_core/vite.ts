@@ -47,6 +47,34 @@ export async function setupVite(app: Express, server: Server) {
   });
 }
 
+export function registerPdfRoute(app: Express) {
+  /**
+   * GET /api/quote/:slug/pdf
+   * Smart PDF endpoint: returns an INVOICE PDF for accepted/post-acceptance quotes,
+   * and a QUOTE PDF for draft/quote_sent quotes. The invoiceGenerator already
+   * shows "INVOICE" vs "QUOTE" based on whether invoiceNumber is present in InvoiceData.
+   */
+  app.get("/api/quote/:slug/pdf", async (req, res) => {
+    try {
+      const { generateInvoicePdfForSlug } = await import("../invoicePdfForSlug.js");
+      const { pdfBuffer, filename } = await generateInvoicePdfForSlug(req.params.slug);
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `inline; filename="${filename}"`);
+      res.setHeader("Content-Length", pdfBuffer.length);
+      res.setHeader("Cache-Control", "no-store");
+      res.end(pdfBuffer);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes("not found") || msg.includes("Not found")) {
+        res.status(404).type("text/plain").send("Quote not found");
+      } else {
+        console.error("[PDF route]", err);
+        res.status(500).type("text/plain").send("PDF generation failed");
+      }
+    }
+  });
+}
+
 export function serveStatic(app: Express) {
   const distPath =
     process.env.NODE_ENV === "development"
@@ -60,8 +88,45 @@ export function serveStatic(app: Express) {
 
   app.use(express.static(distPath));
 
-  // fall through to index.html if the file doesn't exist
+  // Return a self-unregistering service worker script for /sw.js.
+  // Without this, the catch-all below serves index.html for /sw.js, causing
+  // the browser to register a broken service worker that intercepts all requests
+  // and produces a white screen on quote preview pages.
+  app.get("/sw.js", (_req, res) => {
+    res.setHeader("Content-Type", "application/javascript");
+    res.setHeader("Cache-Control", "no-store");
+    res.send(
+      "self.addEventListener('install', () => self.skipWaiting());\n" +
+      "self.addEventListener('activate', (event) => {\n" +
+      "  event.waitUntil(\n" +
+      "    self.registration.unregister()\n" +
+      "      .then(() => self.clients.matchAll())\n" +
+      "      .then((clients) => clients.forEach((c) => c.navigate(c.url)))\n" +
+      "  );\n" +
+      "});\n"
+    );
+  });
+
+  // Any request that looks like a static asset (has a file extension) but
+  // wasn't served by express.static above means the file does not exist.
+  // Return a real 404 instead of falling through to index.html. Without this,
+  // a stale browser requesting an old hashed asset (e.g. /assets/index-OLD.js)
+  // receives index.html (text/html) with a 200, the browser then tries to run
+  // HTML as JavaScript, throws "Unexpected token '<'", and the app white-screens
+  // before React can mount (so the ErrorBoundary never catches it).
+  const STATIC_FILE_RE = /\.[a-z0-9]+$/i;
+  app.use((req, res, next) => {
+    if (STATIC_FILE_RE.test(req.path)) {
+      res.status(404).type("text/plain").send("Not found");
+      return;
+    }
+    next();
+  });
+
+  // SPA client-side routing: serve index.html for all non-asset routes.
+  // no-store so browsers never hold a stale shell that points at old asset hashes.
   app.use("*", (_req, res) => {
+    res.setHeader("Cache-Control", "no-store");
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }

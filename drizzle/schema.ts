@@ -127,6 +127,8 @@ export const quotes = mysqlTable("quotes", {
   depositPaidNotificationSent: int("depositPaidNotificationSent").default(0).notNull(),
   /** Whether the scheduled notification email has been sent (prevents duplicates on re-mark) */
   scheduledNotificationSent: int("scheduledNotificationSent").default(0).notNull(),
+  /** Timestamp when installation reminder SMS was sent (null = not yet sent) */
+  installationReminderSentAt: timestamp("installationReminderSentAt"),
   /** Whether the completed notification email has been sent (prevents duplicates on re-mark) */
   completedNotificationSent: int("completedNotificationSent").default(0).notNull(),
   /** Payment terms in days — used for overdue detection and shown on invoices */

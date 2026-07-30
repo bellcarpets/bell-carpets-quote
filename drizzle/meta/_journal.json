@@ -15,6 +15,13 @@
       "when": 1781525435302,
       "tag": "0001_lowly_caretaker",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1781827213007,
+      "tag": "0002_add_installation_reminder_sent_at",
+      "breakpoints": true
     }
   ]
 }

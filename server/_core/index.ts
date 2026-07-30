@@ -7,14 +7,14 @@ import { registerOAuthRoutes } from "./oauth";
 import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
-import { serveStatic, setupVite } from "./vite";
-import {
-  handleReminderCron,
-  handleFollowUpCron,
-  handleExpiryReminderCron,
-  handleOverdueCron,
-  handleWeeklyPipelineSms,
-} from "../scheduledHandlers";
+import { serveStatic, setupVite, registerPdfRoute } from "./vite";
+import { startReminderCron } from "../reminderCron";
+import { startExpiryReminderCron } from "../expiryReminderCron";
+import { startFollowUpCron } from "../followUpCron";
+import { startOverdueInvoiceCron } from "../overdueInvoiceCron";
+import { startXeroPaymentCron } from "../xeroPaymentCron";
+import { startInstallationReminderCron } from "../installationReminderCron";
+import { runStartupMigrations } from "../db";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -36,6 +36,9 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 }
 
 async function startServer() {
+  // Apply any pending schema changes before accepting requests
+  await runStartupMigrations();
+
   const app = express();
   const server = createServer(app);
   // Configure body parser with larger size limit for file uploads
@@ -43,14 +46,8 @@ async function startServer() {
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   registerStorageProxy(app);
   registerOAuthRoutes(app);
-
-  // Heartbeat scheduled job endpoints — must be registered before Vite/static fallthrough
-  app.post("/api/scheduled/reminder", handleReminderCron);
-  app.post("/api/scheduled/followUp", handleFollowUpCron);
-  app.post("/api/scheduled/expiryReminder", handleExpiryReminderCron);
-  app.post("/api/scheduled/overdue", handleOverdueCron);
-  app.post("/api/scheduled/weeklyPipeline", handleWeeklyPipelineSms);
-
+  // Direct PDF streaming endpoint (must be before tRPC and SPA catch-all)
+  registerPdfRoute(app);
   // tRPC API
   app.use(
     "/api/trpc",
@@ -75,6 +72,16 @@ async function startServer() {
 
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
+    
+    // Start background crons
+    if (process.env.NODE_ENV === "production" || process.env.RUN_CRONS === "true") {
+      startReminderCron();
+      startExpiryReminderCron();
+      startFollowUpCron();
+      startOverdueInvoiceCron();
+      startXeroPaymentCron();
+      startInstallationReminderCron();
+    }
   });
 }
 

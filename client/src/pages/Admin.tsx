@@ -79,6 +79,7 @@ import type {
   HomeownerProductConfig,
 } from "../../../shared/quoteConfigTypes";
 import { formatAESTDate, formatAESTDateTime, nowAEST } from "../../../shared/aestUtils";
+import { generateDefaultDescription } from "@/lib/quoteDescription";
 import {
   DndContext,
   closestCenter,
@@ -146,7 +147,7 @@ function PasswordGate({
             alt="Bell Carpets"
             className="h-10 mx-auto mb-1"
           />
-
+          <p className="text-[9px] tracking-[0.25em] text-white/50 uppercase font-light mb-4">RESIDENTIAL | COMMERCIAL | PROJECTS</p>
           <h1 className="text-xl text-white font-semibold">
             Admin Panel
           </h1>
@@ -313,7 +314,9 @@ const STYLE_OPTIONS = [
 const UNDERLAY_OPTIONS = [
   "Dunlop Springtred Protect",
   "Dunlop Springtred Ultimate",
+  "Dunlop Springtred Extra",
   "Dunlop Eureka",
+  "Dunlop Government Red",
 ];
 
 function ComboSelect({
@@ -602,7 +605,7 @@ const MESSAGE_TEMPLATES = [
     label: "New Quote",
     template: (name: string, link: string, address?: string) => {
       const addressLine = address ? ` for ${address}` : '';
-      return `Hey ${name || "there"},\n\nI've just emailed your flooring quote${addressLine}  - you can also view it here:\n${link}\n\nIf you have any questions, don't hesitate to contact me.\n\nThanks, Leon`;
+      return `Hey ${name || "there"},\n\nI've just emailed your flooring quote${addressLine} - you can also view it here:\n${link}\n\nTo secure your installation date, please reply via our email sent or this text.\n\nThanks, Leon`;
     },
   },
   {
@@ -628,21 +631,55 @@ const MESSAGE_TEMPLATES = [
 ];
 
 // ─── Email Template Button ──────────────────────────────────────────────────────
-function EmailTemplateButton({ clientName, quoteLink, propertyAddress, onCopied }: { clientName: string; quoteLink: string; propertyAddress?: string; onCopied?: () => void }) {
+function EmailTemplateButton({ 
+  clientName, 
+  quoteLink, 
+  propertyAddress, 
+  onCopied,
+  tiers = [],
+  product
+}: { 
+  clientName: string; 
+  quoteLink: string; 
+  propertyAddress?: string; 
+  onCopied?: () => void;
+  tiers?: { name: string; productName: string; manufacturer: string }[];
+  product?: { productName: string; manufacturer: string };
+}) {
   const [copied, setCopied] = useState(false);
   const firstName = (clientName || "there").split(" ")[0] || "there";
-  const addressLine = propertyAddress ? ` for ${propertyAddress}` : '';
+  
+  const slugify = (text: string) => {
+    return text
+      .toString()
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-')     // Replace spaces with -
+      .replace(/[^\w\-]+/g, '') // Remove all non-word chars
+      .replace(/\-\-+/g, '-');   // Replace multiple - with single -
+  };
+
+  const tierLinks = tiers.length > 0 
+    ? tiers.map(t => {
+        const fullName = `${t.manufacturer} ${t.productName}`;
+        const slug = slugify(fullName);
+        return `${t.name} Tier — ${t.productName}\nhttps://www.bellcarpets.com.au/products/${slug}`;
+      }).join('\n\n')
+    : product 
+      ? `${product.manufacturer} ${product.productName}\nhttps://www.bellcarpets.com.au/products/${slugify(`${product.manufacturer} ${product.productName}`)}`
+      : '';
+
   const emailBody = `Hi ${firstName},
 
-Your personalised quote${addressLine} is ready and can be viewed using the link below:
+Your personalised quote for ${propertyAddress || 'your property'} is ready and can be viewed using the link below:
 
 ${quoteLink}
 
-The quote includes full product specifications, underlay details, scope of works, and pricing. It can be approved with a single click.
+The quote includes full product specifications, underlay details, scope of works, and pricing.
 
-Once approved, we'll prioritise scheduling to minimise vacancy time and have your property tenant-ready as quickly as possible.
+${tierLinks}
 
-If you'd like to discuss anything or need any adjustments, I'm available on the number below.`;
+If you'd like to discuss anything, I'm available on the number below.`;
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation();
     navigator.clipboard.writeText(emailBody).then(() => {
@@ -845,46 +882,23 @@ function InvoiceDownloadButton({
   password,
   quoteSlug,
   quoteNumber,
-  onCreated,
 }: {
   password: string;
   quoteSlug: string;
   quoteNumber: string;
-  onCreated?: () => void;
 }) {
-  const { data: invoice, isLoading, refetch } = trpc.invoice.getByQuote.useQuery(
+  const { data: invoice, isLoading } = trpc.invoice.getByQuote.useQuery(
     { password, quoteSlug },
     { refetchOnWindowFocus: false }
   );
-  const generateMutation = trpc.invoice.generate.useMutation();
-  const [creating, setCreating] = useState(false);
 
   if (isLoading) return null;
 
   if (!invoice) {
     return (
-      <button
-        onClick={async (e) => {
-          e.stopPropagation();
-          setCreating(true);
-          try {
-            await generateMutation.mutateAsync({ password, quoteSlug });
-            await refetch();
-            onCreated?.();
-            toast.success(`Invoice created for ${quoteNumber}`);
-          } catch (err) {
-            toast.error("Failed to create invoice");
-          } finally {
-            setCreating(false);
-          }
-        }}
-        disabled={creating}
-        className="py-1.5 px-2 rounded-lg text-xs text-amber-400 hover:bg-amber-500/10 transition-colors flex items-center gap-1 border border-amber-500/20"
-        title={`Create invoice for ${quoteNumber}`}
-      >
-        {creating ? <Loader2 className="w-3 h-3 animate-spin" /> : <FileText className="w-3 h-3" />}
-        {creating ? "Creating..." : "Create Invoice"}
-      </button>
+      <span className="py-1.5 px-2 rounded-lg text-xs text-white/40 flex items-center gap-1">
+        <FileText className="w-3 h-3" /> No Invoice
+      </span>
     );
   }
 
@@ -1071,6 +1085,8 @@ function QuotesDashboard({
   const markEmailedMutation = trpc.admin.markEmailed.useMutation();
   const requestReviewMutation = trpc.admin.requestReview.useMutation();
   const markReviewReceivedMutation = trpc.admin.markReviewReceived.useMutation();
+  const triggerAcceptanceEmailMutation = trpc.admin.triggerAcceptanceEmail.useMutation();
+  const reactivateQuoteMutation = trpc.admin.reactivateQuote.useMutation();
   const saveContactMutation = trpc.contacts.create.useMutation();
   const [creating, setCreating] = useState(false);
   const [search, setSearch] = useState("");
@@ -1381,7 +1397,7 @@ function QuotesDashboard({
                 alt="Bell Carpets"
                 className="h-5"
               />
-
+              <p className="text-[7px] tracking-[0.2em] text-white/40 uppercase font-light mt-0.5">RESIDENTIAL | COMMERCIAL | PROJECTS</p>
             </div>
             <div className="h-5 w-px bg-white/10" />
             <div>
@@ -1643,7 +1659,7 @@ function QuotesDashboard({
                     ? "Single product — with optional room itemisation"
                     : newQuoteForm.quoteType === "agency_single"
                     ? "One carpet, one price — agent payment terms, no deposit"
-                    : "2-tier Good / Best — agent payment terms, no deposit"}
+                    : "3-tier Good / Better / Best — agent payment terms, no deposit"}
                 </p>
               </div>
               {/* Insurance Assessment Toggle */}
@@ -2093,13 +2109,6 @@ function QuotesDashboard({
                       )}
                     </p>
                   )}
-                  {/* Internal notes preview — admin only */}
-                  {(q as any).internalNotes && (
-                    <p className="text-amber-400/70 text-xs mt-1 truncate flex items-center gap-1" title={(q as any).internalNotes}>
-                      <span className="text-amber-400/40">📝</span>
-                      {(q as any).internalNotes.substring(0, 80)}{(q as any).internalNotes.length > 80 ? '…' : ''}
-                    </p>
-                  )}
                   {/* Payment breakdown — only shown once quote is accepted (not draft/quote_sent) */}
                   {(q.acceptedTotal ?? 0) > 0 && q.jobStatus !== 'draft' && q.jobStatus !== 'quote_sent' && (() => {
                     const total = q.acceptedTotal ?? q.highestPrice ?? 0;
@@ -2204,6 +2213,8 @@ function QuotesDashboard({
                             clientName={q.agentName || q.clientName}
                             quoteLink={`${window.location.origin}/quote/${q.slug}`}
                             propertyAddress={q.propertyAddress || undefined}
+                            tiers={q.tierSummaries}
+                            product={q.productSummary || undefined}
                             onCopied={() => {
                               markEmailedMutation.mutate({ password, slug: q.slug });
                               refetch();
@@ -2282,6 +2293,28 @@ function QuotesDashboard({
                           })()}
                         />
                       </div>
+                      {/* Trigger Acceptance Email — for accepted quotes */}
+                      {q.jobStatus === "accepted" && q.acceptedAgentEmail && (
+                        <div className="px-4 py-2 border-t border-white/10">
+                          <button
+                            onClick={async () => {
+                              if (!confirm("Send acceptance email to " + (q.acceptedAgentName || q.clientName) + "?")) return;
+                              try {
+                                await triggerAcceptanceEmailMutation.mutateAsync({ password, slug: q.slug });
+                                toast.success("Acceptance email sent");
+                                refetch();
+                              } catch (err: any) {
+                                toast.error(err.message || "Failed to send acceptance email");
+                              }
+                            }}
+                            disabled={triggerAcceptanceEmailMutation.isPending}
+                            className="w-full py-2 rounded-lg text-xs font-medium bg-green-500/15 text-green-400 hover:bg-green-500/25 transition-colors flex items-center justify-center gap-1.5"
+                          >
+                            <Send className="w-3.5 h-3.5" />
+                            {triggerAcceptanceEmailMutation.isPending ? "Sending..." : "Send Acceptance Email"}
+                          </button>
+                        </div>
+                      )}
                       {/* Google Review Request — homeowner completed/paid_in_full only */}
                       {q.quoteType === "homeowner" && (q.jobStatus === "completed" || q.jobStatus === "paid_in_full") && (
                         <div className="px-4 py-2 border-t border-white/5">
@@ -2340,6 +2373,32 @@ function QuotesDashboard({
                           )}
                         </div>
                       )}
+                      {/* Reactivate Quote — for expired or cancelled quotes */}
+                      {(() => {
+                        const isExpired = q.expiresAt && new Date(q.expiresAt) < new Date();
+                        const isCancelled = q.jobStatus === "cancelled";
+                        if (!isExpired && !isCancelled) return null;
+                        return (
+                          <div className="px-4 py-2 border-t border-white/10">
+                            <button
+                              onClick={async () => {
+                                if (!confirm("Reactivate this quote? Expiry will be reset to 10 days from now.")) return;
+                                try {
+                                  await reactivateQuoteMutation.mutateAsync({ password, slug: q.slug });
+                                  toast.success("Quote reactivated");
+                                  refetch();
+                                } catch (err: any) {
+                                  toast.error(err.message || "Failed to reactivate quote");
+                                }
+                              }}
+                              className="w-full py-2 rounded-lg text-xs font-medium bg-blue-500/15 text-blue-400 hover:bg-blue-500/25 transition-colors flex items-center justify-center gap-1.5"
+                            >
+                              <RotateCcw className="w-3.5 h-3.5" />
+                              Reactivate Quote
+                            </button>
+                          </div>
+                        );
+                      })()}
                       <div className="px-4 py-2 flex items-center gap-2">
                         <button
                           onClick={() => onEditQuote(q.slug)}
@@ -2362,8 +2421,8 @@ function QuotesDashboard({
                         >
                           <ExternalLink className="w-3 h-3" /> View
                         </a>
-                        {(q.jobStatus === "completed" || q.jobStatus === "paid_in_full") && (
-                          <InvoiceDownloadButton password={password} quoteSlug={q.slug} quoteNumber={q.quoteNumber} onCreated={refetch} />
+                        {q.jobStatus !== "quote_sent" && q.jobStatus !== "draft" && (
+                          <InvoiceDownloadButton password={password} quoteSlug={q.slug} quoteNumber={q.quoteNumber} />
                         )}
                         <StatusDropdown
                           currentStatus={q.jobStatus as JobStatus}
@@ -3032,25 +3091,26 @@ function QuoteEditor({
   const handleExportPDF = async () => {
     if (!config || !quoteData) return;
     try {
+      const isSingle = config.pricingMode === "single";
       const selectedTier = config.tiers?.[0];
-      if (!selectedTier) {
+      if (!isSingle && !selectedTier) {
         toast.error("No tiers found in quote");
         return;
       }
-      const selectedColour = selectedTier.colours?.[0];
+      const selectedColour = isSingle ? null : (selectedTier?.colours?.[0] ?? null);
       const input = {
         quoteSlug: slug,
-        tierName: selectedTier.name,
-        productName: selectedTier.productName,
-        manufacturer: selectedTier.manufacturer,
-        fibre: selectedTier.fibre,
-        pileType: selectedTier.pileType,
-        colourName: selectedColour?.name || "Default",
-        colourCode: selectedColour?.id || "",
-        basePrice: selectedTier.price,
+        tierName: isSingle ? (config.product?.productName ?? "Carpet") : selectedTier!.name,
+        productName: isSingle ? (config.product?.productName ?? "") : selectedTier!.productName,
+        manufacturer: isSingle ? (config.product?.manufacturer ?? "") : selectedTier!.manufacturer,
+        fibre: isSingle ? (config.product?.fibre ?? "") : (selectedTier!.fibre ?? ""),
+        pileType: isSingle ? (config.product?.pileType ?? "") : (selectedTier!.pileType ?? ""),
+        colourName: isSingle ? (config.product?.colourName ?? "Default") : (selectedColour?.name || "Default"),
+        colourCode: isSingle ? "" : (selectedColour?.id || ""),
+        basePrice: isSingle ? (config.product?.price ?? 0) : selectedTier!.price,
         addons: config.addons || [],
-        grandTotal: selectedTier.price + (config.addons?.reduce((sum, a) => sum + a.price, 0) || 0),
-        allTiers: config.tiers?.map(t => ({
+        grandTotal: (isSingle ? (config.product?.price ?? 0) : selectedTier!.price) + (config.addons?.reduce((sum, a) => sum + a.price, 0) || 0),
+        allTiers: isSingle ? undefined : config.tiers?.map(t => ({
           name: t.name,
           productName: t.productName,
           manufacturer: t.manufacturer,
@@ -3060,16 +3120,12 @@ function QuoteEditor({
           depositPercent: config.depositPercent,
         })),
       };
-      const result = await downloadPdfMutation.mutateAsync(input);
-      const pdfBuffer = Buffer.from(result.pdfBase64, "base64");
-      const blob = new Blob([pdfBuffer], { type: "application/pdf" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${quoteData.quoteNumber}-Quote.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
-      toast.success("PDF downloaded");
+      // Open the PDF via the direct server endpoint — no blob URLs needed.
+      // The server streams the file with Content-Type: application/pdf and
+      // Content-Disposition: inline so every browser (including mobile Safari)
+      // opens it natively without showing a raw blob URL in the share sheet.
+      window.open(`/api/quote/${slug}/pdf`, "_blank");
+      toast.success("PDF opened");
     } catch (err) {
       console.error("PDF export error:", err);
       toast.error("Failed to export PDF");
@@ -3220,6 +3276,8 @@ function QuoteEditor({
                 clientName={agentFields.name || config.client.name}
                 quoteLink={`${window.location.origin}/quote/${slug}`}
                 propertyAddress={config.property?.address || undefined}
+                tiers={config.tiers}
+                product={config.product}
                 onCopied={() => {
                   markEmailedMutation.mutate({ password, slug });
                   refetchQuote();
@@ -3607,7 +3665,7 @@ function QuoteEditor({
           />
           {/* Full Address removed — Property Address is the single source of truth */}
           <Field
-            label="Scope Description"
+            label="Areas"
             value={config.scope}
             onChange={(v) => updateConfig({ scope: v })}
           />
@@ -3869,6 +3927,58 @@ function QuoteEditor({
         </Section>
 
         {/* Scope of Works */}
+        {/* Customer-facing Description — flowing scope text shown on the quote page.
+            When set, it REPLACES the titled "Scope of Works" list on the customer page. */}
+        <Section title="Customer Description" defaultOpen={true}>
+          <p className="text-white/40 text-xs mb-2">
+            Shown to the customer as a flowing description on the quote page. One line per row.
+            When filled in, this replaces the titled “Scope of Works” list on the customer-facing page.
+            Leave blank to fall back to the generated scope.
+          </p>
+          <textarea
+            value={(config.description ?? []).join("\n")}
+            onChange={(e) => {
+              const lines = e.target.value.split("\n");
+              updateConfig({ description: lines });
+              e.target.style.height = "auto";
+              e.target.style.height = `${e.target.scrollHeight}px`;
+            }}
+            ref={(el) => {
+              if (el) {
+                el.style.height = "auto";
+                el.style.height = `${el.scrollHeight}px`;
+              }
+            }}
+            placeholder={"e.g.\nSupply & Installation of new carpet to bedrooms, lounge and hallway.\nSupply & Installation on new Dunlop Springtred Ultimate underlay.\nUplift and disposal of existing carpet and underlay."}
+            rows={5}
+            className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-white focus:outline-none resize-none overflow-hidden placeholder:text-white/25"
+          />
+          <div className="flex items-center gap-2 mt-2">
+            <button
+              type="button"
+              onClick={() => {
+                const generated = generateDefaultDescription(config, {
+                  tiered: config.pricingMode !== "single"
+                    && (config.quoteType === "agent" || config.quoteType === "real_estate"),
+                });
+                updateConfig({ description: generated });
+              }}
+              className="px-3 py-1.5 rounded-lg text-xs bg-white/5 text-white/70 border border-white/15 hover:bg-white/10 hover:text-white transition-colors"
+            >
+              Generate from quote
+            </button>
+            {(config.description?.length ?? 0) > 0 && (
+              <button
+                type="button"
+                onClick={() => updateConfig({ description: [] })}
+                className="px-3 py-1.5 rounded-lg text-xs text-white/40 hover:text-white/70 transition-colors"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+        </Section>
+
         <Section title="Scope of Works">
           {/* Quick-pick library panel */}
           <ScopeLibraryPicker
@@ -5066,31 +5176,8 @@ function PaymentStatusBadge({ status }: { status: string }) {
 }
 
 function XeroSyncButton({ password, invoiceId, onSynced }: { password: string; invoiceId: number; onSynced: () => void }) {
-  const retrySyncMutation = trpc.admin.retrySaasuSync.useMutation();
-  const [syncing, setSyncing] = useState(false);
-  return (
-    <button
-      onClick={async (e) => {
-        e.stopPropagation();
-        setSyncing(true);
-        try {
-          await retrySyncMutation.mutateAsync({ password, invoiceId });
-          onSynced();
-          toast.success("Synced to Saasu");
-        } catch {
-          toast.error("Saasu sync failed");
-        } finally {
-          setSyncing(false);
-        }
-      }}
-      disabled={syncing}
-      className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-zinc-700/50 border border-white/10 text-white/40 text-[10px] hover:bg-zinc-700 hover:text-white/70 transition-colors"
-      title="Sync to Saasu manually"
-    >
-      {syncing ? <Loader2 className="w-2.5 h-2.5 animate-spin" /> : <RefreshCw className="w-2.5 h-2.5" />}
-      Saasu
-    </button>
-  );
+  // Xero removed — Saasu syncs automatically on job completion
+  return null;
 }
 
 function InvoicesTab({ password }: { password: string }) {
@@ -6279,7 +6366,7 @@ export default function Admin() {
                 alt="Bell Carpets"
                 className="h-5"
               />
-
+              <p className="text-[7px] tracking-[0.2em] text-white/40 uppercase font-light mt-0.5">RESIDENTIAL | COMMERCIAL | PROJECTS</p>
             </div>
             <button
               onClick={handleLogout}

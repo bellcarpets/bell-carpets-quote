@@ -1,7 +1,7 @@
 /**
  * QuotePage — Public quote page loaded by /quote/:slug
  * Handles both "agent" (3-tier) and "homeowner" (single product) layouts
- * Clean black & white premium design
+ * Premium document-style design: generous white space, clear visual hierarchy
  */
 
 import { useState, useRef, useMemo, useEffect } from "react";
@@ -16,12 +16,12 @@ import HomeownerQuotePanel from "@/components/HomeownerQuotePanel";
 import ScopeOfWorks from "@/components/ScopeOfWorks";
 import QuoteTerms from "@/components/QuoteTerms";
 
-import WhyBellCarpets from "@/components/WhyBellCarpets";
 import Footer from "@/components/Footer";
 import AcceptModal from "@/components/AcceptModal";
 import JobStatusTracker from "@/components/JobStatusTracker";
 
-import { LOGO_PNG } from "@/lib/logo";
+import { LOGO_WHITE_PNG } from "@/lib/logo";
+import { CREAM, getDescriptionLines, getUnderlayNote } from "@/lib/quoteDescription";
 import { formatAESTDate } from "../../../shared/aestUtils";
 import { Shield, Volume2, Thermometer, Droplets, Layers, Wind } from "lucide-react";
 import type { UnderlayOption } from "../../../shared/quoteConfigTypes";
@@ -31,7 +31,7 @@ const UNDERLAY_SPECS: Record<NonNullable<Exclude<UnderlayOption, "">>, {
   name: string;
   tagline: string;
   specs: { icon: React.ElementType; label: string }[];
-  highlight: { icon: React.ElementType; title: string; body: string };
+  highlight: { icon: React.ElementType; title: string; body: string } | null;
   benefits: { icon: React.ElementType; label: string }[];
 }> = {
   "Dunlop Springtred Protect": {
@@ -64,13 +64,31 @@ const UNDERLAY_SPECS: Record<NonNullable<Exclude<UnderlayOption, "">>, {
     ],
     highlight: {
       icon: Wind,
-      title: "Dunlop Fresh Living — Antimicrobial Protection",
+      title: "Dunlop Fresh Living: Antimicrobial Protection",
       body: "Reduces dust mites, bacteria, mould & mildew for healthier indoor air quality",
     },
     benefits: [
       { icon: Shield, label: "Asthma & allergy friendly" },
       { icon: Volume2, label: "Reduces noise transfer by up to 62%" },
       { icon: Layers, label: "Premium 120 kg/m³ density for maximum comfort & longevity" },
+    ],
+  },
+  "Dunlop Springtred Extra": {
+    name: "Dunlop Springtred Extra",
+    tagline: "Everyday comfort & protection",
+    specs: [
+      { icon: Shield, label: "95 kg/m³ Density" },
+      { icon: Volume2, label: "24dB Acoustic Performance" },
+      { icon: Thermometer, label: "R 0.22 Thermal Insulation" },
+    ],
+    highlight: {
+      icon: Shield,
+      title: "Reliable Everyday Performance",
+      body: "Quality re-bonded foam underlay with built-in moisture barrier for everyday living",
+    },
+    benefits: [
+      { icon: Shield, label: "Moisture barrier protection" },
+      { icon: Volume2, label: "Reduces noise transfer" },
     ],
   },
   "Dunlop Eureka": {
@@ -84,7 +102,7 @@ const UNDERLAY_SPECS: Record<NonNullable<Exclude<UnderlayOption, "">>, {
     ],
     highlight: {
       icon: Shield,
-      title: "Luxury Classified — AS 4288-2003",
+      title: "Luxury Classified: AS 4288-2003",
       body: "Independently rated Luxury (Class L) under the Australian Standard for carpet underlay",
     },
     benefits: [
@@ -93,67 +111,48 @@ const UNDERLAY_SPECS: Record<NonNullable<Exclude<UnderlayOption, "">>, {
       { icon: Shield, label: "10mm comfort underfoot" },
     ],
   },
+  "Dunlop Government Red": {
+    name: "Dunlop Government Red",
+    tagline: "",
+    specs: [],
+    highlight: null,
+    benefits: [],
+  },
 };
 
 /** Map underlay option to a compact scope item for display in the Scope of Works list */
 const UNDERLAY_SCOPE_ITEMS: Record<NonNullable<Exclude<UnderlayOption, "">>, { title: string; description: string }> = {
   "Dunlop Springtred Protect": {
-    title: "Underlay",
-    description: "Supply and installation of new Dunlop Springtred Protect underlay (10mm, 80 kg/m\u00b3)",
+    title: "Premium Underlay",
+    description: "Dunlop Springtred Protect, 10mm, 80 kg/m\u00b3",
   },
   "Dunlop Springtred Ultimate": {
-    title: "Underlay",
-    description: "Supply and installation of new Dunlop Springtred Ultimate underlay (10mm, 120 kg/m\u00b3)",
+    title: "Premium Underlay",
+    description: "Dunlop Springtred Ultimate, 10mm, 120 kg/m\u00b3",
+  },
+  "Dunlop Springtred Extra": {
+    title: "Premium Underlay",
+    description: "Dunlop Springtred Extra, 95 kg/m\u00b3",
   },
   "Dunlop Eureka": {
+    title: "Premium Underlay",
+    description: "Dunlop Eureka, 10mm, 80 kg/m\u00b3",
+  },
+  "Dunlop Government Red": {
     title: "Underlay",
-    description: "Supply and installation of new Dunlop Eureka underlay (10mm, 80 kg/m\u00b3)",
+    description: "Dunlop Government Red",
   },
 };
 
-/** Builds the full scope list: areas line first, then underlay, then work items */
-function buildScopeItems(
-  items: { title: string; description: string }[],
-  underlay?: UnderlayOption,
-  areas?: string
-): { title: string; description: string }[] {
-  const result: { title: string; description: string }[] = [];
-  // First item: carpet supply line with areas
-  // The areas field already contains the full description like "Supply and Installation of new carpets to 3 bedrooms, hallway, stairs and robes."
-  // If it starts with "Supply" it's already a full line, otherwise prepend
-  if (areas && areas.trim()) {
-    const areaText = areas.trim();
-    const isFullLine = areaText.toLowerCase().startsWith("supply");
-    result.push({
-      title: "Carpet",
-      description: isFullLine ? areaText : `Supply and installation of new carpet to ${areaText}`,
-    });
-  }
-  // Second item: underlay with full product detail
-  // Skip if items already contain an underlay line
-  const hasUnderlayInItems = items.some(item => item.title.toLowerCase().includes("underlay"));
-  if (underlay && !hasUnderlayInItems) {
-    const underlayItem = UNDERLAY_SCOPE_ITEMS[underlay as keyof typeof UNDERLAY_SCOPE_ITEMS];
-    if (underlayItem) {
-      result.push(underlayItem);
-    } else {
-      result.push({
-        title: "Underlay",
-        description: `Supply and installation of new ${underlay} underlay`,
-      });
-    }
-  }
-  // Remaining work items with full descriptions
-  result.push(...items);
-  return result;
-}
-
-// Keep old function signature for backward compat
+/** Returns scope items with underlay prepended as the first item if an underlay is selected */
 function withUnderlayItem(
   items: { title: string; description: string }[],
   underlay?: UnderlayOption
 ): { title: string; description: string }[] {
-  return buildScopeItems(items, underlay);
+  if (!underlay) return items;
+  const underlayItem = UNDERLAY_SCOPE_ITEMS[underlay as keyof typeof UNDERLAY_SCOPE_ITEMS];
+  if (!underlayItem) return items;
+  return [underlayItem, ...items];
 }
 
 const formatPrice = (n: number) =>
@@ -273,21 +272,10 @@ export default function QuotePage({ slug }: QuotePageProps) {
         rooms: roomsPayload,
         allTiers: allTiersPayload,
       });
-      const byteCharacters = atob(result.pdfBase64);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: "application/pdf" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${result.quoteNumber}-Quote.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      // Open the PDF via the direct server endpoint — no blob URLs needed.
+      // The server streams the file with Content-Type: application/pdf so
+      // every browser (including mobile Safari) opens it natively.
+      window.open(`/api/quote/${slug}/pdf`, "_blank");
     } catch (err) {
       console.error("[Quote] PDF download failed:", err);
     } finally {
@@ -298,7 +286,7 @@ export default function QuotePage({ slug }: QuotePageProps) {
   // Get tiers from config (tiered quotes only, regardless of quote type)
   const tiers = useMemo(() => {
     if (!config || pricingMode === "single") return [];
-    return (config.tiers || []).map((t) => ({
+    return config.tiers.map((t) => ({
       ...t,
       priceFormatted: formatPrice(t.price),
       deposit: formatPrice(Math.round(t.price * ((config.depositPercent ?? 50) / 100) * 100) / 100),
@@ -309,7 +297,7 @@ export default function QuotePage({ slug }: QuotePageProps) {
   // Map DB config addons
   const addons = useMemo(() => {
     if (!config) return [];
-    return (config.addons || []).map((a) => ({
+    return config.addons.map((a) => ({
       ...a,
       priceFormatted: formatPrice(a.price),
     }));
@@ -367,7 +355,7 @@ export default function QuotePage({ slug }: QuotePageProps) {
   // ─── Loading state ──────────────────────────────────────────────────
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="min-h-screen flex items-center justify-center bg-zinc-900">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -375,24 +363,24 @@ export default function QuotePage({ slug }: QuotePageProps) {
           className="text-center"
         >
           <motion.img
-            src={LOGO_PNG}
+            src={LOGO_WHITE_PNG}
             alt="Bell Carpets"
             className="h-10 mx-auto mb-2"
             animate={{ opacity: [0.3, 0.6, 0.3] }}
             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
           />
-
+          <p className="text-[9px] tracking-[0.3em] text-white/40 uppercase font-light mb-5">{QUOTE_DATA.business.tagline}</p>
           <div className="flex items-center justify-center gap-1.5">
             {[0, 1, 2].map((i) => (
               <motion.div
                 key={i}
-                className="w-1.5 h-1.5 rounded-full bg-zinc-300"
+                className="w-1.5 h-1.5 rounded-full bg-white/20"
                 animate={{ scale: [1, 1.4, 1], opacity: [0.3, 0.8, 0.3] }}
                 transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
               />
             ))}
           </div>
-          <p className="text-xs text-zinc-400 mt-4 tracking-wide">Loading your quote...</p>
+          <p className="text-xs text-white/30 mt-4 tracking-wide">Loading your quote...</p>
         </motion.div>
       </div>
     );
@@ -401,20 +389,20 @@ export default function QuotePage({ slug }: QuotePageProps) {
   // ─── Error / not found state ────────────────────────────────────────
   if (error || !config) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-6 bg-white">
+      <div className="min-h-screen flex items-center justify-center px-6 bg-zinc-900">
         <div className="text-center max-w-sm">
-          <img src={LOGO_PNG} alt="Bell Carpets" className="h-8 mx-auto mb-2 opacity-40" />
-
-          <AlertCircle className="w-10 h-10 mx-auto mb-4 text-zinc-300" />
-          <h2 className="text-xl font-semibold mb-2 text-zinc-900">
+          <img src={LOGO_WHITE_PNG} alt="Bell Carpets" className="h-8 mx-auto mb-2 opacity-30" />
+          <p className="text-[9px] tracking-[0.3em] text-white/40 uppercase font-light mb-6">{QUOTE_DATA.business.tagline}</p>
+          <AlertCircle className="w-10 h-10 mx-auto mb-4 text-white/20" />
+          <h2 className="text-xl font-semibold mb-2 text-white">
             Quote Not Found
           </h2>
-          <p className="text-sm mb-6 text-zinc-500">
+          <p className="text-sm mb-6 text-white/50">
             This quote link may have expired or is invalid. Please contact Bell Carpets for assistance.
           </p>
           <a
             href="tel:0755711177"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium bg-zinc-900 text-white hover:bg-zinc-800 transition-colors"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium bg-white text-black hover:bg-white/90 transition-colors"
           >
             Call 07 5571 1177
           </a>
@@ -426,26 +414,26 @@ export default function QuotePage({ slug }: QuotePageProps) {
   // ─── Cancelled state ────────────────────────────────────────────────
   if (quoteData?.jobStatus === "cancelled") {
     return (
-      <div className="min-h-screen flex items-center justify-center px-6 bg-white">
+      <div className="min-h-screen flex items-center justify-center px-6 bg-zinc-900">
         <div className="text-center max-w-sm">
-          <img src={LOGO_PNG} alt="Bell Carpets" className="h-10 mx-auto mb-2 opacity-60" />
-
-          <h2 className="text-2xl font-semibold mb-3 text-zinc-900">
+          <img src={LOGO_WHITE_PNG} alt="Bell Carpets" className="h-10 mx-auto mb-2 opacity-60" />
+          <p className="text-[9px] tracking-[0.3em] text-white/40 uppercase font-light mb-10">{QUOTE_DATA.business.tagline}</p>
+          <h2 className="text-2xl font-semibold mb-3 text-white">
             This quote has expired.
           </h2>
-          <p className="text-sm mb-8 text-zinc-500 leading-relaxed">
+          <p className="text-sm mb-8 text-white/50 leading-relaxed">
             Please contact us for an updated quote.
           </p>
           <div className="flex flex-col gap-3 items-center">
             <a
               href="tel:0466912786"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold bg-zinc-900 text-white hover:bg-zinc-800 transition-colors w-full max-w-[220px] justify-center"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold bg-white text-black hover:bg-white/90 transition-colors w-full max-w-[220px] justify-center"
             >
               Call 0466 912 786
             </a>
             <a
               href="mailto:hello@bellcarpets.com.au"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium border border-zinc-200 text-zinc-600 hover:text-zinc-900 hover:border-zinc-400 transition-colors w-full max-w-[220px] justify-center"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium border border-white/20 text-white/70 hover:text-white hover:border-white/40 transition-colors w-full max-w-[220px] justify-center"
             >
               hello@bellcarpets.com.au
             </a>
@@ -461,7 +449,7 @@ export default function QuotePage({ slug }: QuotePageProps) {
     return (
       <JobStatusTracker
         quoteNumber={config.quoteNumber}
-        propertyAddress={config.property?.address ?? ""}
+        propertyAddress={config.property.address}
         jobStatus={quoteData.jobStatus}
         scheduledDate={quoteData.scheduledDate}
         acceptedAt={quoteData.acceptedAt}
@@ -469,44 +457,48 @@ export default function QuotePage({ slug }: QuotePageProps) {
     );
   }
 
+  // ─── Description-block presence ─────────────────────────────────────
+  const singleDescLines = config ? getDescriptionLines(config, { tiered: false }) : [];
+  const tieredDescLines = config ? getDescriptionLines(config, { tiered: true }) : [];
+
   // ─── Expired state ──────────────────────────────────────────────────
   const isExpired = quoteData?.expiresAt ? new Date(quoteData.expiresAt) < new Date() : false;
 
   if (isExpired) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-6 bg-white">
+      <div className="min-h-screen flex items-center justify-center px-6 bg-zinc-900">
         <div className="text-center max-w-sm">
-          <img src={LOGO_PNG} alt="Bell Carpets" className="h-8 mx-auto mb-2 opacity-40" />
-
-          <div className="w-16 h-16 rounded-full mx-auto mb-5 flex items-center justify-center bg-zinc-50 border border-zinc-200">
+          <img src={LOGO_WHITE_PNG} alt="Bell Carpets" className="h-8 mx-auto mb-2 opacity-30" />
+          <p className="text-[9px] tracking-[0.3em] text-white/40 uppercase font-light mb-6">{QUOTE_DATA.business.tagline}</p>
+          <div className="w-16 h-16 rounded-full mx-auto mb-5 flex items-center justify-center bg-white/5 border border-white/10">
             <AlertCircle className="w-7 h-7 text-red-400" />
           </div>
-          <h2 className="text-2xl font-semibold mb-2 text-zinc-900">
+          <h2 className="text-2xl font-semibold mb-2 text-white">
             Quote Expired
           </h2>
-          <p className="text-sm mb-3 text-zinc-500">
+          <p className="text-sm mb-3 text-white/50">
             This quote expired on{" "}
-            <span className="text-zinc-700 font-medium">
+            <span className="text-white/70 font-medium">
               {formatAESTDate(new Date(quoteData.expiresAt!), { day: "2-digit", month: "long", year: "numeric" })}
             </span>.
           </p>
-          <p className="text-sm mb-6 text-zinc-500 leading-relaxed">
+          <p className="text-sm mb-6 text-white/50 leading-relaxed">
             Please contact Bell Carpets on{" "}
-            <a href="tel:0466912786" className="text-zinc-800 font-medium hover:text-zinc-900 transition-colors">0466 912 786</a>
+            <a href="tel:0466912786" className="text-white/80 font-medium hover:text-white transition-colors">0466 912 786</a>
             {" "}or{" "}
-            <a href="mailto:info@bellcarpets.com.au" className="text-zinc-800 font-medium hover:text-zinc-900 transition-colors">email us</a>
+            <a href="mailto:info@bellcarpets.com.au" className="text-white/80 font-medium hover:text-white transition-colors">email us</a>
             {" "}for a fresh quote.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <a
               href="tel:0466912786"
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium bg-zinc-900 text-white hover:bg-zinc-800 transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium bg-white text-black hover:bg-white/90 transition-colors"
             >
               Call 0466 912 786
             </a>
             <a
               href="mailto:info@bellcarpets.com.au"
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium bg-transparent border border-zinc-200 text-zinc-600 hover:bg-zinc-50 transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium bg-transparent border border-white/20 text-white hover:bg-white/10 transition-colors"
             >
               Email Us
             </a>
@@ -517,8 +509,6 @@ export default function QuotePage({ slug }: QuotePageProps) {
   }
 
   // ─── Download quote PDF button (admin preview only — hidden from customers) ───
-  // Only shown when the page is opened via the admin panel's "Preview" button (?preview=1)
-  // This prevents the button appearing even when an admin opens the raw quote URL
   const DownloadQuotePDF = () => {
     if (!isPreviewMode) return null;
     return (
@@ -526,19 +516,19 @@ export default function QuotePage({ slug }: QuotePageProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
-        className="mt-4 text-center"
+        className="mt-10 text-center"
       >
         <button
           onClick={handleDownloadPdf}
           disabled={downloading}
-          className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-600 underline underline-offset-4 decoration-zinc-300 hover:decoration-zinc-500 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-2 px-4 py-2 text-xs tracking-[0.1em] uppercase text-white/40 hover:text-white/70 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
         >
           {downloading ? (
-            <Loader2 className="w-3 h-3 animate-spin" />
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
           ) : (
-            <Download className="w-3 h-3" />
+            <Download className="w-3.5 h-3.5" />
           )}
-          {downloading ? "Generating PDF..." : "Download Quote as PDF"}
+          {downloading ? "Generating..." : "Download PDF"}
         </button>
       </motion.div>
     );
@@ -550,7 +540,7 @@ export default function QuotePage({ slug }: QuotePageProps) {
     return (
       <button
         onClick={() => window.close()}
-        className="fixed top-4 left-4 z-50 flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-zinc-200 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50 hover:border-zinc-300 transition-all shadow-md text-sm font-medium"
+        className="fixed top-4 left-4 z-50 flex items-center gap-2 px-3 py-2 rounded-xl bg-zinc-800/90 border border-white/15 text-white/80 hover:text-white hover:bg-zinc-700/90 hover:border-white/30 transition-all shadow-lg backdrop-blur-sm text-sm font-medium"
         aria-label="Close preview and return to editor"
       >
         <X className="w-4 h-4" />
@@ -561,72 +551,82 @@ export default function QuotePage({ slug }: QuotePageProps) {
 
   // ─── Shared header ──────────────────────────────────────────────────
   const Header = () => (
-    <header className="pt-10 pb-2 text-center">
+    <header className="pt-14 pb-4 text-center">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
         <img
-          src={LOGO_PNG}
-          alt="Bell Carpets — Established 1987"
+          src={LOGO_WHITE_PNG}
+          alt="Bell Carpets"
           className="h-12 sm:h-14 w-auto mx-auto"
         />
+        <p className="text-[10px] tracking-[0.3em] mt-3 text-white/50 uppercase font-light">
+          {QUOTE_DATA.business.tagline}
+        </p>
       </motion.div>
     </header>
   );
 
   // ─── Shared greeting ────────────────────────────────────────────────
-  // For agent/real_estate/agency_single quotes: use agency name. For homeowner: use client name.
-  const greetingName = (quoteType === "agent" || quoteType === "real_estate" || quoteType === "agency_single") ? quoteData?.agentName : config.client?.name;
+  const isAgencyStyle =
+    quoteType === "agent" || quoteType === "real_estate" || quoteType === "agency_single";
+  const agencyDisplayName =
+    (config.client?.name && config.client.name.trim()) ||
+    quoteData?.agentName ||
+    "";
+  const greetingName = isAgencyStyle ? agencyDisplayName : config.client?.name;
 
   const Greeting = () => (
     <motion.section
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8, delay: 0.2 }}
-      className="mt-10 mb-10 max-w-2xl mx-auto"
+      className="mt-12 mb-6 max-w-lg mx-auto lg:mx-0"
     >
-      <h2 className="text-2xl sm:text-3xl font-semibold leading-snug mb-5 text-zinc-900">
-        {greetingName ? (
-          quoteType === "homeowner" || isSinglePriceAgent || isAgencySingle ? (
-            <>Hi {greetingName},{" "}<span className="text-zinc-400">here is your flooring quote for</span></>
-          ) : (
-            <>Hi {greetingName},{" "}<span className="text-zinc-400">here are your flooring options for</span></>
-          )
+      <h2 className="text-2xl sm:text-3xl font-semibold leading-snug mb-6 text-white">
+        {quoteType === "homeowner" ? (
+          <>Hi {greetingName},{" "}<span className="text-white/40">here is your flooring quote for</span></>
+        ) : (isSinglePriceAgent || isAgencySingle) ? (
+          <>Hi {greetingName},{" "}<span className="text-white/40">here is your flooring quote for</span></>
         ) : (
-          <span className="text-zinc-400">Your flooring {quoteType === "homeowner" || isSinglePriceAgent || isAgencySingle ? "quote" : "options"} for</span>
+          <>Hi {greetingName},{" "}<span className="text-white/40">here are your flooring options for</span></>
         )}
       </h2>
-      <div className="rounded-xl overflow-hidden border border-zinc-200 bg-zinc-50">
+
+      {/* Property address card */}
+      <div className="rounded-xl overflow-hidden border border-white/10 bg-white/[0.02]">
         <div className="flex">
-          <div className="w-[3px] flex-shrink-0 bg-gradient-to-b from-amber-500/80 via-amber-400/60 to-amber-400/30" />
-          <div className="flex items-start gap-3 px-4 py-3.5">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-zinc-100">
-              <MapPin className="w-4 h-4 text-zinc-400" />
+          <div className="w-[3px] flex-shrink-0" style={{ backgroundColor: CREAM, opacity: 0.5 }} />
+          <div className="flex items-start gap-3 px-5 py-4">
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-white/[0.04]">
+              <MapPin className="w-4.5 h-4.5 text-white/40" />
             </div>
             <div>
-              <p className="text-base font-medium text-zinc-900">
-                {config.property?.address ?? ""}
+              <p className="text-base sm:text-lg font-medium text-white leading-snug">
+                {config.property.address}
               </p>
             </div>
           </div>
         </div>
       </div>
-      <div className="flex items-center gap-4 mt-4">
+
+      {/* Quote meta: number + date */}
+      <div className="flex items-center gap-4 mt-5">
         <div className="flex items-center gap-1.5">
-          <FileText className="w-3.5 h-3.5 text-zinc-300" />
-          <span className="text-xs text-zinc-400">
+          <FileText className="w-3.5 h-3.5 text-white/20" />
+          <span className="text-xs text-white/30">
             Quote #{config.quoteNumber}
           </span>
         </div>
-        <span className="text-xs text-zinc-200">|</span>
-        <span className="text-xs text-zinc-400">
+        <span className="text-xs text-white/10">|</span>
+        <span className="text-xs text-white/30">
           Issued {config.issueDate}
         </span>
       </div>
 
       {/* Agency name — shown on agent, real_estate, and agency_single quotes */}
-      {(quoteType === "agent" || quoteType === "real_estate" || quoteType === "agency_single") && quoteData?.agentName && (
+      {isAgencyStyle && agencyDisplayName && (
         <div className="mt-3 flex items-center gap-2">
-          <span className="text-xs text-zinc-400">Prepared for</span>
-          <span className="text-xs text-zinc-600 font-medium">{quoteData.agentName}</span>
+          <span className="text-xs text-white/25">Prepared for</span>
+          <span className="text-xs text-white/60 font-medium">{agencyDisplayName}</span>
         </div>
       )}
     </motion.section>
@@ -636,14 +636,14 @@ export default function QuotePage({ slug }: QuotePageProps) {
   const isRealEstateSingle = quoteType === "real_estate" && pricingMode === "single";
   if (quoteType === "homeowner" || isRealEstateSingle || isSinglePriceAgent || isAgencySingle) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-zinc-900">
         <PreviewBackButton />
-        <div className="max-w-2xl mx-auto px-5 sm:px-6">
+        <div className="max-w-lg mx-auto px-5 sm:px-6">
           <Header />
           <Greeting />
 
           {/* Single product panel */}
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-lg mx-auto mt-10">
              <HomeownerQuotePanel
               config={config}
               addons={addons}
@@ -654,50 +654,115 @@ export default function QuotePage({ slug }: QuotePageProps) {
               linkedQuoteNumber={linkedQuoteNumber}
             />
           </div>
-          <div className="max-w-2xl mx-auto">
-            <ScopeOfWorks items={buildScopeItems(config.scopeOfWorks || [], config.product?.underlay, config.scope)} />
-          </div>
+          {/* Old titled Scope of Works is hidden whenever the flowing description
+              block renders (admin-edited OR generated fallback), so the scope is
+              never shown twice. Only shows if there is no description at all. */}
+          {singleDescLines.length === 0 && (
+            <div className="max-w-lg mx-auto mt-12">
+              <ScopeOfWorks items={config.scopeOfWorks} />
+            </div>
+          )}
           {config.customerNotes && config.customerNotes.trim() && (
-            <div className="max-w-2xl mx-auto">
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 mt-1">
-                <h3 className="text-amber-700 text-xs font-semibold uppercase tracking-widest mb-2">Notes</h3>
-                <p className="text-zinc-700 text-sm leading-relaxed whitespace-pre-wrap">{config.customerNotes.trim()}</p>
+            <div className="max-w-lg mx-auto mt-14">
+              <div className="flex">
+                <div className="w-[2px] flex-shrink-0 rounded-full" style={{ backgroundColor: `${CREAM}40` }} />
+                <div className="pl-5">
+                  <p className="text-[11px] uppercase tracking-[0.2em] text-white/30 mb-3">Notes</p>
+                  <p className="text-[15px] text-white/60 leading-relaxed whitespace-pre-wrap">{config.customerNotes.trim()}</p>
+                </div>
               </div>
             </div>
           )}
-          <div className="max-w-2xl mx-auto">
-            {quoteType === "agent" ? <WhyBellCarpets /> : null}
-          </div>
-          <div className="max-w-2xl mx-auto">
-            <QuoteTerms terms={config.terms || []} validUntil={validUntil} />
+          <div className="max-w-lg mx-auto mt-12">
+            <QuoteTerms terms={config.terms} validUntil={validUntil} />
           </div>
           <DownloadQuotePDF />
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-lg mx-auto">
             <Footer />
           </div>
         </div>
       </div>
     );
-  }  // ─── AGENT LAYOUT (3-tier) ───────────────────────────────────────────────
+  }
+
+  // ─── AGENT LAYOUT (3-tier) ───────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-zinc-900">
       <PreviewBackButton />
-      <div className="max-w-lg lg:max-w-4xl mx-auto px-5 sm:px-6">
+      <div className="max-w-lg lg:max-w-5xl mx-auto px-5 sm:px-6">
         <Header />
         <Greeting />
-        <DownloadQuotePDF />
 
-        {/* Tier selection */}
-        <section id="tier-cards-section">
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.3 }} className="flex items-center gap-3 mb-6">
-            <div className="h-px flex-1 bg-zinc-200" />
-            <h2 className="text-sm font-medium tracking-[0.2em] uppercase text-zinc-400">
-              Your Quote
+        {/* ─── SCOPE OF WORKS SECTION ─── */}
+        {(() => {
+          const descLines = tieredDescLines;
+          const underlayNote = getUnderlayNote(tiers[0]?.underlay);
+          if (descLines.length === 0 && !underlayNote) return null;
+          return (
+            <motion.section
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="mt-14 mb-20 max-w-lg mx-auto lg:mx-0"
+            >
+              <div className="mb-8">
+                <h2 className="font-serif-display text-2xl sm:text-[1.75rem] tracking-wide text-white/90">
+                  Scope of Works
+                </h2>
+                <div className="h-px w-12 mt-4 bg-white/20" />
+              </div>
+              <div className="flex">
+                <div className="w-[2px] flex-shrink-0 rounded-full" style={{ backgroundColor: `${CREAM}40` }} />
+                <div className="flex-1 pl-5 space-y-3">
+                  {descLines.map((line, i) => (
+                    <p key={i} className="text-[15px] text-white/60 leading-relaxed">{line}</p>
+                  ))}
+                  {underlayNote && (
+                    <p className="text-[15px] text-white/45 leading-relaxed pt-1">{underlayNote}</p>
+                  )}
+                </div>
+              </div>
+            </motion.section>
+          );
+        })()}
+
+        {/* ─── YOUR OPTIONS SECTION ─── */}
+        <section id="tier-cards-section" className="mt-16">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.35 }} className="mb-10 max-w-lg mx-auto lg:mx-0">
+            <h2 className="font-serif-display text-2xl sm:text-[1.75rem] tracking-wide text-white/90">
+              Your Options
             </h2>
-            <div className="h-px flex-1 bg-zinc-200" />
+            <div className="h-px w-12 mt-4 bg-white/20" />
           </motion.div>
 
-          <div className={`space-y-4 lg:grid lg:gap-5 lg:space-y-0 lg:items-stretch ${tiers.length === 2 ? 'lg:grid-cols-2 max-w-3xl mx-auto' : 'lg:grid-cols-3'}`}>
+          {/* How to accept instruction card */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="mb-10 max-w-lg mx-auto"
+          >
+            <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] px-6 py-5">
+              <p className="text-xs font-medium tracking-[0.15em] uppercase text-white/40 mb-4">How to accept your quote</p>
+              <ol className="space-y-3">
+                {[
+                  "Select your preferred carpet below",
+                  "Choose your colour from the swatches",
+                  "Tap Accept Quote to confirm",
+                ].map((text, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <span className="w-6 h-6 rounded-full border border-white/20 flex items-center justify-center text-[11px] font-semibold text-white/40 flex-shrink-0 mt-0.5">
+                      {i + 1}
+                    </span>
+                    <span className="text-sm text-white/60 leading-snug">{text}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </motion.div>
+
+          {/* ─── TIER CARDS ─── */}
+          <div className={`space-y-8 lg:grid lg:gap-8 lg:space-y-0 lg:items-start ${tiers.length === 2 ? 'lg:grid-cols-2 max-w-3xl mx-auto' : 'lg:grid-cols-3'}`}>
             {tiers.map((tier, i) => (
               <TierCard
                 key={tier.id}
@@ -720,7 +785,7 @@ export default function QuotePage({ slug }: QuotePageProps) {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className="mt-8 max-w-2xl mx-auto"
+            className="mt-14 max-w-lg mx-auto"
           >
             <AddonSelector
               addons={addons}
@@ -732,26 +797,27 @@ export default function QuotePage({ slug }: QuotePageProps) {
           </motion.div>
         )}
 
-
-
-        <div className="max-w-2xl mx-auto">
-          <ScopeOfWorks items={buildScopeItems(config.scopeOfWorks || [], selectedTier?.underlay || tiers[0]?.underlay, config.scope)} />
-        </div>
+        {tieredDescLines.length === 0 && (
+          <div className="max-w-lg mx-auto mt-14">
+            <ScopeOfWorks items={withUnderlayItem(config.scopeOfWorks, selectedTier?.underlay || tiers[0]?.underlay)} />
+          </div>
+        )}
         {config.customerNotes && config.customerNotes.trim() && (
-          <div className="max-w-2xl mx-auto">
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 mt-1">
-              <h3 className="text-amber-700 text-xs font-semibold uppercase tracking-widest mb-2">Notes</h3>
-              <p className="text-zinc-700 text-sm leading-relaxed whitespace-pre-wrap">{config.customerNotes.trim()}</p>
+          <div className="max-w-lg mx-auto mt-16">
+            <div className="flex">
+              <div className="w-[2px] flex-shrink-0 rounded-full" style={{ backgroundColor: `${CREAM}40` }} />
+              <div className="pl-5">
+                <p className="text-[11px] uppercase tracking-[0.2em] text-white/30 mb-3">Notes</p>
+                <p className="text-[15px] text-white/60 leading-relaxed whitespace-pre-wrap">{config.customerNotes.trim()}</p>
+              </div>
             </div>
           </div>
         )}
-        <div className="max-w-2xl mx-auto">
-          <WhyBellCarpets />
+        <div className="max-w-lg mx-auto mt-16">
+          <QuoteTerms terms={config.terms} validUntil={validUntil} />
         </div>
-        <div className="max-w-2xl mx-auto">
-          <QuoteTerms terms={config.terms || []} validUntil={validUntil} />
-        </div>
-        <div className="max-w-2xl mx-auto">
+        <DownloadQuotePDF />
+        <div className="max-w-lg mx-auto">
           <Footer />
         </div>
       </div>
@@ -768,8 +834,8 @@ export default function QuotePage({ slug }: QuotePageProps) {
         basePrice={selectedTier?.price ?? 0}
         grandTotal={(selectedTier?.price ?? 0) + selectedAddons.reduce((s, a) => s + a.price, 0)}
         quoteNumber={config.quoteNumber}
-        propertyAddress={config.property?.address ?? ""}
-        clientName={quoteData?.agentName ?? config.client?.name ?? ""}
+        propertyAddress={config.property.address}
+        clientName={agencyDisplayName || config.client?.name || ""}
         slug={slug}
         selectedAddons={selectedAddons}
         quoteType={quoteType}

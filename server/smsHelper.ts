@@ -35,7 +35,7 @@ export function normaliseAuPhone(raw: string): string | null {
 export async function sendSms(to: string, body: string): Promise<boolean> {
   const sid = process.env.TWILIO_ACCOUNT_SID;
   const token = process.env.TWILIO_AUTH_TOKEN;
-  const from = process.env.TWILIO_FROM_NUMBER || process.env.TWILIO_PHONE_NUMBER;
+  const from = process.env.TWILIO_PHONE_NUMBER;
 
   if (!sid || !token || !from) {
     console.warn("[SMS] Twilio credentials not configured — skipping SMS");
@@ -140,7 +140,7 @@ export async function sendReminderSms(data: {
   const recipientName = data.agentPropertyManager || data.agentName;
   const body =
     `Hi ${recipientName}, reminder: your Bell Carpets quote ${data.quoteNumber}${property} expires ${urgency}. ` +
-    `Accept here: ${quoteUrl} — Bell Carpets 07 5571 1177`;
+    `Accept here: ${quoteUrl} — Bell Carpets`;
   return sendSms(data.agentPhone, body);
 }
 

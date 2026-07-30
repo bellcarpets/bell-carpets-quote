@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo } from "react";
 
 type UseAuthOptions = {
   redirectOnUnauthenticated?: boolean;
-  redirectPath?: string;
+  redirectPath?: string | null;
 };
 
 export function useAuth(options?: UseAuthOptions) {
@@ -65,9 +65,11 @@ export function useAuth(options?: UseAuthOptions) {
     if (meQuery.isLoading || logoutMutation.isPending) return;
     if (state.user) return;
     if (typeof window === "undefined") return;
+    // No OAuth redirect configured (password login is used) — do nothing.
+    if (!redirectPath) return;
     if (window.location.pathname === redirectPath) return;
 
-    window.location.href = redirectPath
+    window.location.href = redirectPath;
   }, [
     redirectOnUnauthenticated,
     redirectPath,

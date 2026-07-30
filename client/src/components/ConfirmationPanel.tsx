@@ -331,6 +331,7 @@ export default function ConfirmationPanel({
                     src={selectedColour.swatchImage}
                     alt={selectedColour.name}
                     className="w-full h-full object-cover"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                   />
                 </div>
                 <span className="text-sm text-white/60">
@@ -408,6 +409,7 @@ export default function ConfirmationPanel({
                         src={selectedColour.swatchImage}
                         alt={selectedColour.name}
                         className="w-full h-full object-cover"
+                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                       />
                     </div>
                     <span className="text-sm text-white">
@@ -447,6 +449,10 @@ export default function ConfirmationPanel({
 
                 <div className="h-px w-full bg-white/10" />
 
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-white/60">GST (10%)</span>
+                  <span className="text-sm text-white/60">{formatPrice(Math.round(grandTotal / 11))}</span>
+                </div>
 
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-semibold text-white/80">

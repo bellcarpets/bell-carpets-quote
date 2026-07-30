@@ -10,7 +10,7 @@ import { and, eq, isNull, lte, inArray } from "drizzle-orm";
 import { sendSms } from "./smsHelper";
 import { logNotification } from "./notificationLog";
 
-const LOGO_CDN = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663449952732/EvSxkTrWsYNTCIAI.jpg";
+const LOGO_CDN = "https://quote.bellcarpets.com.au/images/logo.jpg";
 const FROM_EMAIL = "Bell Carpets <quotes@bellcarpets.com.au>";
 const REPLY_TO_EMAIL = "hello@bellcarpets.com.au";
 const RESEND_API_URL = "https://api.resend.com/emails";
@@ -78,7 +78,7 @@ function buildOverdueEmail(data: {
               <tr><td style="padding:12px 0;border-bottom:1px solid #e8e8e8;">
                 <table width="100%" cellpadding="0" cellspacing="0"><tr>
                   <td style="color:#999999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:160px;">Property</td>
-                  <td style="color:#111111;font-size:14px;font-family:Arial,sans-serif;font-weight:600;">${data.propertyAddress}</td>
+                  <td style="color:#111111;font-size:14px;font-family:Arial,sans-serif;font-weight:600;"><a href="x-apple-data-detectors://0" dir="ltr" style="color:#111;text-decoration:none;pointer-events:none;">${data.propertyAddress}</a></td>
                 </tr></table>
               </td></tr>
               <tr><td style="padding:12px 0;">
@@ -120,17 +120,15 @@ function buildOverdueEmail(data: {
 
             <p style="color:#555555;font-size:13px;margin:0;line-height:1.6;font-family:Arial,sans-serif;">
               If you have already made payment, please disregard this reminder. For any questions, contact us at
-              <a href="mailto:hello@bellcarpets.com.au" style="color:#111111;">hello@bellcarpets.com.au</a>
-              or call <strong>07 5571 1177</strong>.
+              <a href="mailto:hello@bellcarpets.com.au" style="color:#111111;">hello@bellcarpets.com.au</a>.
             </p>
           </td>
         </tr>
 
         <!-- Footer -->
         <tr>
-          <td style="padding:24px 40px;text-align:center;border-top:1px solid #e8e8e8;background:#fafafa;">
-            <p style="color:#999999;font-size:11px;margin:0;font-family:Arial,sans-serif;">Bell Carpets &nbsp;&middot;&nbsp; 41 Olympic Circuit, Southport QLD 4215 &nbsp;&middot;&nbsp; 07 5571 1177</p>
-            <p style="color:#bbbbbb;font-size:10px;margin:6px 0 0;font-family:Arial,sans-serif;">Gold Coast's premium flooring specialists since 1987</p>
+          <td style="padding:32px 48px;text-align:center;background:#ffffff;">
+            <img src="https://quote.bellcarpets.com.au/images/logo.jpg" alt="Bell Carpets" style="height:30px;display:block;margin:0 auto;" />
           </td>
         </tr>
 
@@ -264,7 +262,7 @@ export async function checkAndSendOverdueReminders(): Promise<void> {
             ? inv.totalAmount - inv.depositAmount
             : inv.totalAmount;
 
-        const smsBody = `Hi ${inv.recipientName || "there"}, this is a friendly reminder from Bell Carpets that your quote ${inv.quoteNumber} (${formatPrice(amountOwed)}) is now overdue. Please arrange payment at your earliest convenience. Ref: ${inv.quoteNumber}. Questions? Call 07 5571 1177.`;
+        const smsBody = `Hi ${inv.recipientName || "there"}, this is a friendly reminder from Bell Carpets that your quote ${inv.quoteNumber} (${formatPrice(amountOwed)}) is now overdue. Please arrange payment at your earliest convenience. Ref: ${inv.quoteNumber}. Questions? Email hello@bellcarpets.com.au`;
 
         sendSms(inv.recipientPhone, smsBody)
           .then(async (smsSent) => {

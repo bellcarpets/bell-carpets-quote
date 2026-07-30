@@ -20,10 +20,12 @@ import { getDb } from "./db";
 import { quotes, invoices, quoteViews } from "../drizzle/schema";
 import { eq, desc, sql, isNull, and } from "drizzle-orm";
 import type { QuoteConfigData, QuoteType } from "../shared/quoteConfigTypes";
-import { routeNotificationsToAgent } from "../shared/quoteConfigTypes";
+import { routeNotificationsToAgent, usesHomeownerLayout } from "../shared/quoteConfigTypes";
+import { getDescriptionLines } from "../shared/quoteDescription";
 import { sendQuoteLinkSms, sendAcceptanceSmsToBellCarpets, sendSms, normaliseAuPhone } from "./smsHelper";
 import { logNotification } from "./notificationLog";
 import { formatAESTDate, todayAESTString, parseAESTDate, addDaysAEST } from "../shared/aestUtils";
+import { generateQuotePdfBuffer } from "./quotePdf";
 
 // ─── Default Templates ────────────────────────────────────────────────
 const CDN = "https://d2xsxph8kpxj0f.cloudfront.net/310519663449952732/a29pcHdf6xRSErj7q2ehpL";
@@ -75,23 +77,44 @@ export const DEFAULT_AGENT_CONFIG: QuoteConfigData = {
       id: "bronze",
       name: "Good",
       label: "GOOD",
-      productName: "Ovation",
+      productName: "Enforcer",
       manufacturer: "Godfrey Hirst",
       fibre: "Polypropylene",
       pileType: "Textured Loop Pile",
-      width: "4.0m",
       badges: [],
-      price: 4367,
+      price: 0,
       color: "#A67C52",
       colorAccent: "#C4956A",
-      image: `${CDN}/carpet-bronze_7e298111.jpg`,
-      productUrl: "https://www.godfreyhirst.com/au/products/ovation",
+      image: "https://d2xsxph8kpxj0f.cloudfront.net/31051966",
+      productUrl: "https://www.bellcarpets.com.au/products/godfrey-hirst-enforcer",
       colours: [
-        { id: "doeskin", name: "Doeskin", swatchImage: "/manus-storage/ovation_doeskin_ab90ed0f.jpg" },
-        { id: "oyster", name: "Oyster", swatchImage: "/manus-storage/ovation_oyster_b875d791.jpg" },
-        { id: "woodland", name: "Woodland", swatchImage: "/manus-storage/ovation_woodland_2062bb0d.jpg" },
-        { id: "folkstone", name: "Folkstone", swatchImage: "/manus-storage/ovation_folkstone_5f3f1fa0.jpg" },
-        { id: "caviar", name: "Caviar", swatchImage: "/manus-storage/ovation_caviar_9bba2912.jpg" },
+        { id: "warmstone", name: "Warmstone", code: "5160", swatchImage: "/images/swatches/enforcer-warmstone.jpg" },
+        { id: "windspray", name: "Windspray", code: "7108", swatchImage: "/images/swatches/enforcer-windspray.jpg" },
+        { id: "smoke", name: "Smoke", code: "7250", swatchImage: "/images/swatches/enforcer-smoke.jpg" },
+        { id: "lava", name: "Lava", code: "7350", swatchImage: "/images/swatches/enforcer-lava.jpg" },
+        { id: "aggregate", name: "Aggregate", code: "7450", swatchImage: "/images/swatches/enforcer-aggregate.jpg" },
+      ],
+    },
+    {
+      id: "silver",
+      name: "Better",
+      label: "BETTER",
+      productName: "Serina",
+      manufacturer: "Godfrey Hirst",
+      fibre: "100% Duratuft Polyester",
+      pileType: "Twist Pile",
+      badges: [],
+      price: 0,
+      color: "#B8BCC4",
+      colorAccent: "#D0D4DC",
+      image: "https://d2xsxph8kpxj0f.cloudfront.net/31051966",
+      productUrl: "https://www.bellcarpets.com.au/products/godfrey-hirst-serina",
+      colours: [
+        { id: "orchard", name: "Orchard", code: "506", swatchImage: "/images/swatches/serina-orchard.jpg" },
+        { id: "valley", name: "Valley", code: "510", swatchImage: "/images/swatches/serina-valley.jpg" },
+        { id: "vintage", name: "Vintage", code: "542", swatchImage: "/images/swatches/serina-vintage.jpg" },
+        { id: "province", name: "Province", code: "715", swatchImage: "/images/swatches/serina-province.jpg" },
+        { id: "vineyard", name: "Vineyard", code: "750", swatchImage: "/images/swatches/serina-vineyard.jpg" },
       ],
     },
     {
@@ -102,19 +125,18 @@ export const DEFAULT_AGENT_CONFIG: QuoteConfigData = {
       manufacturer: "Victoria Carpets",
       fibre: "100% Solution Dyed Nylon",
       pileType: "Twist Pile",
-      pileWeight: "26oz",
-      badges: ["7 Year Premium Warranty", "Australian Made", "Red List Free"],
-      price: 4830,
+      badges: [],
+      price: 0,
       color: "#D4AF37",
       colorAccent: "#E8C84D",
-      image: `${CDN}/carpet-gold_acdbbbe3.jpg`,
-      productUrl: "https://victoriacarpets.com.au/product/lemar-twist/",
+      image: "https://d2xsxph8kpxj0f.cloudfront.net/31051966",
+      productUrl: "https://www.bellcarpets.com.au/products/victoria-carpets-lemar-twist",
       colours: [
-        { id: "smokey-canvas", name: "Smokey Canvas", swatchImage: "/manus-storage/lemar_smokey_canvas_f5db828b.jpg" },
-        { id: "alicante", name: "Alicante", swatchImage: "/manus-storage/lemar_alicante_b0886e73.jpg" },
-        { id: "platinum-grey", name: "Platinum Grey", swatchImage: "/manus-storage/lemar_platinum_grey_4873e30b.jpg" },
-        { id: "black-finestone", name: "Black Finestone", swatchImage: "/manus-storage/lemar_black_finestone_f78ec584.jpg" },
-        { id: "belleville", name: "Belleville", swatchImage: "/manus-storage/lemar_belleville_9bd21b8a.jpg" },
+        { id: "smokey-canvas", name: "Smokey Canvas", code: "32", swatchImage: "/images/swatches/lemar-smokey-canvas.jpg" },
+        { id: "alicante", name: "Alicante", code: "23", swatchImage: "/images/swatches/lemar-alicante.jpg" },
+        { id: "platinum-grey", name: "Platinum Grey", code: "54", swatchImage: "/images/swatches/lemar-platinum-grey.jpg" },
+        { id: "black-finestone", name: "Black Finestone", code: "51", swatchImage: "/images/swatches/lemar-black-finestone.jpg" },
+        { id: "bellville", name: "Bellville", code: "55", swatchImage: "/images/swatches/lemar-bellville.jpg" },
       ],
     },
   ],
@@ -206,8 +228,8 @@ async function getNextQuoteNumber(): Promise<string> {
   const db = await getDb();
   if (!db) return "BC-001";
 
-  // Fetch all quote numbers and find the max in JS — avoids dialect-specific SQL
-  const allQuotes = await db.select({ quoteNumber: quotes.quoteNumber }).from(quotes).where(isNull(quotes.deletedAt));
+  // Fetch ALL quote numbers (including soft-deleted) to avoid duplicate-key collisions
+  const allQuotes = await db.select({ quoteNumber: quotes.quoteNumber }).from(quotes);
   const maxNum = allQuotes.reduce((max, q) => {
     const num = parseInt((q.quoteNumber || "").replace(/^BC-/, ""), 10);
     return isNaN(num) ? max : Math.max(max, num);
@@ -221,7 +243,12 @@ function generateSlug(quoteNumber: string): string {
 
 // ─── Email Helpers ────────────────────────────────────────────────────
 
-const LOGO_CDN_URL = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663449952732/EvSxkTrWsYNTCIAI.jpg";
+const LOGO_CDN_URL = "https://quote.bellcarpets.com.au/images/logo.jpg";
+
+/** Wrap text in an anchor tag that prevents iOS Mail from auto-linking addresses */
+function noAutoLink(text: string, color: string = '#333333'): string {
+  return `<a href="x-apple-data-detectors://0" dir="ltr" style="color:${color};text-decoration:none;pointer-events:none;">${text}</a>`;
+}
 
 // ─── Scheduling Confirmation Email ─────────────────────────────────────────
 
@@ -245,58 +272,81 @@ export async function sendSchedulingConfirmationEmail(data: SchedulingConfirmati
 
   const htmlBody = `<!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Installation Scheduled — Bell Carpets</title></head>
-<body style="margin:0;padding:0;background:#ffffff;font-family:Georgia,'Times New Roman',serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;">
-    <tr><td align="center" style="padding:40px 16px 0;">
-      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
+  <meta name="x-apple-disable-message-reformatting">
+  <title>Installation Scheduled — Bell Carpets</title>
+  <style>a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important;font-size:inherit!important;font-family:inherit!important;font-weight:inherit!important;line-height:inherit!important;}</style>
+</head>
+<body style="margin:0;padding:0;background:#f5f5f5;font-family:Georgia,'Times New Roman',serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;">
+    <tr><td align="center" style="padding:48px 16px;">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;">
 
         <!-- Header -->
-        <tr><td style="background:#ffffff;padding:40px 48px 28px;text-align:center;border-bottom:1px solid #2a2a2a;">
-          <img src="${LOGO_CDN_URL}" alt="Bell Carpets" style="height:40px;display:block;margin:0 auto 6px;" />
-
+        <tr><td style="padding:48px 48px 32px;text-align:center;border-bottom:1px solid #e8e8e8;">
+          <img src="${LOGO_CDN_URL}" alt="Bell Carpets" style="width:200px;display:block;margin:0 auto;" />
         </td></tr>
 
-        <!-- Green accent bar -->
-        <tr><td style="background:linear-gradient(90deg,#1a6b3a,#2d9e5a,#1a6b3a);height:2px;"></td></tr>
+        <!-- Body -->
+        <tr><td style="padding:48px 48px 40px;">
 
-        <!-- Hero section -->
-        <tr><td style="background:#ffffff;padding:48px 48px 36px;">
-          <p style="color:#555555;font-size:12px;margin:0 0 8px;font-family:Arial,sans-serif;letter-spacing:0.05em;">Dear ${data.recipientName},</p>
-          <h1 style="color:#111111;font-size:28px;font-weight:400;margin:0 0 6px;letter-spacing:-0.01em;line-height:1.2;">Installation Confirmed</h1>
-          <p style="color:#2d9e5a;font-size:11px;margin:0 0 24px;font-family:Arial,sans-serif;letter-spacing:0.15em;text-transform:uppercase;">Bell Carpets — Scheduled</p>
-          <p style="color:#555555;font-size:14px;line-height:1.7;margin:0 0 32px;font-family:Arial,sans-serif;">
-            Your carpet installation at <strong style="color:#f0ebe0;">${data.propertyAddress}</strong> has been scheduled. Please ensure access is available on the day.
+          <p style="color:#333;font-size:14px;margin:0 0 32px;font-family:Arial,sans-serif;line-height:1.6;">
+            Dear ${data.recipientName},
           </p>
 
-          <!-- Details card -->
-          <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;border:1px solid #2a2a2a;border-radius:6px;margin-bottom:32px;">
-            <tr><td style="padding:20px 24px;border-bottom:1px solid #222;">
-              <p style="color:#555555;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;margin:0 0 4px;font-family:Arial,sans-serif;">Quote Reference</p>
-              <p style="color:#f0ebe0;font-size:18px;font-weight:400;margin:0;letter-spacing:0.05em;">${data.quoteNumber}</p>
+          <h1 style="color:#111;font-size:28px;font-weight:400;margin:0 0 8px;line-height:1.2;letter-spacing:-0.01em;">
+            Installation scheduled.
+          </h1>
+
+          <p style="color:#666;font-size:13px;margin:0 0 40px;font-family:Arial,sans-serif;line-height:1.7;">
+            Your installation at <strong style="color:#111;">${noAutoLink(data.propertyAddress, "#111")}</strong> has been confirmed.
+            Please ensure access is available on the day.
+          </p>
+
+          <!-- Details table -->
+          <table width="100%" cellpadding="0" cellspacing="0" style="border-top:2px solid #111;margin-bottom:40px;">
+            <tr><td style="padding:16px 0;border-bottom:1px solid #e8e8e8;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="color:#999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:140px;">Quote</td>
+                  <td style="color:#111;font-size:14px;font-family:Arial,sans-serif;font-weight:600;">${data.quoteNumber}</td>
+                </tr>
+              </table>
             </td></tr>
-            <tr><td style="padding:14px 24px;border-bottom:1px solid #1e1e1e;">
-              <p style="color:#555555;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;margin:0 0 3px;font-family:Arial,sans-serif;">Property</p>
-              <p style="color:#c8c0b0;font-size:13px;margin:0;font-family:Arial,sans-serif;">${data.propertyAddress}</p>
+            <tr><td style="padding:16px 0;border-bottom:1px solid #e8e8e8;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="color:#999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:140px;">Property</td>
+                  <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;">${noAutoLink(data.propertyAddress)}</td>
+                </tr>
+              </table>
             </td></tr>
-            <tr><td style="padding:20px 24px;">
-              <p style="color:#555555;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;margin:0 0 4px;font-family:Arial,sans-serif;">Installation Date</p>
-              <p style="color:#2d9e5a;font-size:16px;font-weight:600;margin:0;font-family:Arial,sans-serif;">${dateStr}</p>
+            <tr><td style="padding:16px 0;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="color:#999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:140px;">Installation Date</td>
+                  <td style="color:#111;font-size:14px;font-family:Arial,sans-serif;font-weight:600;">${dateStr}</td>
+                </tr>
+              </table>
             </td></tr>
           </table>
 
-          <p style="color:#555555;font-size:12px;line-height:1.7;margin:0;font-family:Arial,sans-serif;">
-            If you have any questions or need to make changes, please contact us at <a href="tel:0755711177" style="color:#555555;">07 5571 1177</a>.
+          <p style="color:#666;font-size:13px;line-height:1.7;margin:0;font-family:Arial,sans-serif;">
+            If you need to reschedule or have any questions, please reply to this email.
           </p>
+
         </td></tr>
 
-        <!-- Green accent bar -->
-        <tr><td style="background:linear-gradient(90deg,#1a6b3a,#2d9e5a,#1a6b3a);height:1px;"></td></tr>
-
         <!-- Footer -->
-        <tr><td style="background:#ffffff;padding:28px 48px;text-align:center;">
-          <p style="color:#4a4a4a;font-size:11px;margin:0 0 4px;font-family:Arial,sans-serif;">Bell Carpets &nbsp;&middot;&nbsp; 41 Olympic Circuit, Southport QLD 4215 &nbsp;&middot;&nbsp; 07 5571 1177</p>
-
+        <tr><td style="padding:32px 48px;text-align:center;background:#ffffff;border-top:1px solid #e8e8e8;">
+          <img src="${LOGO_CDN_URL}" alt="Bell Carpets" style="height:30px;display:block;margin:0 auto 12px;" />
+          <p style="margin:0;font-size:11px;color:#999;font-family:Arial,sans-serif;line-height:1.6;">
+            Bell Spec Pty Ltd &nbsp;&middot;&nbsp; ABN 74 613 299 773<br />
+            <a href="x-apple-data-detectors://0" dir="ltr" style="color:#999;text-decoration:none;pointer-events:none;">Unit 1, 41 Olympic Circuit, Southport QLD 4215</a>
+          </p>
         </td></tr>
 
       </table>
@@ -361,7 +411,10 @@ export async function sendQuoteLinkEmail(data: QuoteLinkEmailData): Promise<bool
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
+  <meta name="x-apple-disable-message-reformatting">
   <title>Your Flooring Quote — Bell Carpets</title>
+  <style>a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important;font-size:inherit!important;font-family:inherit!important;font-weight:inherit!important;line-height:inherit!important;}</style>
 </head>
 <body style="margin:0;padding:0;background:#f5f5f5;font-family:Georgia,'Times New Roman',serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;">
@@ -411,7 +464,7 @@ export async function sendQuoteLinkEmail(data: QuoteLinkEmailData): Promise<bool
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td style="color:#999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:140px;">Property</td>
-                  <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;">${data.propertyAddress}</td>
+                  <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;">${noAutoLink(data.propertyAddress)}</td>
                 </tr>
               </table>
             </td></tr>` : ""}
@@ -428,28 +481,22 @@ export async function sendQuoteLinkEmail(data: QuoteLinkEmailData): Promise<bool
           <!-- CTA Button -->
           <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:40px;">
             <tr><td>
-              <a href="${quoteUrl}" style="display:inline-block;background:#ffffff;color:#fff;text-decoration:none;padding:16px 40px;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;font-family:Arial,sans-serif;">
+              <a href="${quoteUrl}" style="display:inline-block;background:#111111;color:#ffffff;text-decoration:none;padding:16px 40px;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;font-family:Arial,sans-serif;border-radius:4px;">
                 View Your Quote
               </a>
             </td></tr>
           </table>
 
-          <!-- Fallback link -->
-          <p style="color:#999;font-size:11px;line-height:1.6;margin:0 0 32px;font-family:Arial,sans-serif;">
-            If the button doesn't work, paste this link into your browser:<br />
-            <a href="${quoteUrl}" style="color:#555;word-break:break-all;">${quoteUrl}</a>
-          </p>
-
-          <!-- Alternative products note -->
+          <!-- Note -->
           <p style="color:#666;font-size:13px;line-height:1.7;margin:0;font-family:Arial,sans-serif;border-top:1px solid #e8e8e8;padding-top:32px;">
-            If you'd like a quote on an alternative product, please let us know — we have a wide range of options available.
+            If you have any questions, please reply to this email.
           </p>
 
         </td></tr>
 
         <!-- Footer -->
-        <tr><td style="padding:32px 48px;text-align:center;border-top:1px solid #e8e8e8;background:#fafafa;">
-          <p style="color:#999999;font-size:11px;margin:0;font-family:Arial,sans-serif;">Bell Carpets &nbsp;&middot;&nbsp; 41 Olympic Circuit, Southport QLD 4215 &nbsp;&middot;&nbsp; 07 5571 1177</p>
+        <tr><td style="padding:32px 48px;text-align:center;background:#ffffff;">
+          <img src="${LOGO_CDN_URL}" alt="Bell Carpets" style="height:30px;display:block;margin:0 auto;" />
         </td></tr>
 
       </table>
@@ -458,35 +505,53 @@ export async function sendQuoteLinkEmail(data: QuoteLinkEmailData): Promise<bool
 </body>
 </html>`;
 
+  // Generate the quote PDF to attach
+  let pdfAttachment: { filename: string; content: string } | undefined;
   try {
+    const { pdfBuffer } = await generateQuotePdfBuffer(data.slug);
+    pdfAttachment = {
+      filename: `Bell-Carpets-Quote-${data.quoteNumber}.pdf`,
+      content: pdfBuffer.toString("base64"),
+    };
+  } catch (pdfErr) {
+    console.warn("[Admin] Could not generate PDF for quote email attachment:", pdfErr);
+  }
+
+  try {
+    const emailPayload: Record<string, unknown> = {
+      from: "Bell Carpets <quotes@bellcarpets.com.au>",
+      reply_to: "hello@bellcarpets.com.au",
+      to: [data.agentEmail],
+      bcc: ["hello@bellcarpets.com.au"],
+      subject: `Your Flooring Quote ${data.quoteNumber} — Bell Carpets`,
+      html: htmlBody,
+    };
+    if (pdfAttachment) {
+      emailPayload.attachments = [{
+        filename: pdfAttachment.filename,
+        content: pdfAttachment.content,
+      }];
+    }
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${resendApiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        from: "Bell Carpets <quotes@bellcarpets.com.au>",
-        reply_to: "hello@bellcarpets.com.au",
-        to: [data.agentEmail],
-        bcc: ["hello@bellcarpets.com.au"],
-        subject: `Your Flooring Quote ${data.quoteNumber} — Bell Carpets`,
-        html: htmlBody,
-      }),
+      body: JSON.stringify(emailPayload),
     });
     if (!response.ok) {
       const err = await response.text();
       console.error("[Admin] Quote link email failed:", err);
       return false;
     }
-    console.log(`[Admin] Quote link email sent to ${data.agentEmail} for ${data.quoteNumber}`);
+    console.log(`[Admin] Quote link email sent to ${data.agentEmail} for ${data.quoteNumber}${pdfAttachment ? " (with PDF)" : ""}`);
     return true;
   } catch (e) {
     console.error("[Admin] Quote link email error:", e);
     return false;
   }
 }
-
 
 export async function sendReminderEmail(data: QuoteLinkEmailData & { daysLeft: number }): Promise<boolean> {
   const resendApiKey = process.env.RESEND_API_KEY;
@@ -503,7 +568,10 @@ export async function sendReminderEmail(data: QuoteLinkEmailData & { daysLeft: n
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="format-detection" content="telephone=no,date=no,address=no,email=no,url=no">
+  <meta name="x-apple-disable-message-reformatting">
   <title>Quote Reminder — Bell Carpets</title>
+  <style>a[x-apple-data-detectors]{color:inherit!important;text-decoration:none!important;font-size:inherit!important;font-family:inherit!important;font-weight:inherit!important;line-height:inherit!important;}</style>
 </head>
 <body style="margin:0;padding:0;background:#f5f5f5;font-family:Georgia,'Times New Roman',serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;">
@@ -553,7 +621,7 @@ export async function sendReminderEmail(data: QuoteLinkEmailData & { daysLeft: n
               <table width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td style="color:#999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:140px;">Property</td>
-                  <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;">${data.propertyAddress}</td>
+                  <td style="color:#333;font-size:14px;font-family:Arial,sans-serif;">${noAutoLink(data.propertyAddress)}</td>
                 </tr>
               </table>
             </td></tr>` : ""}
@@ -570,29 +638,22 @@ export async function sendReminderEmail(data: QuoteLinkEmailData & { daysLeft: n
           <!-- CTA Button -->
           <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:40px;">
             <tr><td>
-              <a href="${quoteUrl}" style="display:inline-block;background:#ffffff;color:#fff;text-decoration:none;padding:16px 40px;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;font-family:Arial,sans-serif;">
+              <a href="${quoteUrl}" style="display:inline-block;background:#111111;color:#ffffff;text-decoration:none;padding:16px 40px;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;font-family:Arial,sans-serif;border-radius:4px;">
                 ${isUrgent ? "Accept Now" : "Review Quote"}
               </a>
             </td></tr>
           </table>
 
-          <!-- Fallback link -->
-          <p style="color:#999;font-size:11px;line-height:1.6;margin:0 0 32px;font-family:Arial,sans-serif;">
-            If the button doesn't work, paste this link into your browser:<br />
-            <a href="${quoteUrl}" style="color:#555;word-break:break-all;">${quoteUrl}</a>
-          </p>
-
           <!-- Note -->
           <p style="color:#666;font-size:13px;line-height:1.7;margin:0;font-family:Arial,sans-serif;border-top:1px solid #e8e8e8;padding-top:32px;">
-            If you have any questions, please don't hesitate to get in touch.
+            If you have any questions, please reply to this email.
           </p>
 
         </td></tr>
 
         <!-- Footer -->
-        <tr><td style="padding:32px 48px;text-align:center;border-top:1px solid #e8e8e8;background:#fafafa;">
-          <p style="color:#999;font-size:11px;margin:0 0 4px;font-family:Arial,sans-serif;">Bell Carpets &nbsp;&middot;&nbsp; 41 Olympic Circuit, Southport QLD 4215 &nbsp;&middot;&nbsp; 07 5571 1177</p>
-
+        <tr><td style="padding:32px 48px;text-align:center;background:#ffffff;">
+          <img src="${LOGO_CDN_URL}" alt="Bell Carpets" style="height:30px;display:block;margin:0 auto;" />
         </td></tr>
 
       </table>
@@ -664,6 +725,8 @@ export const adminRouter = router({
           acceptedColour: quotes.acceptedColour,
           acceptedTotal: quotes.acceptedTotal,
           acceptedAgentName: quotes.acceptedAgentName,
+          acceptedAgentEmail: quotes.acceptedAgentEmail,
+          acceptedAgentPhone: quotes.acceptedAgentPhone,
           agentName: quotes.agentName,
           agentEmail: quotes.agentEmail,
           agentPhone: quotes.agentPhone,
@@ -681,7 +744,6 @@ export const adminRouter = router({
           reviewRequestedAt: quotes.reviewRequestedAt,
           createdAt: quotes.createdAt,
           updatedAt: quotes.updatedAt,
-          internalNotes: quotes.internalNotes,
         })
         .from(quotes)
         .where(isNull(quotes.deletedAt))
@@ -710,7 +772,8 @@ export const adminRouter = router({
         let lowestPrice = 0;
         let highestPrice = 0;
         let depositPercent = 50;
-        let tierSummaries: { name: string; price: number }[] = [];
+        let tierSummaries: { name: string; price: number; productName: string; manufacturer: string }[] = [];
+        let productSummary: { productName: string; manufacturer: string } | null = null;
         try {
           const config = JSON.parse(row.configJson) as QuoteConfigData;
           clientName = (config.client?.name ?? '').substring(0, 255);
@@ -720,10 +783,19 @@ export const adminRouter = router({
           if (pricingMode !== 'single' && config.tiers?.length > 0) {
             lowestPrice = Math.min(...config.tiers.map((t) => t.price));
             highestPrice = Math.max(...config.tiers.map((t) => t.price));
-            tierSummaries = config.tiers.map((t) => ({ name: t.name, price: t.price }));
+            tierSummaries = config.tiers.map((t) => ({ 
+              name: t.name, 
+              price: t.price,
+              productName: t.productName,
+              manufacturer: t.manufacturer
+            }));
           } else if (config.product) {
             lowestPrice = config.product.price;
             highestPrice = config.product.price;
+            productSummary = {
+              productName: config.product.productName,
+              manufacturer: config.product.manufacturer
+            };
           }
         } catch { /* ignore parse errors */ }
 
@@ -742,11 +814,14 @@ export const adminRouter = router({
           lowestPrice,
           highestPrice,
           tierSummaries,
+          productSummary,
           acceptedTier: row.acceptedTier,
           acceptedColour: row.acceptedColour,
           acceptedTotal: row.acceptedTotal,
           depositPercent,
           acceptedAgentName: row.acceptedAgentName,
+          acceptedAgentEmail: row.acceptedAgentEmail,
+          acceptedAgentPhone: row.acceptedAgentPhone,
           agentName: row.agentName,
           agentEmail: row.agentEmail,
           agentPhone: row.agentPhone,
@@ -768,7 +843,6 @@ export const adminRouter = router({
           lastViewedAt: viewStatsMap.get(row.slug)?.lastViewedAt ?? null,
           uniqueIPs: viewStatsMap.get(row.slug)?.uniqueIPs ?? 0,
           sharingAlert: (viewStatsMap.get(row.slug)?.uniqueIPs ?? 0) > 2,
-          internalNotes: row.internalNotes ?? null,
         };
       });
     }),
@@ -1221,15 +1295,8 @@ export const adminRouter = router({
         })
         .where(eq(quotes.slug, input.slug));
 
-      // SMS to Bell Carpets (fire-and-forget — never blocks or throws)
-      sendAcceptanceSmsToBellCarpets({
-        agentName: input.agentName,
-        agentPhone: input.agentPhone,
-        quoteNumber: quoteRow?.quoteNumber || input.slug,
-        tierName: input.tierName,
-        grandTotal: input.totalPrice,
-        propertyAddress: config.property?.fullAddress || config.property?.address || "",
-      }).catch((err) => console.error("[SMS] sendAcceptanceSmsToBellCarpets error:", err));
+      // SMS to Leon disabled — email-only for owner notifications
+      // sendAcceptanceSmsToBellCarpets removed per Leon's request
 
       return { success: true };
     }),
@@ -1417,54 +1484,75 @@ export const adminRouter = router({
 
       }
 
-      // Handle job completion: invoice + notification + Xero balance sync
+      // Handle job completion: invoice + notification + Saasu sync
+      // ARCHITECTURE: Each step (invoice, Saasu, email) is independent.
+      // One failing must NOT prevent the others from running.
       if (input.jobStatus === "completed" && quoteRow) {
-        try {
-          const config = JSON.parse(quoteRow.configJson) as QuoteConfigData;
-          const quoteType = (quoteRow.quoteType as QuoteType) || "agent";
-          const propertyAddress = config.property?.fullAddress || config.property?.address || "";
+        const config = JSON.parse(quoteRow.configJson) as QuoteConfigData;
+        const quoteType = (quoteRow.quoteType as QuoteType) || "agent";
+        const propertyAddress = config.property?.fullAddress || config.property?.address || "";
+        const isHomeowner = quoteType === "homeowner";
+        const usesSingleLayout = usesHomeownerLayout(quoteType);
 
-          // Get recipient details
-          let recipientName = "";
-          let recipientEmail = "";
-          let recipientPhone = "";
-          if (routeNotificationsToAgent(quoteType)) {
-            // Agent/insurance: always use agentEmail/agentPhone (set at quote creation).
-            // NEVER fall back to acceptedAgentEmail/Phone — those are homeowner contact details
-            // filled in by the person who accepted the quote, not the agent.
-            recipientName = quoteRow.agentName || config.client.name || "";
-            recipientEmail = quoteRow.agentEmail || "";
-            recipientPhone = quoteRow.agentPhone || "";
+        // ── Step A: Compute recipient + derive acceptedTotal if missing ──
+        let recipientName = "";
+        let recipientEmail = "";
+        let recipientPhone = "";
+        if (routeNotificationsToAgent(quoteType)) {
+          recipientName = quoteRow.agentName || config.client?.name || "Valued Client";
+          recipientEmail = quoteRow.agentEmail || "";
+          recipientPhone = quoteRow.agentPhone || "";
+        } else {
+          recipientName = quoteRow.acceptedAgentName || config.client?.name || "Valued Client";
+          recipientEmail = quoteRow.acceptedAgentEmail || quoteRow.agentEmail || (config.client as Record<string, string>)?.email || "";
+          recipientPhone = quoteRow.acceptedAgentPhone || quoteRow.agentPhone || "";
+        }
+
+        // Auto-populate acceptedTotal if quote skipped acceptance flow
+        let effectiveTotal = quoteRow.acceptedTotal;
+        if (!effectiveTotal) {
+          // Derive from config: rooms total > product price > first tier price
+          if (usesSingleLayout && config.rooms && config.rooms.length > 0) {
+            effectiveTotal = config.rooms.reduce((sum: number, r: { price?: number }) => sum + (r.price || 0), 0);
+          } else if (usesSingleLayout && config.product?.price) {
+            effectiveTotal = config.product.price;
+          } else if (config.tiers && config.tiers.length > 0) {
+            effectiveTotal = config.tiers[0].price;
           } else {
-            // Homeowner: prefer contact details filled in at acceptance, but fall back to
-            // agentEmail (set at quote creation) and config.client.email if acceptance fields are empty.
-            // This handles quotes where the homeowner accepted without entering their email,
-            // or where the admin manually advanced the status.
-            recipientName = quoteRow.acceptedAgentName || config.client?.name || "";
-            recipientEmail = quoteRow.acceptedAgentEmail || quoteRow.agentEmail || (config.client as Record<string, string>)?.email || "";
-            recipientPhone = quoteRow.acceptedAgentPhone || quoteRow.agentPhone || "";
+            effectiveTotal = 0;
           }
+          // Add addons
+          if (config.addons) {
+            effectiveTotal += config.addons.reduce((sum: number, a: { price: number }) => sum + a.price, 0);
+          }
+          // Persist so future operations don't recalculate
+          if (effectiveTotal > 0) {
+            try {
+              await db.update(quotes)
+                .set({ acceptedTotal: effectiveTotal, acceptedAt: new Date() })
+                .where(eq(quotes.slug, input.slug));
+              console.log(`[Admin] Auto-populated acceptedTotal=${effectiveTotal} for ${quoteRow.quoteNumber} (acceptance skipped)`);
+            } catch (e) {
+              console.error(`[Admin] Failed to auto-populate acceptedTotal for ${quoteRow.quoteNumber}:`, e);
+            }
+          }
+        }
 
-          // BUSINESS RULES:
-          // ALL quote types now have an invoice created at acceptance.
-          // At completion: use the existing invoice, update paymentStatus to balance_due.
-          // Fallback: create invoice if somehow missing (e.g., old quotes before this fix).
-          // agency_single uses single product layout like homeowner, but agent payment terms (no deposit)
-          const isHomeowner = quoteType === "homeowner";
-          const usesSingleProductLayout = quoteType === "homeowner" || quoteType === "agency_single";
+        // ── Step B: Get or create invoice (own try/catch) ──
+        let invoiceNumber = "";
+        let totalAmount = effectiveTotal || 0;
+        let depositAmount = 0;
+        let invoiceId = 0;
+        let invoicePdfUrl: string | undefined;
+        let invoicePdfBuffer: Buffer | undefined;
 
-          // Look for existing invoice (all quote types will have one from acceptance)
+        try {
           const existingInv = await db.select().from(invoices).where(eq(invoices.quoteSlug, input.slug)).orderBy(desc(invoices.id)).limit(1);
-          let invoiceNumber: string;
-          let totalAmount: number;
-          let depositAmount: number;
-          let invoiceId: number;
 
-          // Build line items (used only as fallback for old quotes without acceptance invoice)
           const buildLineItems = () => {
             const items: { description: string; qty: number; unitPrice: number; total: number }[] = [];
-            if (usesSingleProductLayout && config.product) {
-              items.push({ description: `${config.product.manufacturer} — ${config.product.productName} (Supply & Install)`, qty: 1, unitPrice: config.product.price, total: config.product.price });
+            if (usesSingleLayout && config.product) {
+              items.push({ description: `${config.product.manufacturer || ""} — ${config.product.productName || "Carpet"} (Supply & Install)`, qty: 1, unitPrice: config.product.price || 0, total: config.product.price || 0 });
             } else if (config.tiers) {
               const tier = config.tiers.find(t => t.name === quoteRow.acceptedTier) || config.tiers[0];
               if (tier) items.push({ description: `${tier.name} — ${tier.manufacturer} ${tier.productName} (Supply & Install)`, qty: 1, unitPrice: tier.price, total: tier.price });
@@ -1476,69 +1564,71 @@ export const adminRouter = router({
           };
 
           if (existingInv.length > 0) {
-            // Invoice exists from acceptance — update to balance_due
             const inv = existingInv[0]!;
             invoiceNumber = inv.invoiceNumber;
-            totalAmount = quoteRow.acceptedTotal || inv.totalAmount;
-            // BUSINESS RULE: agent/insurance quotes have no deposit — full amount owed at completion.
-            // Force depositAmount=0 for agent quotes regardless of what is stored on the invoice
-            // (old invoices generated via invoiceRouter.generate may have had a nonzero deposit due to a bug).
+            totalAmount = effectiveTotal || inv.totalAmount;
             depositAmount = isHomeowner ? inv.depositAmount : 0;
             invoiceId = inv.id;
+            invoicePdfUrl = inv.pdfUrl || undefined;
             await db.update(invoices)
               .set({ paymentStatus: "balance_due" })
               .where(eq(invoices.id, inv.id));
             console.log(`[Admin] Invoice ${invoiceNumber} (${quoteType}) updated to balance_due on completion`);
           } else {
-            // Fallback: create invoice at completion for old quotes without acceptance invoice
+            // Fallback: create invoice at completion
             const lineItems = buildLineItems();
             const subtotal = lineItems.reduce((s, i) => s + i.total, 0);
             const gst = Math.round(subtotal / 11);
-            totalAmount = quoteRow.acceptedTotal || subtotal;
-            // No deposit for fallback (agent/insurance); homeowner fallback: use depositPercent
+            totalAmount = effectiveTotal || subtotal;
             depositAmount = isHomeowner ? Math.round(totalAmount * ((config.depositPercent || 50) / 100)) : 0;
 
-            // Derive invoice number from quote number (BC-007 → INV-007)
             const qNum = quoteRow.quoteNumber.replace(/^BC-/, '').replace(/^[A-Z]+-/, '');
             invoiceNumber = `INV-${qNum}`;
 
-            const { generateInvoicePdf } = await import("./invoiceGenerator");
-            const { storagePut } = await import("./storage");
-            const acceptedTier = config.tiers?.find(t => t.name === quoteRow.acceptedTier) || config.tiers?.[0];
-            const pdfBuffer = await generateInvoicePdf({
-              quoteNumber: quoteRow.quoteNumber,
-              invoiceNumber,
-              issueDate: formatAESTDate(new Date(), { day: "2-digit", month: "short", year: "numeric" }),
-              validDays: config.validDays || 10,
-              depositPercent: config.depositPercent || 50,
-              clientName: recipientName,
-              clientType: config.client?.type || "",
-              propertyAddress,
-              tierName: usesSingleProductLayout ? (config.product?.productName || "Carpet") : (acceptedTier?.name || "Standard"),
-              productName: usesSingleProductLayout ? (config.product?.productName || "") : (acceptedTier?.productName || ""),
-              manufacturer: usesSingleProductLayout ? (config.product?.manufacturer || "") : (acceptedTier?.manufacturer || ""),
-              fibre: usesSingleProductLayout ? (config.product?.fibre || "") : (acceptedTier?.fibre || ""),
-              pileType: usesSingleProductLayout ? (config.product?.pileType || "") : (acceptedTier?.pileType || ""),
-              colourName: quoteRow.acceptedColour || "",
-              basePrice: usesSingleProductLayout ? (config.product?.price || 0) : (acceptedTier?.price || 0),
-              addons: (config.addons || []).map(a => ({ title: a.title, price: a.price })),
-              grandTotal: totalAmount,
-              scopeOfWorks: config.scopeOfWorks || [],
-              terms: config.terms || [],
-              agentName: recipientName,
-              agentEmail: recipientEmail,
-              agentPhone: recipientPhone,
-            });
-
-            const fileKey = `invoices/${invoiceNumber}-${Date.now()}.pdf`;
-            const { url: pdfUrl } = await storagePut(fileKey, pdfBuffer, "application/pdf");
+            // Generate PDF buffer (no upload — storagePut not available on Render)
+            let pdfUrl = "";
+            let pdfKey = "";
+            try {
+              const { generateInvoicePdf } = await import("./invoiceGenerator");
+              const acceptedTier = config.tiers?.find(t => t.name === quoteRow.acceptedTier) || config.tiers?.[0];
+              invoicePdfBuffer = await generateInvoicePdf({
+                quoteNumber: quoteRow.quoteNumber,
+                invoiceNumber,
+                issueDate: formatAESTDate(new Date(), { day: "2-digit", month: "short", year: "numeric" }),
+                validDays: config.validDays || 10,
+                depositPercent: config.depositPercent || 50,
+                clientName: recipientName || "Valued Client",
+                clientType: config.client?.type || "",
+                propertyAddress,
+                tierName: usesSingleLayout ? (config.product?.productName || "Carpet") : (acceptedTier?.name || "Standard"),
+                productName: usesSingleLayout ? (config.product?.productName || "") : (acceptedTier?.productName || ""),
+                manufacturer: usesSingleLayout ? (config.product?.manufacturer || "") : (acceptedTier?.manufacturer || ""),
+                fibre: usesSingleLayout ? (config.product?.fibre || "") : (acceptedTier?.fibre || ""),
+                pileType: usesSingleLayout ? (config.product?.pileType || "") : (acceptedTier?.pileType || ""),
+                colourName: quoteRow.acceptedColour || "",
+                basePrice: usesSingleLayout ? (config.product?.price || 0) : (acceptedTier?.price || 0),
+                addons: (config.addons || []).map(a => ({ title: a.title, price: a.price })),
+                grandTotal: totalAmount,
+                scopeOfWorks: config.scopeOfWorks || [],
+                terms: config.terms || [],
+                agentName: recipientName || "Valued Client",
+                agentEmail: recipientEmail,
+                agentPhone: recipientPhone,
+                descriptionLines: getDescriptionLines(config, { tiered: !usesSingleLayout }),
+                quoteType,
+                isSingleProduct: usesSingleLayout,
+              });
+              console.log(`[Admin] PDF buffer generated for ${invoiceNumber} (${invoicePdfBuffer.length} bytes)`);
+            } catch (pdfErr) {
+              console.error(`[Admin] PDF generation failed for ${quoteRow.quoteNumber} (invoice will be created without PDF):`, pdfErr);
+            }
 
             await db.insert(invoices).values({
               invoiceNumber,
               quoteSlug: input.slug,
               quoteNumber: quoteRow.quoteNumber,
               quoteType,
-              recipientName,
+              recipientName: recipientName || "Valued Client",
               recipientEmail,
               recipientPhone,
               propertyAddress,
@@ -1548,115 +1638,118 @@ export const adminRouter = router({
               totalAmount,
               depositAmount,
               paymentStatus: isHomeowner ? "balance_due" : "unpaid",
-              pdfUrl,
-              pdfKey: fileKey,
+              pdfUrl: null,
+              pdfKey: null,
             });
             console.log(`[Admin] Created ${quoteType} invoice ${invoiceNumber} for ${quoteRow.quoteNumber} on completion`);
 
             const [newInv] = await db.select({ id: invoices.id }).from(invoices).where(eq(invoices.quoteSlug, input.slug)).orderBy(desc(invoices.id)).limit(1);
             invoiceId = newInv?.id ?? 0;
           }
-
-          // Sync to Saasu (fire-and-forget)
-          if (invoiceId > 0) {
-            try {
-              const { isSaasuConfigured, syncInvoiceToSaasu } = await import("./saasuService");
-              if (isSaasuConfigured()) {
-                const saasuResult = await syncInvoiceToSaasu(invoiceId);
-                if (saasuResult.success) {
-                  console.log(`[Saasu] Synced completion invoice for ${invoiceNumber} to Saasu`);
-                } else {
-                  console.warn(`[Saasu] Completion sync failed for ${invoiceNumber}: ${saasuResult.error}`);
-                }
-              }
-            } catch (saasuErr) {
-              console.error("[Saasu] Completion sync error (non-critical):", saasuErr);
-            }
-          }
-
-          // Guard: only send completed notification if not already sent (prevents duplicate on re-mark)
-          if (recipientEmail && !quoteRow.completedNotificationSent) {
-            const { notifyCompleted } = await import("./notificationService");
-            try {
-              // Resolve invoice PDF URL for attachment
-              // Prefer the stored pdfUrl from the invoice record (already in S3)
-              // If missing (old quotes), regenerate and upload to S3
-              let invoicePdfUrl: string | undefined;
-              try {
-                const invRow = await db.select({ pdfUrl: invoices.pdfUrl, pdfKey: invoices.pdfKey })
-                  .from(invoices)
-                  .where(eq(invoices.quoteSlug, input.slug))
-                  .orderBy(desc(invoices.id))
-                  .limit(1);
-                if (invRow[0]?.pdfUrl) {
-                  invoicePdfUrl = invRow[0].pdfUrl;
-                  console.log(`[Admin] Using existing invoice PDF for completion email: ${invoicePdfUrl}`);
-                } else {
-                  // Regenerate PDF for old quotes without stored pdfUrl
-                  const { generateInvoicePdf } = await import("./invoiceGenerator");
-                  const { storagePut } = await import("./storage");
-                  const acceptedTier = config.tiers?.find(t => t.name === quoteRow.acceptedTier) || config.tiers?.[0];
-                  const pdfBuffer = await generateInvoicePdf({
-                    quoteNumber: quoteRow.quoteNumber,
-                    invoiceNumber,
-                    issueDate: formatAESTDate(new Date(), { day: "2-digit", month: "short", year: "numeric" }),
-                    validDays: config.validDays || 10,
-                    depositPercent: config.depositPercent || 50,
-                    clientName: recipientName,
-                    clientType: config.client?.type || "",
-                    propertyAddress,
-                    tierName: usesSingleProductLayout ? (config.product?.productName || "Carpet") : (acceptedTier?.name || "Standard"),
-                    productName: usesSingleProductLayout ? (config.product?.productName || "") : (acceptedTier?.productName || ""),
-                    manufacturer: usesSingleProductLayout ? (config.product?.manufacturer || "") : (acceptedTier?.manufacturer || ""),
-                    fibre: usesSingleProductLayout ? (config.product?.fibre || "") : (acceptedTier?.fibre || ""),
-                    pileType: usesSingleProductLayout ? (config.product?.pileType || "") : (acceptedTier?.pileType || ""),
-                    colourName: quoteRow.acceptedColour || "",
-                    basePrice: usesSingleProductLayout ? (config.product?.price || 0) : (acceptedTier?.price || 0),
-                    addons: (config.addons || []).map(a => ({ title: a.title, price: a.price })),
-                    grandTotal: totalAmount,
-                    scopeOfWorks: config.scopeOfWorks || [],
-                    terms: config.terms || [],
-                    agentName: recipientName,
-                    agentEmail: recipientEmail,
-                    agentPhone: recipientPhone,
-                  });
-                  const fileKey = `invoices/${invoiceNumber}-completion-${Date.now()}.pdf`;
-                  const { url: regeneratedUrl } = await storagePut(fileKey, pdfBuffer, "application/pdf");
-                  invoicePdfUrl = regeneratedUrl;
-                  // Update invoice record with the new PDF URL
-                  await db.update(invoices)
-                    .set({ pdfUrl: regeneratedUrl, pdfKey: fileKey })
-                    .where(eq(invoices.quoteSlug, input.slug));
-                  console.log(`[Admin] Regenerated invoice PDF for completion email: ${invoicePdfUrl}`);
-                }
-              } catch (pdfErr) {
-                console.warn("[Admin] Could not resolve invoice PDF for completion email (non-critical):", pdfErr);
-              }
-
-              await notifyCompleted({
-                recipientName,
-                recipientEmail,
-                recipientPhone,
-                quoteNumber: quoteRow.quoteNumber,
-                invoiceNumber,
-                propertyAddress,
-                // For agent/insurance: full amount owed (no deposit). For homeowner: total minus deposit paid.
-                balanceAmount: totalAmount - depositAmount,
-                quoteType,
-                invoicePdfUrl,
-              });
-              await db.update(quotes)
-                .set({ completedNotificationSent: 1 })
-                .where(eq(quotes.slug, input.slug));
-              console.log(`[Admin] completedNotificationSent flag set for ${quoteRow.quoteNumber}`);
-            } catch (err) {
-              console.error("[Admin] notifyCompleted error:", err);
-            }
-          } else if (quoteRow.completedNotificationSent) {
-            console.log(`[Admin] Skipping completed notification for ${quoteRow.quoteNumber} — already sent`);
-          }
         } catch (invErr) {
-          console.error("[Admin] Completion handler error (non-critical):", invErr);
+          console.error(`[Admin] STEP B (invoice) failed for ${quoteRow.quoteNumber}:`, invErr);
+          // Derive invoiceNumber anyway for Saasu/email steps
+          if (!invoiceNumber) {
+            const qNum = quoteRow.quoteNumber.replace(/^BC-/, '').replace(/^[A-Z]+-/, '');
+            invoiceNumber = `INV-${qNum}`;
+          }
+        }
+
+        // ── Step C: Saasu sync (independent, own try/catch) ──
+        if (invoiceId > 0) {
+          try {
+            const { isSaasuConfigured, syncInvoiceToSaasu } = await import("./saasuService");
+            if (isSaasuConfigured()) {
+              const saasuResult = await syncInvoiceToSaasu(invoiceId);
+              if (saasuResult.success) {
+                console.log(`[Saasu] Synced completion invoice for ${invoiceNumber} to Saasu`);
+              } else {
+                console.warn(`[Saasu] Completion sync failed for ${invoiceNumber}: ${saasuResult.error}`);
+              }
+            }
+          } catch (saasuErr) {
+            console.error(`[Saasu] Completion sync error for ${quoteRow.quoteNumber} (non-critical):`, saasuErr);
+          }
+        } else {
+          console.warn(`[Admin] Skipping Saasu sync for ${quoteRow.quoteNumber} — no invoice ID available`);
+        }
+
+        // ── Step D: Send completion email (independent, own try/catch) ──
+        if (recipientEmail && !quoteRow.completedNotificationSent) {
+          try {
+                        // If we don't have PDF URL yet, try to fetch it from DB
+            if (!invoicePdfUrl && invoiceId > 0) {
+              try {
+                const invRow = await db.select({ pdfUrl: invoices.pdfUrl })
+                  .from(invoices)
+                  .where(eq(invoices.id, invoiceId))
+                  .limit(1);
+                if (invRow[0]?.pdfUrl) invoicePdfUrl = invRow[0].pdfUrl;
+              } catch (e) {
+                console.warn("[Admin] Could not fetch invoice PDF URL:", e);
+              }
+            }
+
+            // If STILL no PDF buffer, generate one now (covers invoices created without PDF)
+            if (!invoicePdfBuffer && !invoicePdfUrl && invoiceId > 0) {
+              try {
+                const { generateInvoicePdf } = await import("./invoiceGenerator");
+                const acceptedTier = config.tiers?.find(t => t.name === quoteRow.acceptedTier) || config.tiers?.[0];
+                invoicePdfBuffer = await generateInvoicePdf({
+                  quoteNumber: quoteRow.quoteNumber,
+                  invoiceNumber,
+                  issueDate: formatAESTDate(new Date(), { day: "2-digit", month: "short", year: "numeric" }),
+                  validDays: config.validDays || 10,
+                  depositPercent: config.depositPercent || 50,
+                  clientName: recipientName || "Valued Client",
+                  clientType: config.client?.type || "",
+                  propertyAddress,
+                  tierName: usesSingleLayout ? (config.product?.productName || "Carpet") : (acceptedTier?.name || "Standard"),
+                  productName: usesSingleLayout ? (config.product?.productName || "") : (acceptedTier?.productName || ""),
+                  manufacturer: usesSingleLayout ? (config.product?.manufacturer || "") : (acceptedTier?.manufacturer || ""),
+                  fibre: usesSingleLayout ? (config.product?.fibre || "") : (acceptedTier?.fibre || ""),
+                  pileType: usesSingleLayout ? (config.product?.pileType || "") : (acceptedTier?.pileType || ""),
+                  colourName: quoteRow.acceptedColour || "",
+                  basePrice: usesSingleLayout ? (config.product?.price || 0) : (acceptedTier?.price || 0),
+                  addons: (config.addons || []).map(a => ({ title: a.title, price: a.price })),
+                  grandTotal: totalAmount,
+                  scopeOfWorks: config.scopeOfWorks || [],
+                  terms: config.terms || [],
+                  agentName: recipientName || "Valued Client",
+                  agentEmail: recipientEmail,
+                  agentPhone: recipientPhone,
+                  descriptionLines: getDescriptionLines(config, { tiered: !usesSingleLayout }),
+                  quoteType,
+                  isSingleProduct: usesSingleLayout,
+                });
+                console.log(`[Admin] Generated PDF buffer for completion email of ${invoiceNumber} (${invoicePdfBuffer.length} bytes)`);
+              } catch (pdfGenErr) {
+                console.error(`[Admin] Failed to generate PDF for completion email of ${quoteRow.quoteNumber}:`, pdfGenErr);
+              }
+            }
+
+            const { notifyCompleted } = await import("./notificationService");
+            await notifyCompleted({
+              recipientName: recipientName || "Valued Client",
+              recipientEmail,
+              recipientPhone,
+              quoteNumber: quoteRow.quoteNumber,
+              invoiceNumber,
+              propertyAddress,
+              balanceAmount: totalAmount - depositAmount,
+              quoteType,
+              invoicePdfUrl,
+              invoicePdfBuffer,
+            });
+            await db.update(quotes)
+              .set({ completedNotificationSent: 1 })
+              .where(eq(quotes.slug, input.slug));
+            console.log(`[Admin] completedNotificationSent flag set for ${quoteRow.quoteNumber}`);
+          } catch (emailErr) {
+            console.error(`[Admin] STEP D (completion email) failed for ${quoteRow.quoteNumber}:`, emailErr);
+          }
+        } else if (quoteRow.completedNotificationSent) {
+          console.log(`[Admin] Skipping completed notification for ${quoteRow.quoteNumber} — already sent`);
         }
       }
 
@@ -2332,7 +2425,9 @@ export const adminRouter = router({
     }),
 
   /**
-   * Reactivate a cancelled quote — reset status to draft and expiry to 10 days from now.
+   * Reactivate a cancelled or expired quote — reset expiry to 10 days from now.
+   * If cancelled, also resets jobStatus to 'quote_sent'.
+   * Clears expiryReminderSmsSentAt to prevent duplicate reminders.
    */
   reactivateQuote: publicProcedure
     .input(z.object({ password: z.string(), slug: z.string() }))
@@ -2343,15 +2438,88 @@ export const adminRouter = router({
 
       const rows = await db.select().from(quotes).where(and(eq(quotes.slug, input.slug), isNull(quotes.deletedAt))).limit(1);
       if (!rows[0]) throw new Error("Quote not found");
-      if (rows[0].jobStatus !== "cancelled") throw new Error("Only cancelled quotes can be reactivated");
+
+      const quote = rows[0];
+      const now = new Date();
+      const isExpired = quote.expiresAt && quote.expiresAt < now;
+      const isCancelled = quote.jobStatus === "cancelled";
+
+      if (!isExpired && !isCancelled) {
+        throw new Error("Quote must be expired or cancelled to reactivate");
+      }
 
       const newExpiry = addDaysAEST(parseAESTDate(todayAESTString()), 10);
+      const updateData: Record<string, unknown> = {
+        expiresAt: newExpiry,
+        expiryReminderSmsSentAt: null, // Clear SMS tracking so reminders don't re-fire
+      };
+
+      // If cancelled, restore to quote_sent status
+      if (isCancelled) {
+        updateData.jobStatus = "quote_sent";
+      }
 
       await db.update(quotes)
-        .set({ jobStatus: "draft", expiresAt: newExpiry })
+        .set(updateData)
         .where(eq(quotes.slug, input.slug));
 
       return { success: true };
+    }),
+
+  /**
+   * Trigger acceptance email for a quote (admin manual trigger).
+   * Use when the acceptance email wasn't sent automatically.
+   */
+  triggerAcceptanceEmail: publicProcedure
+    .input(z.object({ password: z.string(), slug: z.string() }))
+    .mutation(async ({ input }) => {
+      verifyAdmin(input.password);
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      const rows = await db.select().from(quotes).where(and(eq(quotes.slug, input.slug), isNull(quotes.deletedAt))).limit(1);
+      if (!rows[0]) throw new Error("Quote not found");
+
+      const quoteRow = rows[0];
+      const config = JSON.parse(quoteRow.configJson) as QuoteConfigData;
+      const quoteType = quoteRow.quoteType as QuoteType;
+
+      // Determine recipient based on quote type
+      let recipientName = "";
+      let recipientEmail = "";
+      let recipientPhone = "";
+
+      if (routeNotificationsToAgent(quoteType)) {
+        // agent, real_estate, agency_single: use agent contact
+        recipientName = quoteRow.agentName || "";
+        recipientEmail = quoteRow.agentEmail || "";
+        recipientPhone = quoteRow.agentPhone || "";
+      } else {
+        // homeowner: prefer acceptance details, fall back to agent email
+        recipientName = quoteRow.acceptedAgentName || config.client.name || "";
+        recipientEmail = quoteRow.acceptedAgentEmail || quoteRow.agentEmail || (config.client as Record<string, string>)?.email || "";
+        recipientPhone = quoteRow.acceptedAgentPhone || quoteRow.agentPhone || "";
+      }
+
+      if (!recipientEmail) {
+        throw new Error("No recipient email found for this quote");
+      }
+
+      const { notifyQuoteAccepted } = await import("./notificationService");
+      await notifyQuoteAccepted({
+        recipientName,
+        recipientEmail,
+        recipientPhone,
+        quoteNumber: quoteRow.quoteNumber,
+        invoiceNumber: quoteRow.acceptedTotal ? quoteRow.quoteNumber : undefined,
+        propertyAddress: config.property?.fullAddress || config.property?.address || "",
+        quoteType,
+        depositAmount: quoteRow.acceptedTotal ? Math.round(quoteRow.acceptedTotal * ((config.depositPercent || 50) / 100)) : 0,
+        totalAmount: quoteRow.acceptedTotal || 0,
+        depositPercent: config.depositPercent || 50,
+      });
+
+      return { success: true, message: "Acceptance email sent" };
     }),
 
   /**

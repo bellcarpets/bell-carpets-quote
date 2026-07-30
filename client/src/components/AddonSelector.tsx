@@ -1,6 +1,6 @@
 /**
  * AddonSelector — Optional add-on services with toggle switches
- * Clean white background, dark text
+ * Premium design with generous spacing
  */
 
 import { motion } from "framer-motion";
@@ -44,6 +44,15 @@ export default function AddonSelector({
       transition={{ duration: 0.5, ease: "easeOut" }}
       className="w-full"
     >
+      {/* Section header */}
+      <div className="mb-8">
+        <h2 className="font-serif-display text-xl sm:text-[1.375rem] tracking-wide text-white/90">
+          Additional Services
+        </h2>
+        <p className="text-sm text-white/40 mt-2">
+          Optional extras to add to your quote
+        </p>
+      </div>
 
       {/* Addon cards */}
       <div className="space-y-3">
@@ -56,10 +65,10 @@ export default function AddonSelector({
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.4, delay: i * 0.1 }}
               onClick={() => onToggleAddon(addon.id)}
-              className={`w-full text-left rounded-xl px-4 py-4 transition-all duration-300 border ${
+              className={`w-full text-left rounded-xl px-5 py-5 transition-all duration-300 border ${
                 isSelected
-                  ? "bg-zinc-50 border-zinc-300 shadow-sm"
-                  : "bg-white border-zinc-200 hover:border-zinc-300"
+                  ? "bg-white/[0.03] border-white/20 shadow-sm"
+                  : "bg-zinc-900 border-white/10 hover:border-white/20"
               }`}
             >
               <div className="flex items-center gap-4">
@@ -67,43 +76,43 @@ export default function AddonSelector({
                 <div
                   className={`w-10 h-6 rounded-full flex-shrink-0 relative transition-all duration-300 ${
                     isSelected
-                      ? "bg-zinc-800"
-                      : "bg-zinc-200"
+                      ? "bg-white"
+                      : "bg-white/10"
                   }`}
                 >
                   <motion.div
                     animate={{ x: isSelected ? 18 : 2 }}
                     transition={{ type: "spring", stiffness: 500, damping: 30 }}
                     className={`absolute top-0.5 w-4 h-4 rounded-full ${
-                      isSelected ? "bg-white" : "bg-white"
+                      isSelected ? "bg-zinc-900" : "bg-zinc-900"
                     }`}
                   />
                 </div>
 
                 {/* Text */}
                 <div className="flex-1 min-w-0">
-                  <p className={`text-sm font-medium leading-tight ${isSelected ? "text-zinc-900" : "text-zinc-600"}`}>
+                  <p className={`text-sm font-medium leading-tight ${isSelected ? "text-white" : "text-white/70"}`}>
                     {addon.title}
                   </p>
-                  <p className={`text-xs mt-0.5 leading-relaxed whitespace-normal break-words ${isSelected ? "text-zinc-500" : "text-zinc-400"}`}>
+                  <p className={`text-xs mt-1 leading-relaxed whitespace-normal break-words ${isSelected ? "text-white/50" : "text-white/35"}`}>
                     {addon.description}
                   </p>
                 </div>
 
                 {/* Price + icon */}
                 <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-                  <span className={`text-base font-semibold ${isSelected ? "text-zinc-900" : "text-zinc-400"}`}>
+                  <span className={`text-base font-semibold ${isSelected ? "text-white" : "text-white/40"}`}>
                     {addon.priceFormatted}
                   </span>
                   <div
                     className={`w-6 h-6 rounded-full flex items-center justify-center transition-all duration-300 ${
-                      isSelected ? "bg-zinc-200" : "bg-zinc-100"
+                      isSelected ? "bg-white/10" : "bg-white/[0.04]"
                     }`}
                   >
                     {isSelected ? (
-                      <Minus className="w-3 h-3 text-zinc-600" />
+                      <Minus className="w-3 h-3 text-white/60" />
                     ) : (
-                      <Plus className="w-3 h-3 text-zinc-400" />
+                      <Plus className="w-3 h-3 text-white/40" />
                     )}
                   </div>
                 </div>
@@ -116,19 +125,17 @@ export default function AddonSelector({
       {/* Live price summary */}
       <motion.div
         layout
-        className="mt-4 rounded-xl px-4 py-4 bg-zinc-50 border border-zinc-200"
+        className="mt-6 rounded-xl px-5 py-5 bg-white/[0.02] border border-white/10"
       >
-        <div className="space-y-2">
-          {selectedAddonIds.length > 0 && (
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-zinc-400">
-                {tierName} base price
-              </span>
-              <span className="text-sm text-zinc-600">
-                {formatPrice(baseTierPrice)}
-              </span>
-            </div>
-          )}
+        <div className="space-y-2.5">
+          <div className="flex justify-between items-center">
+            <span className="text-xs text-white/40">
+              {tierName} base price
+            </span>
+            <span className="text-sm text-white/60">
+              {formatPrice(baseTierPrice)}
+            </span>
+          </div>
 
           {addons
             .filter((a) => selectedAddonIds.includes(a.id))
@@ -140,19 +147,19 @@ export default function AddonSelector({
                 exit={{ opacity: 0, height: 0 }}
                 className="flex justify-between items-center"
               >
-                <span className="text-xs text-zinc-400">
+                <span className="text-xs text-white/40">
                   + {a.title}
                 </span>
-                <span className="text-sm text-zinc-600">
+                <span className="text-sm text-white/70">
                   {a.priceFormatted}
                 </span>
               </motion.div>
             ))}
 
-          <div className="h-px w-full bg-zinc-200" />
+          <div className="h-px w-full bg-white/10 my-1" />
 
-          <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-zinc-600">
+          <div className="flex justify-between items-center pt-1">
+            <span className="text-sm font-medium text-white/70">
               Total inc GST
             </span>
             <motion.span
@@ -160,7 +167,7 @@ export default function AddonSelector({
               initial={{ scale: 1.1 }}
               animate={{ scale: 1 }}
               transition={{ duration: 0.3 }}
-              className="text-xl font-semibold text-zinc-900"
+              className="text-2xl font-semibold text-white"
             >
               {formatPrice(grandTotal)}
             </motion.span>

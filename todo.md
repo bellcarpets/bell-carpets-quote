@@ -103,28 +103,6 @@
 - [x] Zero TypeScript structural errors
 - [x] Original schema applied to database (quotes, invoices, contacts, quote_acceptances, scopeLibrary, quote_views, notification_log, xero_tokens)
 - [x] Live data migrated from quote.bellcarpets.com.au (42 quotes, 14 contacts, 12 invoices, 7 scope items)
-- [x] Resend API key configured (email sending)
-- [x] Twilio credentials configured (SMS sending — +61468009879)
-- [x] GitHub backup (bellcarpets/bell-carpets-quote — private repo)
-
-## Phase 11: 10/10 Fixes
-- [x] Migrate all 4 cron jobs (reminder, followUp, expiryReminder, overdueInvoice) from setInterval to Heartbeat scheduler
-- [x] Create invoice for BC-056 (Clear Island Waters, Ray White Malan + Co, Best tier $2,200) — via Create Invoice button on card
-- [x] Show internal notes preview on quote list card
-- [x] Add "Create Invoice" button on completed/paid_in_full quote cards
-- [x] Add Saasu manual sync fallback button on invoices without xeroInvoiceId
-- [x] Add weekly pipeline SMS (Monday morning summary to Leon's number)
-
-## Phase 12: White Theme Conversion
-- [x] Convert QuotePage main layout to white background with dark text
-- [x] Convert TierCard component to white/light theme
-- [x] Convert ScopeOfWorks component to white/light theme
-- [x] Convert QuoteTerms component to white/light theme
-- [x] Convert Footer component to white/light theme (dark logo)
-- [x] Convert AddonSelector component to white/light theme
-- [x] Convert HomeownerQuotePanel to white/light theme
-- [x] Convert JobStatusTracker to white/light theme
-- [x] Remove WhyBellCarpets "second-generation" text (returns null)
-- [x] Fix customer notes section dark theme remnant in agent layout
-- [x] Verify bc-013 (agent 3-tier) renders correctly on white
-- [x] Verify bc-012 (homeowner/single-price) renders correctly on white
+- [ ] Resend API key configured (email sending)
+- [ ] Twilio credentials configured (SMS sending)
+- [ ] GitHub backup (bellcarpets/bell-carpets repo)
