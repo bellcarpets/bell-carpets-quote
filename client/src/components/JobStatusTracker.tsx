@@ -1,6 +1,6 @@
 /**
  * JobStatusTracker — 3-stage visual tracker for accepted quotes
- * White background, dark text — professional trade document
+ * Replaces the static "Thank You" page with a live progress view.
  *
  * Stages:
  * 1. Quote Accepted ✓
@@ -10,7 +10,7 @@
 
 import { motion } from "framer-motion";
 import { Check, Calendar, Wrench } from "lucide-react";
-import { LOGO_PNG } from "@/lib/logo";
+import { LOGO_WHITE_PNG } from "@/lib/logo";
 import { QUOTE_DATA } from "@/lib/quoteData";
 
 interface JobStatusTrackerProps {
@@ -71,7 +71,7 @@ export default function JobStatusTracker({
   ];
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 bg-white">
+    <div className="min-h-screen flex items-center justify-center px-6 bg-zinc-900">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -80,16 +80,19 @@ export default function JobStatusTracker({
       >
         {/* Header */}
         <div className="text-center mb-10">
-          <img src={LOGO_PNG} alt="Bell Carpets" className="h-10 mx-auto mb-2" />
+          <img src={LOGO_WHITE_PNG} alt="Bell Carpets" className="h-10 mx-auto mb-2" />
+          <p className="text-[10px] tracking-[0.3em] text-white/50 uppercase font-light">
+            {QUOTE_DATA.business.tagline}
+          </p>
         </div>
 
         {/* Quote Reference */}
         <div className="text-center mb-10">
-          <p className="text-xs font-medium tracking-widest uppercase text-zinc-400 mb-2">
+          <p className="text-xs font-medium tracking-widest uppercase text-white/40 mb-2">
             Job Progress
           </p>
-          <p className="text-lg font-semibold text-zinc-900 font-mono">{quoteNumber}</p>
-          <p className="text-sm text-zinc-500 mt-1">{propertyAddress}</p>
+          <p className="text-lg font-semibold text-white font-mono">{quoteNumber}</p>
+          <p className="text-sm text-white/50 mt-1">{propertyAddress}</p>
         </div>
 
         {/* Status Tracker */}
@@ -107,7 +110,7 @@ export default function JobStatusTracker({
                     style={{
                       background: stage.complete
                         ? "linear-gradient(180deg, #D4AF37, #D4AF3780)"
-                        : "rgba(0,0,0,0.08)",
+                        : "rgba(255,255,255,0.08)",
                     }}
                   />
                 )}
@@ -122,13 +125,13 @@ export default function JobStatusTracker({
                     className={`relative z-10 w-[32px] h-[32px] rounded-full flex items-center justify-center shrink-0 ${
                       stage.complete
                         ? "bg-[#D4AF37] shadow-[0_0_12px_rgba(212,175,55,0.3)]"
-                        : "bg-zinc-100 border border-zinc-200"
+                        : "bg-zinc-800 border border-white/10"
                     }`}
                   >
                     {stage.complete ? (
-                      <Check className="w-4 h-4 text-white" strokeWidth={3} />
+                      <Check className="w-4 h-4 text-zinc-900" strokeWidth={3} />
                     ) : (
-                      <Icon className="w-4 h-4 text-zinc-400" />
+                      <Icon className="w-4 h-4 text-white/30" />
                     )}
                   </motion.div>
 
@@ -141,16 +144,16 @@ export default function JobStatusTracker({
                   >
                     <p
                       className={`text-sm font-medium ${
-                        stage.complete ? "text-zinc-900" : "text-zinc-400"
+                        stage.complete ? "text-white" : "text-white/40"
                       }`}
                     >
                       {stage.label}
                     </p>
                     {stage.sublabel && (
-                      <p className="text-xs text-zinc-500 mt-0.5">{stage.sublabel}</p>
+                      <p className="text-xs text-white/50 mt-0.5">{stage.sublabel}</p>
                     )}
                     {!stage.complete && !stage.sublabel && (
-                      <p className="text-xs text-zinc-400 mt-0.5 italic">Pending</p>
+                      <p className="text-xs text-white/30 mt-0.5 italic">Pending</p>
                     )}
                   </motion.div>
                 </div>
@@ -167,26 +170,26 @@ export default function JobStatusTracker({
           className="mt-6 text-center"
         >
           {isComplete ? (
-            <p className="text-sm text-zinc-500">
+            <p className="text-sm text-white/50">
               Your installation is complete. Thank you for choosing Bell Carpets.
             </p>
           ) : isScheduled ? (
-            <p className="text-sm text-zinc-500">
+            <p className="text-sm text-white/50">
               Your installation is confirmed. Our team will be in touch closer to the date.
             </p>
           ) : (
-            <p className="text-sm text-zinc-500">
+            <p className="text-sm text-white/50">
               We've received your acceptance. Our team will be in touch to schedule your installation.
             </p>
           )}
         </motion.div>
 
         {/* Footer */}
-        <div className="mt-10 pt-6 border-t border-zinc-200 text-center">
-          <p className="text-xs text-zinc-400">
+        <div className="mt-10 pt-6 border-t border-white/10 text-center">
+          <p className="text-xs text-white/30">
             Bell Carpets — Established 1987
           </p>
-          <p className="text-xs text-zinc-400 mt-1">
+          <p className="text-xs text-white/30 mt-1">
             07 5571 1177 &middot; hello@bellcarpets.com.au
           </p>
         </div>

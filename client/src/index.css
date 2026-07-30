@@ -45,25 +45,29 @@
   --color-brand: oklch(1 0 0);
   --color-brand-light: oklch(0.85 0 0);
   --color-brand-muted: oklch(0.55 0 0);
-  --color-surface: oklch(0.08 0 0);
-  --color-surface-elevated: oklch(0.12 0 0);
-  --color-surface-subtle: oklch(0.06 0 0);
+  --color-surface: oklch(0.09 0.004 60);
+  --color-surface-elevated: oklch(0.13 0.005 60);
+  --color-surface-subtle: oklch(0.07 0.003 60);
   --color-divider: oklch(0.2 0 0);
+  /* Warm gold accent for key metrics */
+  --color-gold: oklch(0.78 0.12 85);
+  --color-gold-muted: oklch(0.65 0.09 85);
 
-  --font-display: "Outfit", system-ui, sans-serif;
-  --font-body: "Outfit", system-ui, sans-serif;
+  --font-display: "DM Sans", "Outfit", system-ui, sans-serif;
+  --font-body: "DM Sans", "Outfit", system-ui, sans-serif;
   --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-mono: "SF Mono", "Fira Code", "Cascadia Code", ui-monospace, monospace;
 }
 
 /* Dark luxury as default — deep black/charcoal */
 :root {
   --radius: 0.625rem;
-  --background: oklch(0.05 0 0);
-  --foreground: oklch(0.93 0 0);
-  --card: oklch(0.09 0 0);
-  --card-foreground: oklch(0.93 0 0);
-  --popover: oklch(0.09 0 0);
-  --popover-foreground: oklch(0.93 0 0);
+  --background: oklch(0.06 0.004 60);
+  --foreground: oklch(0.94 0.003 60);
+  --card: oklch(0.10 0.005 60);
+  --card-foreground: oklch(0.94 0.003 60);
+  --popover: oklch(0.10 0.005 60);
+  --popover-foreground: oklch(0.94 0.003 60);
   --primary: oklch(1 0 0);
   --primary-foreground: oklch(0.05 0 0);
   --secondary: oklch(0.14 0 0);
@@ -216,4 +220,63 @@
 /* Serif font utility — forces Cormorant Garamond, overrides global body font */
 .font-serif-display {
   font-family: var(--font-serif) !important;
+}
+
+/* ── Admin CRM Premium Typography ─────────────────────────────────────────── */
+
+/* Quote numbers — tabular figures, monospaced for column alignment */
+.quote-number {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+/* Stat card numbers — large, heavy, tabular */
+.stat-value {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Sidebar subtitle — Cormorant italic for craft */
+.sidebar-subtitle {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+/* Section labels — tight tracking, small caps feel */
+.section-label {
+  font-family: var(--font-display);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Gold accent utility */
+.text-gold {
+  color: var(--color-gold);
+}
+.text-gold-muted {
+  color: var(--color-gold-muted);
+}
+
+/* Warm background surfaces */
+.bg-surface {
+  background-color: var(--color-surface);
+}
+.bg-surface-elevated {
+  background-color: var(--color-surface-elevated);
+}
+
+/* Refined admin body — slightly warmer than pure black */
+.admin-root {
+  background-color: oklch(0.07 0.004 60);
+  color: oklch(0.92 0.003 60);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
 }

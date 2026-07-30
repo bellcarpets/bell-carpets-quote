@@ -728,6 +728,58 @@ export const quoteRouter = router({
    * Does NOT require authentication — this is a public endpoint.
    * Captures IP, geo-location (city/country), and device type for analytics.
    */
+  requestExtension: publicProcedure
+    .input(z.object({ slug: z.string().min(1) }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+      // Find the quote
+      const [quote] = await db.select().from(quotes).where(and(eq(quotes.slug, input.slug), isNull(quotes.deletedAt))).limit(1);
+      if (!quote) throw new TRPCError({ code: "NOT_FOUND", message: "Quote not found" });
+
+      // Check the quote is actually expired
+      if (!quote.expiresAt || new Date(quote.expiresAt) > new Date()) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "This quote has not expired yet" });
+      }
+
+      // Check if already extended (only allow one extension)
+      // We detect this by checking if expiresAt is already more than originalExpiry + validDays
+      // Simpler: add a 48hr window check — if it expired more than 14 days ago, don't allow extension
+      const expiredAt = new Date(quote.expiresAt);
+      const daysSinceExpiry = Math.floor((Date.now() - expiredAt.getTime()) / (1000 * 60 * 60 * 24));
+      if (daysSinceExpiry > 14) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "This quote expired too long ago to extend. Please contact us for a fresh quote." });
+      }
+
+      // Check if this quote was already extended (expiresAt was already pushed past original)
+      // Simple approach: check if there's already been an extension by looking at updatedAt vs expiresAt gap
+      // Even simpler: use internalNotes to track extension
+      if (quote.internalNotes && quote.internalNotes.includes("[EXTENSION GRANTED]")) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "This quote has already been extended once. Please contact us directly." });
+      }
+
+      // Extend by 48 hours from now
+      const newExpiry = new Date(Date.now() + 48 * 60 * 60 * 1000);
+
+      // Update the quote
+      const existingNotes = quote.internalNotes || "";
+      const extensionNote = `[EXTENSION GRANTED] Client requested 48hr extension on ${new Date().toISOString().split("T")[0]}`;
+      await db.update(quotes).set({
+        expiresAt: newExpiry,
+        internalNotes: existingNotes ? `${existingNotes}\n${extensionNote}` : extensionNote,
+      }).where(eq(quotes.id, quote.id));
+
+      // Notify the owner
+      const config = JSON.parse(quote.configJson) as QuoteConfigData;
+      await notifyOwner({
+        title: `Extension Requested: ${quote.quoteNumber}`,
+        content: `${quote.agentName || config.client?.name || "Client"} requested a 48hr extension on ${quote.quoteNumber} (${config.property?.address || ""}).\nNew expiry: ${newExpiry.toLocaleDateString("en-AU", { day: "2-digit", month: "short", year: "numeric", timeZone: "Australia/Brisbane" })}`,
+      });
+
+      return { success: true, newExpiry: newExpiry.toISOString() };
+    }),
+
   trackView: publicProcedure
     .input(z.object({
       slug: z.string().min(1),

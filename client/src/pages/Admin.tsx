@@ -1,4 +1,4 @@
-import { LOGO_WHITE_PNG } from "@/lib/logo";
+import { LOGO_WHITE_PNG, LOGO_PNG } from "@/lib/logo";
 /**
  * Admin Panel — Bell Carpets Multi-Quote Manager
  * Password-protected, mobile-first, dark theme
@@ -146,18 +146,18 @@ function PasswordGate({
             alt="Bell Carpets"
             className="h-10 mx-auto mb-1"
           />
-
+          <p className="text-[9px] tracking-[0.25em] text-zinc-500 uppercase font-light mb-4">RESIDENTIAL | COMMERCIAL | PROJECTS</p>
           <h1 className="text-xl text-white font-semibold">
             Admin Panel
           </h1>
-          <p className="text-sm text-white/40 mt-1">Quote Manager</p>
+          <p className="text-sm text-zinc-400 mt-1">Quote Manager</p>
         </div>
         <input
           type="password"
           placeholder="Enter password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full px-4 py-3 rounded-xl bg-zinc-900 border border-white/10 text-white placeholder:text-white/30 focus:border-white/50 focus:outline-none mb-3"
+          className="w-full px-4 py-3 rounded-xl bg-zinc-900 border border-white/10 text-white placeholder:text-zinc-400 focus:border-white/50 focus:outline-none mb-3"
         />
         {error && <p className="text-red-400 text-sm mb-3">{error}</p>}
         <button
@@ -185,17 +185,17 @@ function Section({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="mb-4 bg-zinc-800/50 rounded-xl border border-white/10 overflow-hidden">
+    <div className="mb-4 bg-white rounded-xl border border-zinc-200 overflow-hidden shadow-sm">
       <button
         type="button"
         onClick={() => setOpen(!open)}
         className="w-full px-4 py-3 flex items-center justify-between text-left"
       >
-        <span className="text-sm font-medium text-white">{title}</span>
+        <span className="text-sm font-medium text-zinc-900">{title}</span>
         {open ? (
-          <ChevronUp className="w-4 h-4 text-white/50" />
+          <ChevronUp className="w-4 h-4 text-zinc-400" />
         ) : (
-          <ChevronDown className="w-4 h-4 text-white/50" />
+          <ChevronDown className="w-4 h-4 text-zinc-400" />
         )}
       </button>
       {open && <div className="px-4 pb-4 space-y-3">{children}</div>}
@@ -236,7 +236,7 @@ function Field({
   if (multiline) {
     return (
       <div>
-        <label className="block text-xs text-white/50 mb-1">{label}</label>
+        <label className="block text-xs text-zinc-500 mb-1">{label}</label>
         <textarea
           value={String(value)}
           onChange={(e) => {
@@ -254,7 +254,7 @@ function Field({
           }}
           placeholder={placeholder}
           rows={2}
-          className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-white focus:outline-none resize-none overflow-hidden"
+          className="w-full px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none resize-none overflow-hidden"
         />
       </div>
     );
@@ -262,7 +262,7 @@ function Field({
 
   return (
     <div>
-      <label className="block text-xs text-white/50 mb-1">{label}</label>
+      <label className="block text-xs text-zinc-500 mb-1">{label}</label>
       <input
         type={isNumber ? 'text' : type}
         inputMode={isNumber ? 'numeric' : undefined}
@@ -293,7 +293,7 @@ function Field({
           }
         }}
         placeholder={placeholder}
-        className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-white focus:outline-none"
+        className="w-full px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none"
       />
     </div>
   );
@@ -325,7 +325,7 @@ function ComboSelect({
   const showCustom = isCustom || forceCustom;
   return (
     <div>
-      <label className="block text-xs text-white/50 mb-1">{label}</label>
+      <label className="block text-xs text-zinc-500 mb-1">{label}</label>
       {!showCustom ? (
         <div className="relative">
           <select
@@ -335,14 +335,14 @@ function ComboSelect({
               else onChange(e.target.value);
             }}
             style={{ WebkitAppearance: "none", appearance: "none" }}
-            className="w-full px-3 py-2 pr-8 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-white focus:outline-none"
+            className="w-full px-3 py-2 pr-8 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none"
           >
             <option value="">{placeholder || `Select ${label}`}</option>
             {options.map((o) => <option key={o} value={o}>{o}</option>)}
             <option value="__custom__">Other (type custom)…</option>
           </select>
           {/* Custom chevron visible on all platforms */}
-          <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 text-xs">▾</span>
+          <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 text-xs">▾</span>
         </div>
       ) : (
         <div className="flex gap-2">
@@ -351,9 +351,9 @@ function ComboSelect({
             placeholder={`Type custom ${label.toLowerCase()}`}
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            className="flex-1 px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-white focus:outline-none"
+            className="flex-1 px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none"
           />
-          <button type="button" onClick={() => { setForceCustom(false); onChange(""); }} className="px-2 py-1 text-xs text-white/40 hover:text-white border border-white/10 rounded-lg">List</button>
+          <button type="button" onClick={() => { setForceCustom(false); onChange(""); }} className="px-2 py-1 text-xs text-zinc-400 hover:text-zinc-900 border border-zinc-200 rounded-lg">List</button>
         </div>
       )}
     </div>
@@ -379,13 +379,13 @@ function HomeownerProductEditor({
       </div>
       {/* Row 2: Colour Name */}
       <div>
-        <label className="block text-xs text-white/50 mb-1">Colour Name</label>
+        <label className="block text-xs text-zinc-500 mb-1">Colour Name</label>
         <input
           type="text"
           placeholder="e.g. Charcoal, Silver Birch, Ocean Mist"
           value={product.colourName || ""}
           onChange={(e) => update({ colourName: e.target.value })}
-          className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-white focus:outline-none"
+          className="w-full px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none"
         />
       </div>
       {/* Row 3: Fibre + Style */}
@@ -395,18 +395,18 @@ function HomeownerProductEditor({
       </div>
       {/* Row 4: Underlay */}
       <div>
-        <label className="block text-xs text-white/50 mb-1">Underlay</label>
+        <label className="block text-xs text-zinc-500 mb-1">Underlay</label>
         <div className="relative">
           <select
             value={product.underlay || ""}
             onChange={(e) => update({ underlay: e.target.value as import("../../../shared/quoteConfigTypes").UnderlayOption })}
             style={{ WebkitAppearance: "none", appearance: "none" }}
-            className="w-full px-3 py-2 pr-8 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-white focus:outline-none"
+            className="w-full px-3 py-2 pr-8 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none"
           >
             <option value="">No underlay selected</option>
             {UNDERLAY_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
           </select>
-          <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 text-xs">▾</span>
+          <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 text-xs">▾</span>
         </div>
       </div>
       <Field label="Price (inc GST, whole dollars)" value={product.price} onChange={(v) => update({ price: parseInt(v) || 0 })} type="number" />
@@ -414,10 +414,10 @@ function HomeownerProductEditor({
 
       {/* Badges */}
       <div>
-        <label className="block text-xs text-white/50 mb-1">Badges / Certifications</label>
+        <label className="block text-xs text-zinc-500 mb-1">Badges / Certifications</label>
         <div className="flex flex-wrap gap-2 mb-2">
           {product.badges.map((badge, i) => (
-            <div key={i} className="flex items-center gap-1 bg-zinc-900 px-2 py-1 rounded border border-white/10 text-xs text-white/60">
+            <div key={i} className="flex items-center gap-1 bg-zinc-100 px-2 py-1 rounded border border-zinc-200 text-xs text-zinc-600">
               <input
                 value={badge}
                 onChange={(e) => {
@@ -425,14 +425,14 @@ function HomeownerProductEditor({
                   badges[i] = e.target.value;
                   update({ badges });
                 }}
-                className="bg-transparent border-none text-xs text-white/60 focus:outline-none w-24"
+                className="bg-transparent border-none text-xs text-zinc-600 focus:outline-none w-24"
               />
               <button type="button" onClick={() => update({ badges: product.badges.filter((_, bi) => bi !== i) })} className="text-red-400">
                 <Trash2 className="w-3 h-3" />
               </button>
             </div>
           ))}
-          <button type="button" onClick={() => update({ badges: [...product.badges, ""] })} className="text-xs text-white border border-dashed border-white/20 px-2 py-1 rounded hover:bg-white/10">
+          <button type="button" onClick={() => update({ badges: [...product.badges, ""] })} className="text-xs text-zinc-600 border border-dashed border-zinc-300 px-2 py-1 rounded hover:bg-zinc-100">
             <Plus className="w-3 h-3 inline mr-1" />Add
           </button>
         </div>
@@ -523,41 +523,41 @@ function TierEditor({
 
       {/* Carpet Colour */}
       <div>
-        <label className="block text-xs text-white/50 mb-1">Carpet Colour</label>
+        <label className="block text-xs text-zinc-500 mb-1">Carpet Colour</label>
         <input
           type="text"
           placeholder="e.g. Charcoal, Silver Birch, Ocean Mist"
           value={tier.colourName || ""}
           onChange={(e) => update({ colourName: e.target.value })}
-          className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-white focus:outline-none"
+          className="w-full px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none"
         />
       </div>
       {/* Underlay */}
       <div>
-        <label className="block text-xs text-white/50 mb-1">Underlay</label>
+        <label className="block text-xs text-zinc-500 mb-1">Underlay</label>
         <div className="relative">
           <select
             value={tier.underlay || ""}
             onChange={(e) => update({ underlay: e.target.value as import("../../../shared/quoteConfigTypes").UnderlayOption })}
             style={{ WebkitAppearance: "none", appearance: "none" }}
-            className="w-full px-3 py-2 pr-8 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-white focus:outline-none"
+            className="w-full px-3 py-2 pr-8 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none"
           >
             <option value="">No underlay selected</option>
             {UNDERLAY_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
           </select>
-          <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 text-xs">▾</span>
+          <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 text-xs">▾</span>
         </div>
       </div>
       {/* Badges */}
       <div>
-        <label className="block text-xs text-white/50 mb-1">
+        <label className="block text-xs text-zinc-500 mb-1">
           Badges / Certifications
         </label>
         <div className="flex flex-wrap gap-2 mb-2">
           {tier.badges.map((badge, i) => (
             <div
               key={i}
-              className="flex items-center gap-1 bg-zinc-900 px-2 py-1 rounded border border-white/10 text-xs text-white/60"
+              className="flex items-center gap-1 bg-zinc-100 px-2 py-1 rounded border border-zinc-200 text-xs text-zinc-600"
             >
               <input
                 value={badge}
@@ -566,7 +566,7 @@ function TierEditor({
                   badges[i] = e.target.value;
                   update({ badges });
                 }}
-                className="bg-transparent border-none text-xs text-white/60 focus:outline-none w-24"
+                className="bg-transparent border-none text-xs text-zinc-600 focus:outline-none w-24"
               />
               <button
                 type="button"
@@ -582,7 +582,7 @@ function TierEditor({
           <button
             type="button"
             onClick={() => update({ badges: [...tier.badges, ""] })}
-            className="text-xs text-white border border-dashed border-white/20 px-2 py-1 rounded hover:bg-white/10"
+            className="text-xs text-zinc-600 border border-dashed border-zinc-300 px-2 py-1 rounded hover:bg-zinc-100"
           >
             <Plus className="w-3 h-3 inline mr-1" />
             Add
@@ -742,7 +742,7 @@ function TemplateMessageButtons({
     <div onClick={(e) => e.stopPropagation()}>
       <button
         onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
-        className="w-full py-1.5 rounded-lg text-xs text-white/50 hover:text-white/70 hover:bg-white/[0.04] transition-colors flex items-center justify-center gap-1.5"
+        className="w-full py-1.5 rounded-lg text-xs text-zinc-500 hover:text-zinc-700 hover:bg-zinc-100 transition-colors flex items-center justify-center gap-1.5"
       >
         <MessageSquare className="w-3 h-3" />
         {expanded ? "Hide Templates" : "Text Templates"}
@@ -754,13 +754,13 @@ function TemplateMessageButtons({
             <button
               key={t.id}
               onClick={(e) => openSms(e, t.template(clientName || "there", quoteLink, propertyAddress))}
-              className="w-full text-left px-3 py-2 rounded-lg bg-white/[0.03] hover:bg-white/[0.06] border border-white/5 transition-colors group"
+              className="w-full text-left px-3 py-2 rounded-lg bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 transition-colors group"
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-white/70 group-hover:text-white/90">{t.label}</span>
-                <MessageSquare className="w-3 h-3 text-white/30 group-hover:text-amber-400 transition-colors" />
+                <span className="text-xs font-medium text-zinc-700 group-hover:text-zinc-900">{t.label}</span>
+                <MessageSquare className="w-3 h-3 text-zinc-400 group-hover:text-amber-500 transition-colors" />
               </div>
-              <p className="text-[10px] text-white/30 mt-0.5 line-clamp-2">
+              <p className="text-[10px] text-zinc-400 mt-0.5 line-clamp-2">
                 {t.template(clientName || "there", quoteLink, propertyAddress).substring(0, 80)}...
               </p>
             </button>
@@ -775,7 +775,7 @@ function TemplateMessageButtons({
                 <span className="text-xs font-medium text-purple-300 group-hover:text-purple-200">Job Scheduled</span>
                 <MessageSquare className="w-3 h-3 text-purple-400/50 group-hover:text-purple-400 transition-colors" />
               </div>
-              <p className="text-[10px] text-white/30 mt-0.5 line-clamp-2">
+              <p className="text-[10px] text-zinc-400 mt-0.5 line-clamp-2">
                 {scheduledMsg.substring(0, 80)}...
               </p>
             </button>
@@ -790,7 +790,7 @@ function TemplateMessageButtons({
                 <span className="text-xs font-medium text-orange-300 group-hover:text-orange-200">Expiry Reminder</span>
                 <MessageSquare className="w-3 h-3 text-orange-400/50 group-hover:text-orange-400 transition-colors" />
               </div>
-              <p className="text-[10px] text-white/30 mt-0.5 line-clamp-2">
+              <p className="text-[10px] text-zinc-400 mt-0.5 line-clamp-2">
                 {expiryReminderMsg.substring(0, 80)}...
               </p>
             </button>
@@ -807,7 +807,7 @@ function TemplateMessageButtons({
                 </span>
                 <MessageSquare className="w-3 h-3 text-emerald-400/50 group-hover:text-emerald-400 transition-colors" />
               </div>
-              <p className="text-[10px] text-white/30 mt-0.5 line-clamp-2">
+              <p className="text-[10px] text-zinc-400 mt-0.5 line-clamp-2">
                 {balanceMsg.substring(0, 80)}...
               </p>
             </button>
@@ -827,7 +827,7 @@ function TemplateMessageButtons({
                   </span>
                   <MessageSquare className="w-3 h-3 text-amber-400/50 group-hover:text-amber-400 transition-colors" />
                 </div>
-                <p className="text-[10px] text-white/30 mt-0.5 line-clamp-2">
+                <p className="text-[10px] text-zinc-400 mt-0.5 line-clamp-2">
                   {reviewMsg.substring(0, 80)}...
                 </p>
               </button>
@@ -846,11 +846,13 @@ function InvoiceDownloadButton({
   quoteSlug,
   quoteNumber,
   onCreated,
+  iconOnly,
 }: {
   password: string;
   quoteSlug: string;
   quoteNumber: string;
   onCreated?: () => void;
+  iconOnly?: boolean;
 }) {
   const { data: invoice, isLoading, refetch } = trpc.invoice.getByQuote.useQuery(
     { password, quoteSlug },
@@ -975,11 +977,13 @@ function StatusDropdown({
   quoteType,
   onSelect,
   disabled,
+  compact,
 }: {
   currentStatus: JobStatus;
   quoteType: QuoteType | string;
   onSelect: (status: JobStatus) => void;
   disabled?: boolean;
+  compact?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const pipeline = getPipeline(quoteType);
@@ -990,13 +994,13 @@ function StatusDropdown({
         type="button"
         onClick={(e) => { e.stopPropagation(); setOpen(!open); }}
         disabled={disabled}
-        className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs text-white/50 hover:bg-white/[0.04] hover:text-white transition-colors disabled:opacity-50"
+        className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 transition-colors disabled:opacity-50"
       >
         <CircleDot className="w-3 h-3" /> Status <ChevronDown className="w-3 h-3" />
       </button>
       {open && (
         <div
-          className="absolute right-0 bottom-full z-50 mb-1 bg-zinc-900 border border-white/20 rounded-xl shadow-2xl w-56 overflow-hidden"
+          className="absolute right-0 bottom-full z-50 mb-1 bg-white border border-zinc-200 rounded-xl shadow-xl w-56 overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {pipeline.map((s) => {
@@ -1007,15 +1011,15 @@ function StatusDropdown({
                 key={s.value}
                 type="button"
                 onClick={() => { onSelect(s.value); setOpen(false); }}
-                className={`w-full px-4 py-3 text-left text-sm flex items-center gap-3 transition-colors border-b border-white/10 last:border-0 ${
+                className={`w-full px-4 py-3 text-left text-sm flex items-center gap-3 transition-colors border-b border-zinc-100 last:border-0 ${
                   isCurrent
                     ? `${s.bg} ${s.color} font-semibold`
-                    : "text-white hover:bg-white/10"
+                    : "text-zinc-700 hover:bg-zinc-50"
                 }`}
               >
-                <Icon className={`w-4 h-4 flex-shrink-0 ${isCurrent ? s.color : "text-white/60"}`} />
+                <Icon className={`w-4 h-4 flex-shrink-0 ${isCurrent ? s.color : "text-zinc-400"}`} />
                 <span className="flex-1">{s.label}</span>
-                {isCurrent && <span className="text-[10px] text-white/50 flex-shrink-0">current</span>}
+                {isCurrent && <span className="text-[10px] text-zinc-400 flex-shrink-0">current</span>}
               </button>
             );
           })}
@@ -1087,6 +1091,8 @@ function QuotesDashboard({
     linkedQuoteSlug: "",
   });
   const [statusFilter, setStatusFilter] = useState<JobStatus | "all" | "expired" | "archived">("all");
+  const [sortField, setSortField] = useState<"date" | "quote" | "client" | "status" | "value">("date");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
   const { data: archivedQuotes, refetch: refetchArchived } = trpc.admin.listDeletedQuotes.useQuery(
     { password },
     { enabled: statusFilter === "archived", refetchOnWindowFocus: false }
@@ -1205,18 +1211,19 @@ function QuotesDashboard({
     setScheduleDateModal(null);
   };
 
-  const handleCreate = async () => {
+  const handleCreate = async (overrideType?: QuoteType) => {
+    const effectiveType = overrideType || newQuoteForm.quoteType;
     setShowTypeModal(false);
     setCreating(true);
     try {
       // For homeowner quotes: clientName = agentName (contact name IS the client name — no separate field)
       // For agent/real_estate/agency_single: clientName = agency name (separate from contact person)
-      const resolvedClientName = newQuoteForm.quoteType === "homeowner"
+      const resolvedClientName = effectiveType === "homeowner"
         ? newQuoteForm.agentName
         : newQuoteForm.clientName;
       const result = await createMutation.mutateAsync({
         password,
-        quoteType: newQuoteForm.quoteType,
+        quoteType: effectiveType,
         clientName: resolvedClientName,
         propertyAddress: newQuoteForm.propertyAddress,
         agentName: newQuoteForm.agentName,
@@ -1232,7 +1239,7 @@ function QuotesDashboard({
       // Offer to save as a contact
       // For agency/real_estate/agency_single: save agency name (clientName) with agency email/phone only
       // For homeowner: save customer name (agentName) with customer email/phone
-      const isAgencyQuote = newQuoteForm.quoteType === "agent" || newQuoteForm.quoteType === "real_estate" || newQuoteForm.quoteType === "agency_single";
+      const isAgencyQuote = effectiveType === "agent" || effectiveType === "real_estate" || effectiveType === "agency_single";
       const contactNameToSave = isAgencyQuote ? newQuoteForm.clientName : newQuoteForm.agentName;
       const contactEmailToSave = newQuoteForm.agentEmail; // Same field for both (agency email or customer email)
       const contactPhoneToSave = newQuoteForm.agentPhone; // Same field for both (agency phone or customer phone)
@@ -1262,7 +1269,7 @@ function QuotesDashboard({
               </button>
               <button
                 onClick={() => {}}
-                className="px-3 py-1 rounded-lg bg-white/10 text-white text-xs"
+                className="px-3 py-1 rounded-lg bg-zinc-100 text-zinc-700 text-xs"
               >
                 Skip
               </button>
@@ -1358,1037 +1365,422 @@ function QuotesDashboard({
       (q.acceptedAgentName || "").toLowerCase().includes(s)
     );
   });
+  const sortedQuotes = [...filteredQuotes].sort((a, b) => {
+    let aVal: string | number = 0;
+    let bVal: string | number = 0;
+    if (sortField === "date") {
+      aVal = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      bVal = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    } else if (sortField === "quote") {
+      aVal = a.quoteNumber || "";
+      bVal = b.quoteNumber || "";
+    } else if (sortField === "client") {
+      aVal = (a.clientName || a.agentName || "").toLowerCase();
+      bVal = (b.clientName || b.agentName || "").toLowerCase();
+    } else if (sortField === "status") {
+      aVal = a.jobStatus || "";
+      bVal = b.jobStatus || "";
+    } else if (sortField === "value") {
+      aVal = a.acceptedTotal ?? a.lowestPrice ?? 0;
+      bVal = b.acceptedTotal ?? b.lowestPrice ?? 0;
+    }
+    if (aVal < bVal) return sortDir === "asc" ? -1 : 1;
+    if (aVal > bVal) return sortDir === "asc" ? 1 : -1;
+    return 0;
+  });
 
-  const expiredCount = (quotesList || []).filter(isExpiredQuote).length;
-
+    const expiredCount = (quotesList || []).filter(isExpiredQuote).length;
+  // Summary stats for the header bar
+  const pipelineValue = (quotesList || []).reduce((sum, q) => {
+    if (["accepted", "deposit_paid", "scheduled", "completed"].includes(q.jobStatus)) {
+      return sum + (q.acceptedTotal ?? q.highestPrice ?? 0);
+    }
+    return sum;
+  }, 0);
+  const openQuoteCount = (quotesList || []).filter(q => ["draft", "quote_sent"].includes(q.jobStatus)).length;
+  const scheduledCount = (quotesList || []).filter(q => q.jobStatus === "scheduled").length;
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-zinc-900 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-white animate-spin" />
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-zinc-400 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-zinc-900 text-white">
+    <div className="min-h-screen bg-[#f8f8f7] text-zinc-900">
       {/* Header */}
-      <div className="sticky top-0 z-50 bg-white/5 backdrop-blur border-b border-white/10">
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex flex-col items-start">
-              <img
-                src={LOGO_WHITE_PNG}
-                alt="Bell Carpets"
-                className="h-5"
-              />
-
-            </div>
-            <div className="h-5 w-px bg-white/10" />
+      <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-zinc-200/80 shadow-sm">
+        <div className="px-6 lg:px-8">
+          <div className="py-4 flex items-center justify-between gap-4">
             <div>
-              <h1 className="text-sm font-semibold text-white leading-tight">
-                Quotes
-              </h1>
-              <p className="text-xs text-white/40">
-                {quotesList?.length || 0} quote{(quotesList?.length || 0) !== 1 ? "s" : ""}
-              </p>
+              <h1 className="text-xl font-semibold text-zinc-900 leading-tight tracking-[-0.02em]">Quotes</h1>
+              <p className="text-xs text-zinc-400 mt-0.5">{quotesList?.length || 0} total</p>
             </div>
+            <button
+              onClick={() => setShowTypeModal(true)}
+              disabled={creating}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-900 text-white font-medium text-sm hover:bg-zinc-800 disabled:opacity-50 transition-colors shrink-0 shadow-sm border border-zinc-200"
+            >
+              {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+              New Quote
+            </button>
           </div>
-          <button
-            onClick={() => setShowTypeModal(true)}
-            disabled={creating}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black font-semibold text-sm hover:bg-white/90 disabled:opacity-50 transition-colors"
-          >
-            {creating ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+          {/* Stat cards */}
+          <div className="grid grid-cols-3 gap-3 pb-4">
+            <div className="bg-zinc-50 rounded-xl px-4 py-3 border border-zinc-200/60">
+              <p className="text-[10px] uppercase tracking-[0.12em] text-zinc-400 font-medium mb-1">Open</p>
+              <p className="text-2xl font-bold text-zinc-900 leading-none tabular-nums">{openQuoteCount}</p>
+            </div>
+            <div className="bg-zinc-50 rounded-xl px-4 py-3 border border-zinc-200/60">
+              <p className="text-[10px] uppercase tracking-[0.12em] text-zinc-400 font-medium mb-1">Scheduled</p>
+              <p className="text-2xl font-bold text-zinc-900 leading-none tabular-nums">{scheduledCount}</p>
+            </div>
+            {expiredCount > 0 ? (
+              <div className="bg-red-50 rounded-xl px-4 py-3 border border-red-200/60">
+                <p className="text-[10px] uppercase tracking-[0.12em] text-red-500 font-medium mb-1">Expired</p>
+                <p className="text-2xl font-bold text-red-600 leading-none tabular-nums">{expiredCount}</p>
+              </div>
             ) : (
-              <Plus className="w-4 h-4" />
+              <div className="bg-zinc-50 rounded-xl px-4 py-3 border border-zinc-200/60">
+                <p className="text-[10px] uppercase tracking-[0.12em] text-zinc-400 font-medium mb-1">Total</p>
+                <p className="text-2xl font-bold text-zinc-900 leading-none tabular-nums">{quotesList?.length || 0}</p>
+              </div>
             )}
-            New Quote
-          </button>
+          </div>
         </div>
       </div>
 
-      {/* Quote Type Modal */}
-      {/* Schedule Date Modal */}
-      {scheduleDateModal && (
-        <div
-          className="fixed inset-0 z-50 bg-black/75 flex items-end sm:items-center justify-center p-0 sm:p-4"
-          style={{ animation: "fadeIn 0.15s ease" }}
-          onClick={() => setScheduleDateModal(null)}
-        >
+      {/* New Quote Type Modal */}
+      {showTypeModal && (
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowTypeModal(false)} />
           <div
-            className="w-full sm:max-w-sm bg-[#141418] rounded-t-3xl sm:rounded-2xl border border-white/8 p-6"
-            style={{ animation: "slideUp 0.2s cubic-bezier(0.34,1.56,0.64,1)" }}
-            onClick={(e) => e.stopPropagation()}
+            className="relative w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl border border-zinc-200 overflow-y-auto max-h-[92vh] shadow-xl"
           >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
-                <Calendar className="w-5 h-5 text-purple-400" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-white">Schedule Installation</h3>
-                <p className="text-xs text-white/40">Set the install date for this job</p>
-              </div>
+            <div className="px-5 pt-5 pb-3 border-b border-zinc-100">
+              <h2 className="text-base font-semibold text-zinc-900">New Quote</h2>
+              <p className="text-xs text-zinc-400 mt-0.5">Select quote type</p>
             </div>
-            <input
-              type="date"
-              value={scheduleDateInput}
-              onChange={(e) => setScheduleDateInput(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-zinc-800/60 border border-white/10 text-white text-sm focus:outline-none focus:border-purple-400 transition-colors mb-4 [color-scheme:dark]"
-            />
-            <div className="flex gap-3">
-              <button
-                onClick={() => setScheduleDateModal(null)}
-                className="flex-1 py-2.5 rounded-xl bg-zinc-800/50 border border-white/10 text-sm text-white/60 hover:text-white transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleScheduleDateConfirm}
-                disabled={updateStatusMutation.isPending}
-                className="flex-1 py-2.5 rounded-xl bg-purple-600 text-white text-sm font-semibold hover:bg-purple-500 disabled:opacity-50 transition-colors"
-              >
-                {updateStatusMutation.isPending ? "Saving..." : scheduleDateInput ? "Schedule" : "Skip Date"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Deposit Amount Modal (list view) */}
-      {depositModal && (
-        <div
-          className="fixed inset-0 z-50 bg-black/75 flex items-end sm:items-center justify-center p-0 sm:p-4"
-          style={{ animation: "fadeIn 0.15s ease" }}
-          onClick={() => setDepositModal(null)}
-        >
-          <div
-            className="w-full sm:max-w-sm bg-[#141418] rounded-t-3xl sm:rounded-2xl border border-white/8 p-6"
-            style={{ animation: "slideUp 0.2s cubic-bezier(0.34,1.56,0.64,1)" }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-                <Banknote className="w-5 h-5 text-emerald-400" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-white">Record Deposit Received</h3>
-                <p className="text-xs text-white/40">Enter the actual amount paid by the client</p>
-              </div>
-            </div>
-            {depositModal.suggestedAmount > 0 && (
-              <p className="text-xs text-white/40 mb-2">Suggested: ${depositModal.suggestedAmount.toLocaleString()} (based on deposit %)</p>
-            )}
-            <div className="relative mb-4">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 text-sm">$</span>
-              <input
-                type="number"
-                min="1"
-                step="1"
-                value={depositAmountInput}
-                onChange={(e) => setDepositAmountInput(e.target.value)}
-                placeholder="e.g. 1250"
-                className="w-full pl-7 pr-4 py-3 rounded-xl bg-zinc-800/60 border border-white/10 text-white text-sm focus:outline-none focus:border-emerald-400 transition-colors"
-                autoFocus
-              />
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setDepositModal(null)}
-                className="flex-1 py-2.5 rounded-xl bg-zinc-800/50 border border-white/10 text-sm text-white/60 hover:text-white transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDepositConfirm}
-                disabled={updateStatusMutation.isPending || !depositAmountInput}
-                className="flex-1 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-500 disabled:opacity-50 transition-colors"
-              >
-                {updateStatusMutation.isPending ? "Saving..." : "Confirm Deposit"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Tier Accept Modal (list view) — for tiered quotes only */}
-      {tierAcceptModal && (
-        <div
-          className="fixed inset-0 z-50 bg-black/75 flex items-end sm:items-center justify-center p-0 sm:p-4"
-          style={{ animation: "fadeIn 0.15s ease" }}
-          onClick={() => setTierAcceptModal(null)}
-        >
-          <div
-            className="w-full sm:max-w-sm bg-[#141418] rounded-t-3xl sm:rounded-2xl border border-white/8 p-6"
-            style={{ animation: "slideUp 0.2s cubic-bezier(0.34,1.56,0.64,1)" }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                <CheckCircle2 className="w-5 h-5 text-blue-400" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-white">Which Tier Did They Choose?</h3>
-                <p className="text-xs text-white/40">Select the tier the client accepted</p>
-              </div>
-            </div>
-            <div className="space-y-2 mb-4">
-              {tierAcceptModal.tiers.map((tier) => (
+            <div className="p-5 space-y-2">
+              {[
+                { value: "homeowner", label: "Homeowner", desc: "Direct to homeowner, single price" },
+                { value: "real_estate", label: "Real Estate Agency (3-Tier)", desc: "Good / Better / Best pricing" },
+                { value: "agency_single", label: "Agency Single Product", desc: "Single product for agency" },
+              ].map((t) => (
                 <button
-                  key={tier.name}
-                  onClick={() => setTierAcceptSelected(tier.name)}
-                  className={`w-full px-4 py-3 rounded-xl border text-left transition-colors ${
-                    tierAcceptSelected === tier.name
-                      ? "bg-blue-500/20 border-blue-500/50 text-white"
-                      : "bg-zinc-800/50 border-white/10 text-white/70 hover:border-white/20 hover:text-white"
-                  }`}
+                  key={t.value}
+                  onClick={() => handleCreate(t.value as QuoteType)}
+                  disabled={creating}
+                  className="w-full text-left px-4 py-3.5 rounded-xl border border-zinc-200 hover:border-zinc-400 hover:bg-zinc-50 transition-all group"
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-sm">{tier.name}</span>
-                    <span className="text-sm text-white/50">${tier.price.toLocaleString()}</span>
-                  </div>
+                  <p className="text-sm font-medium text-zinc-900 group-hover:text-zinc-900">{t.label}</p>
+                  <p className="text-xs text-zinc-400 mt-0.5">{t.desc}</p>
                 </button>
               ))}
             </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setTierAcceptModal(null)}
-                className="flex-1 py-2.5 rounded-xl bg-zinc-800/50 border border-white/10 text-sm text-white/60 hover:text-white transition-colors"
-              >
+            <div className="px-5 pb-5">
+              <button onClick={() => setShowTypeModal(false)} className="w-full py-2.5 text-sm text-zinc-400 hover:text-zinc-600 transition-colors">
                 Cancel
               </button>
-              <button
-                onClick={handleTierAcceptConfirm}
-                disabled={updateStatusMutation.isPending || !tierAcceptSelected}
-                className="flex-1 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-500 disabled:opacity-50 transition-colors"
-              >
-                {updateStatusMutation.isPending ? "Saving..." : "Confirm Acceptance"}
-              </button>
             </div>
           </div>
         </div>
       )}
 
-      {showTypeModal && (
-        <div
-          className="fixed inset-0 z-50 bg-black/75 flex items-end sm:items-center justify-center p-0 sm:p-4"
-          style={{ animation: "fadeIn 0.15s ease" }}
-          onClick={() => setShowTypeModal(false)}
-        >
-          <style>{`@keyframes fadeIn{from{opacity:0}to{opacity:1}} @keyframes slideUp{from{transform:translateY(24px);opacity:0}to{transform:translateY(0);opacity:1}}`}</style>
-          <div
-            className="w-full sm:max-w-md bg-[#141418] rounded-t-3xl sm:rounded-2xl border border-white/8 overflow-y-auto max-h-[92vh]"
-            style={{ animation: "slideUp 0.2s cubic-bezier(0.34,1.56,0.64,1)" }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Drag handle (mobile) */}
-            <div className="flex justify-center pt-3 pb-1 sm:hidden">
-              <div className="w-10 h-1 rounded-full bg-white/20" />
-            </div>
-
-            <div className="px-6 pt-4 pb-6">
-              {/* Header */}
-              <div className="flex items-start justify-between mb-6">
-                <div>
-                  <h2 className="text-xl font-semibold text-white tracking-tight">New Quote</h2>
-                  <p className="text-xs text-white/40 mt-0.5">Create and send a quote to your client</p>
-                </div>
-                <button onClick={() => setShowTypeModal(false)} className="text-white/30 hover:text-white/60 transition-colors mt-0.5">
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* Quote Type — three options: Homeowner, Real Estate Agency (tiered), Agency Single Product */}
-              <div className="mb-6">
-                <p className="text-[11px] font-medium text-white/40 uppercase tracking-widest mb-2.5">Quote Type</p>
-                <div className="flex flex-col bg-zinc-800/60 rounded-xl p-1 gap-1">
-                  <div className="flex gap-1">
-                    <button
-                      onClick={() => setNewQuoteForm(f => ({ ...f, quoteType: "homeowner" }))}
-                      className={`relative flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-                        newQuoteForm.quoteType === "homeowner"
-                          ? "bg-white text-black shadow-sm"
-                          : "text-white/50 hover:text-white/80"
-                      }`}
-                    >
-                      <Home className="w-3.5 h-3.5" />
-                      Homeowner
-                    </button>
-                    <button
-                      onClick={() => setNewQuoteForm(f => ({ ...f, quoteType: "real_estate" }))}
-                      className={`relative flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-                        newQuoteForm.quoteType === "real_estate" || newQuoteForm.quoteType === "agent"
-                          ? "bg-white text-black shadow-sm"
-                          : "text-white/50 hover:text-white/80"
-                      }`}
-                    >
-                      <Users className="w-3.5 h-3.5" />
-                      Real Estate Agency
-                    </button>
-                  </div>
-                  <button
-                    onClick={() => setNewQuoteForm(f => ({ ...f, quoteType: "agency_single" }))}
-                    className={`relative flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      newQuoteForm.quoteType === "agency_single"
-                        ? "bg-white text-black shadow-sm"
-                        : "text-white/50 hover:text-white/80"
-                    }`}
-                  >
-                    <Package className="w-3.5 h-3.5" />
-                    Agency — Single Product
-                  </button>
-                </div>
-                <p className="text-[11px] text-white/30 mt-1.5 text-center">
-                  {newQuoteForm.quoteType === "homeowner"
-                    ? "Single product — with optional room itemisation"
-                    : newQuoteForm.quoteType === "agency_single"
-                    ? "One carpet, one price — agent payment terms, no deposit"
-                    : "2-tier Good / Best — agent payment terms, no deposit"}
-                </p>
-              </div>
-              {/* Insurance Assessment Toggle */}
-              <div className="mb-5">
-                <label className="flex items-center gap-3 cursor-pointer group">
-                  <div className={`relative w-10 h-5 rounded-full transition-colors duration-200 ${
-                    newQuoteForm.isInsuranceAssessment ? "bg-amber-500" : "bg-zinc-700"
-                  }`}
-                    onClick={() => setNewQuoteForm(f => ({ ...f, isInsuranceAssessment: !f.isInsuranceAssessment, linkedQuoteSlug: "" }))}
-                  >
-                    <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200 ${
-                      newQuoteForm.isInsuranceAssessment ? "translate-x-5" : ""
-                    }`} />
-                  </div>
-                  <span className="text-sm text-white/70 group-hover:text-white/90 transition-colors">Insurance Assessment Only</span>
-                </label>
-                {newQuoteForm.isInsuranceAssessment && (
-                  <p className="text-[11px] text-amber-400/60 mt-1.5 ml-[52px]">Client won't be able to accept this quote — for assessment purposes only</p>
-                )}
-              </div>
-
-              {/* Linked Quote — only shown when insurance assessment is on */}
-              {newQuoteForm.isInsuranceAssessment && quotesList && quotesList.length > 0 && (
-                <div className="mb-5">
-                  <p className="text-[11px] font-medium text-white/40 uppercase tracking-widest mb-2">Linked Quote (optional)</p>
-                  <select
-                    value={newQuoteForm.linkedQuoteSlug}
-                    onChange={(e) => setNewQuoteForm(f => ({ ...f, linkedQuoteSlug: e.target.value }))}
-                    className="w-full bg-zinc-800/50 border border-white/8 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-white/30 transition-colors"
-                  >
-                    <option value="">None — no linked quote</option>
-                    {quotesList.filter(q => !q.isInsuranceAssessment).map(q => (
-                      <option key={q.slug} value={q.slug}>
-                        {q.quoteNumber} — {q.clientName || q.propertyAddress || "Untitled"}
-                      </option>
-                    ))}
-                  </select>
-                  <p className="text-[11px] text-white/30 mt-1">Link to the full replacement quote so clients can navigate to it</p>
-                </div>
-              )}
-
-              {/* Divider */}
-              <div className="h-px bg-white/6 mb-6" />
-
-              {/* Property Details */}
-              <div className="mb-6">
-                <p className="text-[11px] font-medium text-white/40 uppercase tracking-widest mb-3">Property Details</p>
-                <div className="space-y-3">
-                  {/* Agency Name field — only for agent/real_estate/agency_single (homeowner uses contact name from Client Contact section) */}
-                  {(newQuoteForm.quoteType === "agent" || newQuoteForm.quoteType === "real_estate" || newQuoteForm.quoteType === "agency_single") && (
-                    <>
-                      {/* Load from Contacts populates Agency Name */}
-                      <ContactPicker
-                        password={password!}
-                        onSelect={(c) => setNewQuoteForm(f => ({
-                          ...f,
-                          clientName: c.agency || c.name || f.clientName,
-                          agentEmail: c.email || f.agentEmail,
-                          agentPhone: c.phone || f.agentPhone,
-                        }))}
-                      />
-                      <div>
-                        <input
-                          type="text"
-                          placeholder="Agency / Company Name *"
-                          value={newQuoteForm.clientName}
-                          onChange={(e) => setNewQuoteForm(f => ({ ...f, clientName: e.target.value }))}
-                          className="w-full bg-zinc-800/50 border border-white/8 rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:border-white/30 focus:bg-zinc-800 transition-colors"
-                        />
-                        <p className="text-[10px] text-white/25 mt-1.5 px-1">Business name — e.g. REMAX United, Kollosche, Woodroffe Hotel</p>
-                      </div>
-                    </>
-                  )}
-                  <input
-                    type="text"
-                    placeholder="Property Address"
-                    value={newQuoteForm.propertyAddress}
-                    onChange={(e) => setNewQuoteForm(f => ({ ...f, propertyAddress: e.target.value }))}
-                    className="w-full bg-zinc-800/50 border border-white/8 rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:border-white/30 focus:bg-zinc-800 transition-colors"
-                  />
-                </div>
-              </div>
-
-              {/* Divider */}
-              <div className="h-px bg-white/6 mb-6" />
-
-              {/* Agent Contact */}
-              <div className="mb-6">
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-[11px] font-medium text-white/40 uppercase tracking-widest">Contact Details</p>
-                </div>
-                {/* For homeowner: Load from Contacts fills the client name. For agency: plain manual fields (PM changes per job) */}
-                {(newQuoteForm.quoteType === "homeowner") && (
-                  <div className="mb-3">
-                    <ContactPicker
-                      password={password!}
-                      onSelect={(c) => setNewQuoteForm(f => ({
-                        ...f,
-                        agentName: c.name,
-                        agentEmail: c.email || f.agentEmail,
-                        agentPhone: c.phone || f.agentPhone,
-                      }))}
-                    />
-                  </div>
-                )}
-                <div className="space-y-3">
-                  <div>
-                    <input
-                      type="text"
-                      placeholder={(newQuoteForm.quoteType === "agent" || newQuoteForm.quoteType === "real_estate" || newQuoteForm.quoteType === "agency_single") ? "Property Manager *" : "Client Name *"}
-                      value={newQuoteForm.agentName}
-                      onChange={(e) => setNewQuoteForm(f => ({ ...f, agentName: e.target.value }))}
-                      className="w-full bg-zinc-800/50 border border-white/8 rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:border-white/30 focus:bg-zinc-800 transition-colors"
-                    />
-                    <p className="text-[10px] text-white/25 mt-1.5 px-1">
-                      {(newQuoteForm.quoteType === "agent" || newQuoteForm.quoteType === "real_estate" || newQuoteForm.quoteType === "agency_single")
-                        ? "Contact person at the agency — e.g. Sarah Jones, Eliana Marks"
-                        : "Client's full name — e.g. Helena Kowalski, John Smith"}
-                    </p>
-                  </div>
-
-                  <input
-                    type="email"
-                    placeholder="Email (quote link sent here)"
-                    value={newQuoteForm.agentEmail}
-                    onChange={(e) => setNewQuoteForm(f => ({ ...f, agentEmail: e.target.value }))}
-                    className="w-full bg-zinc-800/50 border border-white/8 rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:border-white/30 focus:bg-zinc-800 transition-colors"
-                  />
-                  <input
-                    type="tel"
-                    placeholder="Phone"
-                    value={newQuoteForm.agentPhone}
-                    onChange={(e) => setNewQuoteForm(f => ({ ...f, agentPhone: e.target.value }))}
-                    className="w-full bg-zinc-800/50 border border-white/8 rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:border-white/30 focus:bg-zinc-800 transition-colors"
-                  />
-                </div>
-              </div>
-
-              {/* Homeowner email required hint */}
-              {newQuoteForm.quoteType === "homeowner" && !newQuoteForm.agentEmail.trim() && (
-                <p className="text-[11px] text-amber-400/70 mb-3 text-center">
-                  Client email is required for homeowner quotes — acceptance emails need a destination.
-                </p>
-              )}
-              {/* Create button */}
-              <button
-                onClick={handleCreate}
-                disabled={creating || !newQuoteForm.agentName.trim() || (newQuoteForm.quoteType === "homeowner" && !newQuoteForm.agentEmail.trim())}
-                className="w-full py-4 bg-white text-black text-base font-bold rounded-2xl hover:bg-white/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-[0.98] shadow-lg shadow-white/10"
-              >
-                {creating ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin" /> Creating...
-                  </span>
-                ) : (
-                  "Create Quote →"
-                )}
-              </button>
-              {/* Extra bottom padding on mobile so the Manus badge doesn't overlap the button */}
-              <div className="h-6 sm:hidden" />
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className="max-w-2xl mx-auto px-4 py-4">
-        {/* Status Summary Counts */}
-        <div className="grid grid-cols-3 gap-2 mb-2">
-          {DASHBOARD_STATUSES.map((s) => {
-            const count = statusCounts[s.value] || 0;
-            const isActive = statusFilter === s.value;
-            const Icon = s.icon;
-            return (
-              <button
-                key={s.value}
-                onClick={() => setStatusFilter(isActive ? "all" : s.value)}
-                className={`px-2.5 py-2 rounded-xl border text-left transition-all ${
-                  isActive
-                    ? `${s.bg} border-current ${s.color}`
-                    : "bg-zinc-800/50 border-white/10 hover:border-white/10"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <Icon className={`w-3.5 h-3.5 ${isActive ? s.color : "text-white/40"}`} />
-                  <span className={`text-lg font-semibold ${isActive ? s.color : "text-white"}`}>{count}</span>
-                </div>
-                <p className={`text-[10px] mt-1 ${isActive ? s.color : "text-white/40"}`}>{s.label}</p>
-              </button>
-            );
-          })}
-          {/* Expired tile — always visible in the grid */}
-          <button
-            onClick={() => setStatusFilter(statusFilter === "expired" ? "all" : "expired")}
-            className={`px-2.5 py-2 rounded-xl border text-left transition-all ${
-              statusFilter === "expired"
-                ? "bg-red-500/10 border-red-500/30 text-red-400"
-                : "bg-zinc-800/50 border-white/10 hover:border-white/10"
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <Clock className={`w-3.5 h-3.5 ${statusFilter === "expired" ? "text-red-400" : "text-white/40"}`} />
-              <span className={`text-lg font-semibold ${statusFilter === "expired" ? "text-red-400" : expiredCount > 0 ? "text-red-400" : "text-white"}`}>{expiredCount}</span>
-            </div>
-            <p className={`text-[10px] mt-1 ${statusFilter === "expired" ? "text-red-400" : expiredCount > 0 ? "text-red-400" : "text-white/40"}`}>Expired</p>
-          </button>
-        </div>
-        {/* Archived filter button */}
-        <button
-          onClick={() => setStatusFilter(statusFilter === "archived" ? "all" : "archived")}
-          className={`w-full px-3 py-2 rounded-xl border text-left transition-all mb-2 flex items-center justify-between ${
-            statusFilter === "archived"
-              ? "bg-orange-500/10 border-orange-500/30 text-orange-400"
-              : "bg-zinc-800/50 border-white/10 hover:border-orange-500/30 hover:text-orange-400"
-          }`}
-        >
-          <div className="flex items-center gap-2">
-            <Archive className={`w-3.5 h-3.5 ${statusFilter === "archived" ? "text-orange-400" : "text-white/40"}`} />
-            <span className={`text-xs ${statusFilter === "archived" ? "text-orange-400" : "text-white/50"}`}>Archived Quotes</span>
-          </div>
-        </button>
-
-        {/* Active filter indicator */}
-        {statusFilter !== "all" && (
-          <div className="mb-3 flex items-center gap-2">
-            <Filter className="w-3.5 h-3.5 text-white/40" />
-            <span className="text-xs text-white/50">Showing:</span>
-            {statusFilter === "expired" ? (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 text-xs">
-                <Clock className="w-3 h-3" /> Expired
-              </span>
-            ) : statusFilter === "archived" ? (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-400 text-xs">
-                <Archive className="w-3 h-3" /> Archived
-              </span>
-            ) : (
-              <StatusBadge status={statusFilter} />
-            )}
+      {/* Main content */}
+      <div className="px-6 lg:px-8 py-5">
+        {/* Status filter pills */}
+        <div className="overflow-x-auto scrollbar-none -mx-1 px-1 mb-4">
+          <div className="flex items-center gap-1.5 min-w-max">
             <button
               onClick={() => setStatusFilter("all")}
-              className="text-xs text-white/40 hover:text-white ml-auto"
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                statusFilter === "all"
+                  ? "bg-zinc-900 text-white shadow-sm"
+                  : "bg-zinc-100 text-zinc-500 hover:text-zinc-700 hover:bg-zinc-200 border border-zinc-200"
+              }`}
             >
-              Clear filter
+              All ({quotesList?.length || 0})
             </button>
-          </div>
-        )}
-
-        {/* Search */}
-        <div className="relative mb-3">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-          <input
-            type="text"
-            placeholder="Search by quote #, client, address, or agent..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-zinc-800/50 border border-white/10 text-white text-sm placeholder:text-white/30 focus:border-white focus:outline-none"
-          />
-        </div>
-
-        {/* Advanced Filters: Agent + Date Range */}
-        <div className="flex flex-wrap gap-2 mb-4">
-          {/* Agent dropdown */}
-          {uniqueAgents.length > 0 && (
-            <select
-              value={agentFilter}
-              onChange={(e) => setAgentFilter(e.target.value)}
-              className="px-3 py-2 rounded-lg bg-zinc-800/60 border border-white/10 text-white text-xs focus:border-white focus:outline-none [color-scheme:dark] appearance-none cursor-pointer min-w-[140px]"
-            >
-              <option value="all">All Agents</option>
-              {uniqueAgents.map((a) => (
-                <option key={a} value={a}>{a}</option>
-              ))}
-            </select>
-          )}
-          {/* Date from */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-white/40 uppercase tracking-wider">From</span>
-            <input
-              type="date"
-              value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-              className="px-2.5 py-2 rounded-lg bg-zinc-800/60 border border-white/10 text-white text-xs focus:border-white focus:outline-none [color-scheme:dark]"
-            />
-          </div>
-          {/* Date to */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-white/40 uppercase tracking-wider">To</span>
-            <input
-              type="date"
-              value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
-              className="px-2.5 py-2 rounded-lg bg-zinc-800/60 border border-white/10 text-white text-xs focus:border-white focus:outline-none [color-scheme:dark]"
-            />
-          </div>
-          {/* Clear all filters */}
-          {(agentFilter !== "all" || dateFrom || dateTo || search) && (
+            {(["draft", "quote_sent", "accepted", "deposit_paid", "scheduled", "completed", "paid_in_full"] as JobStatus[]).map((s) => {
+              const count = (quotesList || []).filter((q) => q.jobStatus === s).length;
+              const isActive = statusFilter === s;
+              const label = s.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+              return (
+                <button
+                  key={s}
+                  onClick={() => setStatusFilter(isActive ? "all" : s)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
+                    isActive
+                      ? "bg-zinc-900 text-white shadow-sm"
+                      : "bg-zinc-100 text-zinc-500 hover:text-zinc-700 hover:bg-zinc-200 border border-zinc-200"
+                  }`}
+                >
+                  {label} {count}
+                </button>
+              );
+            })}
+            {expiredCount > 0 && (
+              <button
+                onClick={() => setStatusFilter(statusFilter === "expired" ? "all" : "expired")}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
+                  statusFilter === "expired"
+                    ? "bg-red-600 text-white shadow-sm"
+                    : "bg-red-50 text-red-600 hover:bg-red-100 border border-red-200"
+                }`}
+              >
+                Expired {expiredCount}
+              </button>
+            )}
             <button
-              onClick={() => { setAgentFilter("all"); setDateFrom(""); setDateTo(""); setSearch(""); setStatusFilter("all"); }}
-              className="px-3 py-2 rounded-lg text-xs text-white/40 hover:text-white border border-white/10 hover:border-white/20 transition-colors"
+              onClick={() => setStatusFilter(statusFilter === "archived" ? "all" : "archived")}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
+                statusFilter === "archived"
+                  ? "bg-zinc-900 text-white shadow-sm"
+                  : "bg-zinc-100 text-zinc-500 hover:text-zinc-700 hover:bg-zinc-200 border border-zinc-200"
+              }`}
             >
-              Clear All
+              Archived
             </button>
-          )}
+          </div>
         </div>
 
-        {/* Archived Quotes List */}
+        {/* Search + Filters */}
+        <div className="flex flex-wrap items-center gap-3 mb-4">
+          <div className="relative flex-1 min-w-[200px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+            <input
+              type="text"
+              placeholder="Search by quote #, client, address, or agent..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-9 pr-3 py-2 rounded-lg bg-white border border-zinc-200 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-200 transition-all"
+            />
+          </div>
+          <select
+            value={agentFilter}
+            onChange={(e) => setAgentFilter(e.target.value)}
+            className="px-3 py-2 rounded-lg bg-white border border-zinc-200 text-sm text-zinc-700 focus:outline-none focus:border-zinc-400 transition-all"
+          >
+            <option value="all">All Agents</option>
+            {uniqueAgents.map((a) => (
+              <option key={a} value={a}>{a}</option>
+            ))}
+          </select>
+          <div className="flex items-center gap-2 text-xs text-zinc-400">
+            <span>From</span>
+            <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="px-2 py-1.5 rounded-lg bg-white border border-zinc-200 text-sm text-zinc-700 focus:outline-none focus:border-zinc-400" />
+            <span>to</span>
+            <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="px-2 py-1.5 rounded-lg bg-white border border-zinc-200 text-sm text-zinc-700 focus:outline-none focus:border-zinc-400" />
+          </div>
+
+        </div>
+
+        {/* Archived quotes */}
         {statusFilter === "archived" && (
-          <div className="space-y-3">
-            {(!archivedQuotes || archivedQuotes.length === 0) ? (
-              <div className="text-center py-16">
-                <Archive className="w-12 h-12 text-white/40 mx-auto mb-3" />
-                <p className="text-white/50 mb-1">No archived quotes</p>
-                <p className="text-white/40 text-sm">Deleted quotes will appear here and can be restored</p>
-              </div>
+          <div className="space-y-2">
+            {(archivedQuotes || []).length === 0 ? (
+              <div className="text-center py-12 text-zinc-400 text-sm">No archived quotes</div>
             ) : (
-              archivedQuotes.map((q) => (
-                <div key={q.slug} className="bg-zinc-800/50 rounded-xl border border-orange-500/20 overflow-hidden p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm font-semibold text-white">{q.quoteNumber}</span>
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20">Archived</span>
-                      </div>
-                      <p className="text-xs text-white/60">{q.clientName || q.agentName || 'Unknown'}</p>
-                      {q.propertyAddress && <p className="text-xs text-white/40">{q.propertyAddress}</p>}
-                      <p className="text-xs text-white/30 mt-1">Deleted: {q.deletedAt ? new Date(q.deletedAt).toLocaleDateString('en-AU') : 'Unknown'}</p>
-                    </div>
-                    <button
-                      onClick={async () => {
-                        if (!confirm(`Restore ${q.quoteNumber}? It will reappear in the main quotes list.`)) return;
-                        await restoreMutation.mutateAsync({ password, slug: q.slug });
-                        refetchArchived();
-                        refetch();
-                      }}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-500/10 border border-green-500/30 text-green-400 text-xs hover:bg-green-500/20 transition-all"
-                    >
-                      <RotateCcw className="w-3.5 h-3.5" />
-                      Restore
-                    </button>
+              (archivedQuotes || []).map((q) => (
+                <div key={q.slug} className="bg-white rounded-xl border border-zinc-200 p-4 flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-zinc-900">{q.quoteNumber}</p>
+                    <p className="text-xs text-zinc-400">{q.quoteType === "homeowner" ? (q.agentName || q.clientName || "No client") : (q.clientName || "No client")}</p>
                   </div>
+                  <button
+                    onClick={() => { if (confirm(`Restore ${q.quoteNumber}?`)) { restoreMutation.mutate({ password, slug: q.slug }, { onSuccess: () => { refetchArchived(); refetch(); } }); } }}
+                    className="px-3 py-1.5 text-xs font-medium text-zinc-600 bg-zinc-100 hover:bg-zinc-200 rounded-lg transition-colors"
+                  >
+                    Restore
+                  </button>
                 </div>
               ))
             )}
           </div>
         )}
 
-        {/* Quotes List */}
+        {/* Empty state */}
         {statusFilter !== "archived" && filteredQuotes.length === 0 ? (
           <div className="text-center py-16">
-            <FileText className="w-12 h-12 text-white/40 mx-auto mb-3" />
-            <p className="text-white/50 mb-1">
+            <p className="text-sm text-zinc-400">
               {(search || agentFilter !== "all" || dateFrom || dateTo || statusFilter !== "all") ? "No quotes match your filters" : "No quotes yet"}
             </p>
-            {!search && (
-              <p className="text-white/40 text-sm">
+            {!search && agentFilter === "all" && !dateFrom && !dateTo && statusFilter === "all" && (
+              <p className="text-xs text-zinc-300 mt-1">
                 Tap "New Quote" to create your first quote
               </p>
             )}
           </div>
         ) : statusFilter !== "archived" ? (
-          <div className="space-y-3">
-            {filteredQuotes.map((q) => {
-              const qDaysLeft = getDaysRemaining(q.expiresAt);
-              const qExpired = qDaysLeft !== null && qDaysLeft <= 0;
-              const qExpiringSoon = qDaysLeft !== null && qDaysLeft > 0 && qDaysLeft <= 3;
-              const qCancelled = q.jobStatus === "cancelled";
-              const cardBorder = qCancelled
-                ? "border-zinc-700/40"
-                : qExpired
-                ? "border-red-500/40"
-                : qExpiringSoon
-                  ? "border-amber-500/40"
-                  : "border-white/10";
-              return (
-              <div
-                key={q.slug}
-                className={`rounded-xl border overflow-hidden ${cardBorder} ${qCancelled ? "bg-zinc-900/40 opacity-50" : "bg-zinc-800/50"}`}
-              >
-                {/* Quote card header */}
-                <button
-                  onClick={() => onEditQuote(q.slug)}
-                  className="w-full px-4 py-3 text-left hover:bg-[#1A1F28] transition-colors"
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-white font-mono text-sm font-semibold">
-                        {q.quoteNumber}
-                      </span>
-                      {q.quoteType === "homeowner" ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 text-xs">
-                          <Home className="w-3 h-3" /> Homeowner
-                        </span>
-                      ) : q.quoteType === "agency_single" ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-400 text-xs">
-                          <Package className="w-3 h-3" /> Agency Single
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 text-xs">
-                          <Users className="w-3 h-3" /> Agent
-                        </span>
-                      )}
-                      {q.jobStatus !== "cancelled" && <StatusBadge status={q.jobStatus as JobStatus} />}
-                      {q.jobStatus === "cancelled" && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-zinc-700/50 text-zinc-400 text-xs border border-zinc-600/40">
-                          <XCircle className="w-3 h-3" /> Cancelled
-                        </span>
-                      )}
-                      {q.isInsuranceAssessment && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 text-xs border border-amber-500/20">
-                          Insurance
-                        </span>
-                      )}
-                    </div>
-                    <span className="text-xs text-white/40">
-                      {q.createdAt
-                        ? formatAESTDate(new Date(q.createdAt), {
-                            day: "2-digit",
-                            month: "short",
-                          })
-                        : ""}
-                    </span>
-                  </div>
-                  {/* Headline name: agency name (clientName) for agency types, customer name for homeowner */}
-                  <p className="text-white text-sm font-medium truncate">
-                    {(q.quoteType === "agent" || q.quoteType === "real_estate" || q.quoteType === "agency_single")
-                      ? (safeString(q.clientName) || safeString(q.agentName) || "No agency")
-                      : (safeString(q.clientName) || "No client name")}
-                  </p>
-                  {/* Secondary line: PM name (agentName) for agency types; nothing extra for homeowner */}
-                  {(q.quoteType === "agent" || q.quoteType === "real_estate" || q.quoteType === "agency_single")
-                    ? safeString(q.agentName) && (
-                        <p className="text-white/50 text-xs truncate mt-0.5">
-                          {safeString(q.agentName)}
-                        </p>
-                      )
-                    : null
-                  }
-                  <p className="text-white/40 text-xs truncate mt-0.5">
-                    {safeString(q.propertyAddress) || "No property address"}
-                  </p>
-                  {(q.quoteType === "agent" || q.quoteType === "real_estate" || q.quoteType === "agency_single") && safeString(q.agentEmail) && (
-                    <p className="text-white/25 text-xs truncate mt-0.5 flex items-center gap-1">
-                      {safeString(q.agentEmail)}
-                      {q.quoteLinkEmailSent ? (
-                        <span className="text-green-400/60 ml-1">✓ emailed</span>
-                      ) : (
-                        <span className="text-amber-400/60 ml-1">not emailed</span>
-                      )}
-                    </p>
-                  )}
-                  {/* Internal notes preview — admin only */}
-                  {(q as any).internalNotes && (
-                    <p className="text-amber-400/70 text-xs mt-1 truncate flex items-center gap-1" title={(q as any).internalNotes}>
-                      <span className="text-amber-400/40">📝</span>
-                      {(q as any).internalNotes.substring(0, 80)}{(q as any).internalNotes.length > 80 ? '…' : ''}
-                    </p>
-                  )}
-                  {/* Payment breakdown — only shown once quote is accepted (not draft/quote_sent) */}
-                  {(q.acceptedTotal ?? 0) > 0 && q.jobStatus !== 'draft' && q.jobStatus !== 'quote_sent' && (() => {
-                    const total = q.acceptedTotal ?? q.highestPrice ?? 0;
-                    const discount = q.discountAmount ?? 0;
-                    const effectiveTotal = Math.max(0, total - discount);
-                    const paid = q.depositPaidAmount ?? 0;
-                    const balance = Math.max(0, effectiveTotal - paid);
-                    return (
-                      <div className="mt-2 flex items-center gap-2 flex-wrap">
-                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs">
-                          <span className="text-white/50">Total</span>
-                          <span className="text-white font-semibold">${total.toLocaleString()}</span>
-                          {discount > 0 && (
-                            <>
-                              <span className="text-white/20">·</span>
-                              <span className="text-white/50">Discount</span>
-                              <span className="text-orange-400 font-semibold">−${discount.toLocaleString()}</span>
-                            </>
-                          )}
-                          {paid > 0 && (
-                            <>
-                              <span className="text-white/20">·</span>
-                              <span className="text-white/50">Deposit</span>
-                              <span className="text-green-400 font-semibold">${paid.toLocaleString()}</span>
-                            </>
-                          )}
-                          <span className="text-white/20">·</span>
-                          <span className="text-white/50">Balance</span>
-                          <span className={balance > 0 ? "text-amber-400 font-bold" : "text-green-400 font-bold"}>
-                            {balance > 0 ? `$${balance.toLocaleString()}` : "Paid"}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })()}
-                  <div className="flex items-center gap-3 mt-2 text-xs text-white/40 flex-wrap">
-                    <span>
-                      ${q.lowestPrice.toLocaleString()} – $
-                      {q.highestPrice.toLocaleString()}
-                    </span>
-                    {safeString(q.acceptedTier) && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/15 text-green-400 border border-green-500/25 font-semibold">
-                        <CheckCircle2 className="w-3 h-3" />
-                        {safeString(q.acceptedTier)}{safeString(q.acceptedColour) ? ` · ${safeString(q.acceptedColour)}` : ""}{q.acceptedTotal ? ` · $${q.acceptedTotal.toLocaleString()}` : ""}
-                      </span>
-                    )}
-                    {/* Scheduled date indicator */}
-                    {q.scheduledDate && (
-                      <span className="inline-flex items-center gap-1 text-purple-400">
-                        <Calendar className="w-3 h-3" /> {formatAESTDate(new Date(q.scheduledDate), { day: "numeric", month: "short" })}
-                      </span>
-                    )}
-                    {/* Expiry indicator — only relevant while quote is pending (draft or quote_sent) */}
-                    {q.expiresAt && !([ "accepted", "deposit_paid", "scheduled", "completed", "paid_in_full"] as string[]).includes(q.jobStatus) && (() => {
-                      const days = getDaysRemaining(q.expiresAt);
-                      if (days === null) return null;
-                      if (days <= 0) return (
-                        <span className="inline-flex items-center gap-1 text-red-400">
-                          <Clock className="w-3 h-3" /> Expired {Math.abs(days)}d ago
-                        </span>
-                      );
-                      if (days <= 3) return (
-                        <span className="inline-flex items-center gap-1 text-orange-400">
-                          <Clock className="w-3 h-3" /> {days}d left
-                        </span>
-                      );
-                      return (
-                        <span className="inline-flex items-center gap-1 text-white/40">
-                          <Clock className="w-3 h-3" /> {days}d left
-                        </span>
-                      );
-                    })()}
-                    {/* View tracking indicator */}
-                    {q.viewCount > 0 ? (
-                      <span className="inline-flex items-center gap-1 text-cyan-400" title={q.lastViewedAt ? `Last viewed ${formatRelativeTime(new Date(q.lastViewedAt))}` : ''}>
-                        <Eye className="w-3 h-3" /> {q.viewCount} view{q.viewCount !== 1 ? 's' : ''}
-                        {(q as any).uniqueIPs > 1 && <span className="text-white/40">({(q as any).uniqueIPs} IPs)</span>}
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 text-white/25">
-                        <Eye className="w-3 h-3" /> Not viewed
-                      </span>
-                    )}
-                    {/* Sharing alert — quote link being forwarded */}
-                    {(q as any).sharingAlert && (
-                      <span className="inline-flex items-center gap-1 text-amber-400 animate-pulse" title={`\u26a0\ufe0f Link shared \u2014 ${(q as any).uniqueIPs} unique IPs detected`}>
-                        <AlertTriangle className="w-3 h-3" /> Shared
-                      </span>
-                    )}
-                  </div>
-                </button>
-
-                {/* Quote card actions */}
-                {(() => {
-                  const nextStatuses = getNextStatuses(q.jobStatus as JobStatus, q.quoteType);
+          /* The Table */
+          <div className="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-x-auto">
+            <table className="w-full text-sm min-w-[700px]">
+              <thead>
+                <tr className="border-b border-zinc-100 bg-zinc-50/50">
+                  <th className="w-10 py-3 pl-4 pr-2 text-left">
+                    <input
+                      type="checkbox"
+                      className="w-3.5 h-3.5 rounded border-zinc-300 accent-zinc-900 cursor-pointer"
+                      onChange={() => {}}
+                    />
+                  </th>
+                  <th
+                    className="py-3 pr-3 text-left text-[10px] uppercase tracking-[0.12em] text-zinc-400 font-semibold whitespace-nowrap cursor-pointer hover:text-zinc-600 transition-colors select-none"
+                    onClick={() => { setSortField("date"); setSortDir(sortField === "date" && sortDir === "desc" ? "asc" : "desc"); }}
+                  >
+                    Date {sortField === "date" ? (sortDir === "asc" ? "\u2191" : "\u2193") : ""}
+                  </th>
+                  <th
+                    className="py-3 pr-3 text-left text-[10px] uppercase tracking-[0.12em] text-zinc-400 font-semibold whitespace-nowrap cursor-pointer hover:text-zinc-600 transition-colors select-none"
+                    onClick={() => { setSortField("quote"); setSortDir(sortField === "quote" && sortDir === "desc" ? "asc" : "desc"); }}
+                  >
+                    Quote {sortField === "quote" ? (sortDir === "asc" ? "\u2191" : "\u2193") : ""}
+                  </th>
+                  <th
+                    className="py-3 pr-3 text-left text-[10px] uppercase tracking-[0.12em] text-zinc-400 font-semibold cursor-pointer hover:text-zinc-600 transition-colors select-none"
+                    onClick={() => { setSortField("client"); setSortDir(sortField === "client" && sortDir === "desc" ? "asc" : "desc"); }}
+                  >
+                    Client {sortField === "client" ? (sortDir === "asc" ? "\u2191" : "\u2193") : ""}
+                  </th>
+                  <th
+                    className="py-3 pr-3 text-left text-[10px] uppercase tracking-[0.12em] text-zinc-400 font-semibold whitespace-nowrap cursor-pointer hover:text-zinc-600 transition-colors select-none"
+                    onClick={() => { setSortField("status"); setSortDir(sortField === "status" && sortDir === "desc" ? "asc" : "desc"); }}
+                  >
+                    Status {sortField === "status" ? (sortDir === "asc" ? "\u2191" : "\u2193") : ""}
+                  </th>
+                  <th
+                    className="py-3 pr-3 text-right text-[10px] uppercase tracking-[0.12em] text-zinc-400 font-semibold whitespace-nowrap cursor-pointer hover:text-zinc-600 transition-colors select-none"
+                    onClick={() => { setSortField("value"); setSortDir(sortField === "value" && sortDir === "desc" ? "asc" : "desc"); }}
+                  >
+                    Value {sortField === "value" ? (sortDir === "asc" ? "\u2191" : "\u2193") : ""}
+                  </th>
+                  <th className="py-3 pr-4 text-right text-[10px] uppercase tracking-[0.12em] text-zinc-400 font-semibold w-24">
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-100">
+                {sortedQuotes.map((q) => {
+                  const qDaysLeft = getDaysRemaining(q.expiresAt);
+                  const qIsOpenStatus = q.jobStatus === "draft" || q.jobStatus === "quote_sent";
+                  const qExpired = qIsOpenStatus && qDaysLeft !== null && qDaysLeft <= 0;
+                  const qExpiringSoon = qIsOpenStatus && qDaysLeft !== null && qDaysLeft > 0 && qDaysLeft <= 3;
+                  const qCancelled = q.jobStatus === "cancelled";
+                  const rowClasses = [
+                    "group cursor-pointer transition-colors hover:bg-zinc-50",
+                    qCancelled ? "opacity-40" : "",
+                    qExpired ? "border-l-2 border-l-red-400" : qExpiringSoon ? "border-l-2 border-l-amber-400" : "border-l-2 border-l-transparent",
+                  ].join(" ");
+                  const acceptedVal = (q.acceptedTotal ?? 0) > 0 ? q.acceptedTotal : null;
+                  const displayValue = acceptedVal ?? (q.lowestPrice === q.highestPrice ? q.lowestPrice : null);
+                  const valueRange =
+                    !displayValue && q.lowestPrice && q.highestPrice && q.lowestPrice !== q.highestPrice
+                      ? `$${q.lowestPrice.toLocaleString()} \u2013 $${q.highestPrice.toLocaleString()}`
+                      : null;
                   return (
-                    <div className="border-t border-white/10">
-                      {/* Email Template — FIRST item for agency quotes, impossible to miss */}
-                      {q.quoteType !== 'homeowner' && (
-                        <div className="px-4 pt-3 pb-2">
-                          <EmailTemplateButton
-                            clientName={q.agentName || q.clientName}
-                            quoteLink={`${window.location.origin}/quote/${q.slug}`}
-                            propertyAddress={q.propertyAddress || undefined}
-                            onCopied={() => {
-                              markEmailedMutation.mutate({ password, slug: q.slug });
-                              refetch();
-                            }}
-                          />
-                        </div>
-                      )}
-                      {/* Single option: show standard button */}
-                      {nextStatuses.length === 1 && (() => {
-                        const nextStatus = ALL_STATUS_CONFIGS.find((s) => s.value === nextStatuses[0]);
-                        return nextStatus ? (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); handleStatusChange(q.slug, nextStatus.value, q.acceptedTotal ?? undefined, q.depositPercent, q.tierSummaries, q.pricingMode); }}
-                            disabled={updateStatusMutation.isPending}
-                            className={`w-full px-4 py-2 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors ${nextStatus.bg} ${nextStatus.color} hover:opacity-90 disabled:opacity-50 border-b border-white/10`}
-                          >
-                            <ChevronRight className="w-3.5 h-3.5" />
-                            Mark as {nextStatus.label}
-                          </button>
-                        ) : null;
-                      })()}
-                      {/* Multiple options: show buttons side-by-side (homeowner at accepted) */}
-                      {nextStatuses.length > 1 && (
-                        <div className="flex gap-2 p-2 border-b border-white/10">
-                          {nextStatuses.map((status) => {
-                            const config = ALL_STATUS_CONFIGS.find((s) => s.value === status);
-                            return config ? (
-                              <button
-                                key={status}
-                                onClick={(e) => { e.stopPropagation(); handleStatusChange(q.slug, status, q.acceptedTotal ?? undefined, q.depositPercent, q.tierSummaries, q.pricingMode); }}
-                                disabled={updateStatusMutation.isPending}
-                                className={`flex-1 px-3 py-2 text-xs font-semibold flex items-center justify-center gap-1 transition-colors ${config.bg} ${config.color} hover:opacity-90 disabled:opacity-50 rounded`}
-                              >
-                                <ChevronRight className="w-3 h-3" />
-                                {config.label}
-                              </button>
-                            ) : null;
-                          })}
-                        </div>
-                      )}
-                      {/* Copy Link & Template Messages */}
-                      <div className="px-4 py-2 border-b border-white/10 space-y-2">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            const url = `${window.location.origin}/quote/${q.slug}`;
-                            navigator.clipboard.writeText(url).then(() => {
-                              toast.success(`Quote link copied — paste into your message to ${q.clientName || 'the client'}`);
-                            }).catch(() => {
-                              toast.error('Could not copy — please copy manually: ' + url);
-                            });
-                          }}
-                          className="w-full py-2 rounded-lg text-sm font-semibold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 transition-colors flex items-center justify-center gap-2"
-                        >
-                          <ClipboardCopy className="w-4 h-4" />
-                          Copy Quote Link
-                        </button>
-                        <TemplateMessageButtons
-                          clientName={q.quoteType !== 'homeowner' ? (q.agentName || q.clientName) : q.clientName}
-                          quoteLink={`${window.location.origin}/quote/${q.slug}`}
-                          quoteSlug={q.slug}
-                          phone={q.agentPhone || undefined}
-                          scheduledDate={q.scheduledDate ? new Date(q.scheduledDate) : null}
-                          jobStatus={q.jobStatus}
-                          propertyAddress={q.propertyAddress || undefined}
-                          expiresAt={q.expiresAt ? new Date(q.expiresAt) : null}
-                          balanceOwing={(() => {
-                            // Only show balance for accepted quotes that haven't been paid in full.
-                            if (!q.acceptedTotal || q.jobStatus === 'draft' || q.jobStatus === 'quote_sent') return null;
-                            if (q.jobStatus === "paid_in_full") return null;
-                            const total = q.acceptedTotal;
-                            if (!total) return null;
-                            const discount = q.discountAmount ?? 0;
-                            const paid = q.depositPaidAmount ?? 0;
-                            return Math.max(0, total - discount - paid);
-                          })()}
-                        />
-                      </div>
-                      {/* Google Review Request — homeowner completed/paid_in_full only */}
-                      {q.quoteType === "homeowner" && (q.jobStatus === "completed" || q.jobStatus === "paid_in_full") && (
-                        <div className="px-4 py-2 border-t border-white/5">
-                          {(!q.reviewStatus || q.reviewStatus === "none") && (
-                            <button
-                              onClick={async () => {
-                                if (!confirm("Send a Google review request to this customer? They'll get an email and SMS offering $100 off for a review.")) return;
-                                try {
-                                  const res = await requestReviewMutation.mutateAsync({ password, slug: q.slug });
-                                  toast.success(`Review request sent${res.emailSent ? " (email)" : ""}${res.smsSent ? " (SMS)" : ""}`);
-                                  refetch();
-                                } catch (err: any) {
-                                  toast.error(err.message || "Failed to send review request");
-                                }
-                              }}
-                              disabled={requestReviewMutation.isPending}
-                              className="w-full py-2 rounded-lg text-xs font-medium bg-amber-500/15 text-amber-400 hover:bg-amber-500/25 transition-colors flex items-center justify-center gap-1.5"
-                            >
-                              <Star className="w-3.5 h-3.5" />
-                              {requestReviewMutation.isPending ? "Sending..." : "Request Google Review ($100 off)"}
-                            </button>
-                          )}
-                          {q.reviewStatus === "requested" && (
-                            <div className="flex items-center gap-2">
-                              <span className="flex-1 text-xs text-amber-400 flex items-center gap-1.5">
-                                <Star className="w-3 h-3" /> Review requested{q.reviewRequestedAt ? ` ${new Date(q.reviewRequestedAt).toLocaleDateString("en-AU", { day: "numeric", month: "short" })}` : ""}
-                              </span>
-                              <button
-                                onClick={async () => {
-                                  if (!confirm("Confirm the customer has left a Google review? This will apply a $100 credit to their invoice.")) return;
-                                  try {
-                                    await markReviewReceivedMutation.mutateAsync({ password, slug: q.slug });
-                                    toast.success("Review received — $100 credit applied!");
-                                    refetch();
-                                  } catch (err: any) {
-                                    toast.error(err.message || "Failed to mark review received");
-                                  }
-                                }}
-                                disabled={markReviewReceivedMutation.isPending}
-                                className="py-1.5 px-3 rounded-lg text-xs font-medium bg-green-500/15 text-green-400 hover:bg-green-500/25 transition-colors flex items-center gap-1"
-                              >
-                                <CheckCircle2 className="w-3 h-3" />
-                                {markReviewReceivedMutation.isPending ? "Applying..." : "Review Received"}
-                              </button>
-                            </div>
-                          )}
-                          {q.reviewStatus === "received" && (
-                            <span className="text-xs text-green-400 flex items-center gap-1.5">
-                              <CheckCircle2 className="w-3 h-3" /> Review received — credit pending
-                            </span>
-                          )}
-                          {q.reviewStatus === "credit_applied" && (
-                            <span className="text-xs text-green-400 flex items-center gap-1.5">
-                              <CheckCircle2 className="w-3 h-3" /> ✓ $100 Google Review credit applied
-                            </span>
-                          )}
-                        </div>
-                      )}
-                      <div className="px-4 py-2 flex items-center gap-2">
-                        <button
-                          onClick={() => onEditQuote(q.slug)}
-                          className="flex-1 py-1.5 rounded-lg text-xs text-white hover:bg-white/10 transition-colors flex items-center justify-center gap-1"
-                        >
-                          <FileText className="w-3 h-3" /> Edit
-                        </button>
-                        <button
-                          onClick={() => handleDuplicate(q.slug, q.quoteNumber)}
-                          className="flex-1 py-1.5 rounded-lg text-xs text-white/50 hover:bg-white/[0.04] transition-colors flex items-center justify-center gap-1"
-                        >
-                          <Copy className="w-3 h-3" /> Duplicate
-                        </button>
-                        <a
-                          href={`/quote/${q.slug}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex-1 py-1.5 rounded-lg text-xs text-white/50 hover:bg-white/[0.04] transition-colors flex items-center justify-center gap-1"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <ExternalLink className="w-3 h-3" /> View
-                        </a>
-                        {(q.jobStatus === "completed" || q.jobStatus === "paid_in_full") && (
-                          <InvoiceDownloadButton password={password} quoteSlug={q.slug} quoteNumber={q.quoteNumber} onCreated={refetch} />
+                    <tr
+                      key={q.slug}
+                      className={rowClasses}
+                      onClick={() => onEditQuote(q.slug)}
+                    >
+                      <td className="py-3 pl-4 pr-2" onClick={(e) => e.stopPropagation()}>
+                        <input type="checkbox" className="w-3.5 h-3.5 rounded border-zinc-300 accent-zinc-900 cursor-pointer" onChange={() => {}} />
+                      </td>
+                      <td className="py-3 pr-3 whitespace-nowrap">
+                        <span className="text-xs text-zinc-400 tabular-nums">
+                          {q.createdAt ? new Date(q.createdAt).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "2-digit" }) : ""}
+                        </span>
+                      </td>
+                      <td className="py-3 pr-3 whitespace-nowrap">
+                        <span className="text-xs font-semibold text-zinc-900 tracking-tight">{q.quoteNumber}</span>
+                        {qExpired && <span className="ml-1.5 text-[9px] font-bold text-red-500 uppercase tracking-wider">Expired</span>}
+                        {qExpiringSoon && <span className="ml-1.5 text-[9px] font-bold text-amber-500 uppercase tracking-wider">{qDaysLeft}D Left</span>}
+                      </td>
+                      <td className="py-3 pr-3 max-w-[200px]">
+                        <p className="text-xs font-medium text-zinc-800 truncate">
+                          {q.quoteType === "homeowner" ? (q.agentName || q.clientName || "No client") : (q.clientName || "No client")}
+                        </p>
+                        {q.propertyAddress && (
+                          <p className="text-[10px] text-zinc-400 truncate mt-0.5">{q.propertyAddress}</p>
                         )}
+                      </td>
+                      <td className="py-3 pr-3 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                         <StatusDropdown
                           currentStatus={q.jobStatus as JobStatus}
                           quoteType={q.quoteType}
-                          onSelect={(newStatus) => handleStatusChange(q.slug, newStatus, q.acceptedTotal ?? undefined, q.depositPercent, q.tierSummaries, q.pricingMode)}
+                          onSelect={(newStatus) =>
+                            handleStatusChange(
+                              q.slug,
+                              newStatus,
+                              q.acceptedTotal ?? undefined,
+                              q.depositPercent,
+                              q.tierSummaries,
+                              q.pricingMode
+                            )
+                          }
                           disabled={updateStatusMutation.isPending}
+                          compact
                         />
-                        <button
-                          onClick={() => handleDelete(q.slug, q.quoteNumber)}
-                          className="py-1.5 px-2 rounded-lg text-xs text-red-400 hover:bg-red-500/10 transition-colors"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
-                      </div>
-                    </div>
+                      </td>
+                      <td className="py-3 pr-3 text-right whitespace-nowrap">
+                        {displayValue ? (
+                          <span className={`text-xs font-semibold tabular-nums ${acceptedVal ? "text-emerald-600" : "text-zinc-700"}`}>
+                            ${displayValue.toLocaleString()}
+                          </span>
+                        ) : valueRange ? (
+                          <span className="text-xs text-zinc-400 tabular-nums">{valueRange}</span>
+                        ) : (
+                          <span className="text-xs text-zinc-300">\u2014</span>
+                        )}
+                      </td>
+                      <td className="py-3 pr-4 text-right" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-end gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <a
+                            href={`/quote/${q.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="View quote"
+                            className="p-1.5 rounded hover:bg-zinc-100 text-zinc-400 hover:text-zinc-700 transition-colors"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                          <button
+                            title="Duplicate"
+                            onClick={() => handleDuplicate(q.slug, q.quoteNumber)}
+                            className="p-1.5 rounded hover:bg-zinc-100 text-zinc-400 hover:text-zinc-700 transition-colors"
+                          >
+                            <Copy className="w-3.5 h-3.5" />
+                          </button>
+                          {(q.jobStatus === "completed" || q.jobStatus === "paid_in_full") && (
+                            <InvoiceDownloadButton
+                              password={password}
+                              quoteSlug={q.slug}
+                              quoteNumber={q.quoteNumber}
+                              onCreated={refetch}
+                              iconOnly
+                            />
+                          )}
+                          <button
+                            title="Delete"
+                            onClick={() => handleDelete(q.slug, q.quoteNumber)}
+                            className="p-1.5 rounded hover:bg-red-50 text-zinc-300 hover:text-red-500 transition-colors"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
                   );
-                })()}
-              </div>
-            );
-            })}
+                })}
+              </tbody>
+            </table>
           </div>
         ) : null}
       </div>
     </div>
   );
+
 }
 
 // ─── Payment Terms Input (mobile-friendly clear-on-focus) ──────────────────
@@ -2424,7 +1816,7 @@ function PaymentTermsInput({ value, onChange }: { value: number; onChange: (v: n
         }
         setDisplayValue(null);
       }}
-      className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-amber-500/50 focus:outline-none"
+      className="w-full px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-amber-500/50 focus:outline-none"
     />
   );
 }
@@ -2439,7 +1831,7 @@ function ViewAnalyticsPanel({ password, slug, viewCount, lastViewedAt }: { passw
   );
 
   return (
-    <div className="mb-4 rounded-xl bg-zinc-800/30 border border-white/5 overflow-hidden">
+    <div className="mb-4 rounded-xl bg-white border border-zinc-200 overflow-hidden shadow-sm">
       {/* Summary row */}
       <button
         type="button"
@@ -2451,14 +1843,14 @@ function ViewAnalyticsPanel({ password, slug, viewCount, lastViewedAt }: { passw
           <div className="flex items-center gap-2 text-sm flex-1">
             <span className="text-cyan-400 font-medium">{viewCount} view{viewCount !== 1 ? 's' : ''}</span>
             {lastViewedAt && (
-              <span className="text-white/35">· Last viewed {formatRelativeTime(new Date(lastViewedAt as string))}</span>
+              <span className="text-zinc-400">· Last viewed {formatRelativeTime(new Date(lastViewedAt as string))}</span>
             )}
           </div>
         ) : (
-          <span className="text-sm text-white/30 flex-1">Not yet viewed by client</span>
+          <span className="text-sm text-zinc-400 flex-1">Not yet viewed by client</span>
         )}
         {viewCount > 0 && (
-          <ChevronDown className={`w-4 h-4 text-white/40 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+          <ChevronDown className={`w-4 h-4 text-zinc-400 transition-transform ${expanded ? 'rotate-180' : ''}`} />
         )}
         {analytics?.sharingAlert && (
           <span className="inline-flex items-center gap-1 text-amber-400 text-xs font-medium">
@@ -2469,20 +1861,20 @@ function ViewAnalyticsPanel({ password, slug, viewCount, lastViewedAt }: { passw
 
       {/* Expanded analytics */}
       {expanded && viewCount > 0 && (
-        <div className="px-4 pb-4 border-t border-white/5">
+        <div className="px-4 pb-4 border-t border-zinc-100">
           {isLoading ? (
-            <div className="py-4 text-center text-white/30 text-sm"><Loader2 className="w-4 h-4 animate-spin inline mr-2" />Loading analytics...</div>
+            <div className="py-4 text-center text-zinc-400 text-sm"><Loader2 className="w-4 h-4 animate-spin inline mr-2" />Loading analytics...</div>
           ) : analytics ? (
             <div className="mt-3 space-y-3">
               {/* Summary stats */}
               <div className="flex gap-4 text-xs">
                 <div className="px-3 py-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
                   <span className="text-cyan-400 font-semibold">{analytics.uniqueIPs}</span>
-                  <span className="text-white/40 ml-1">unique IP{analytics.uniqueIPs !== 1 ? 's' : ''}</span>
+                  <span className="text-zinc-400 ml-1">unique IP{analytics.uniqueIPs !== 1 ? 's' : ''}</span>
                 </div>
-                <div className="px-3 py-1.5 rounded-lg bg-zinc-700/50 border border-white/10">
-                  <span className="text-white/70 font-semibold">{analytics.visitors.length}</span>
-                  <span className="text-white/40 ml-1">visitor{analytics.visitors.length !== 1 ? 's' : ''}</span>
+                <div className="px-3 py-1.5 rounded-lg bg-zinc-100 border border-zinc-200">
+                  <span className="text-zinc-700 font-semibold">{analytics.visitors.length}</span>
+                  <span className="text-zinc-400 ml-1">visitor{analytics.visitors.length !== 1 ? 's' : ''}</span>
                 </div>
                 {analytics.sharingAlert && (
                   <div className="px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center gap-1">
@@ -2501,14 +1893,14 @@ function ViewAnalyticsPanel({ password, slug, viewCount, lastViewedAt }: { passw
                     .sort((a: Date, b: Date) => b.getTime() - a.getTime());
 
                   return (
-                    <div key={i} className="rounded-lg border border-white/10 bg-zinc-800/40 px-3 py-2.5">
+                    <div key={i} className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2.5">
                       {/* IP + meta row */}
                       <div className="flex items-center gap-2 flex-wrap mb-1.5">
-                        <span className="font-mono text-xs text-white/70">
+                        <span className="font-mono text-xs text-zinc-700">
                           {v.ipAddress === 'unknown' ? '—' : v.ipAddress}
                         </span>
                         {(v.city || v.country) && (
-                          <span className="text-[11px] text-white/40">
+                          <span className="text-[11px] text-zinc-400">
                             {v.city ? `${v.city}, ${v.country}` : v.country}
                           </span>
                         )}
@@ -2516,9 +1908,9 @@ function ViewAnalyticsPanel({ password, slug, viewCount, lastViewedAt }: { passw
                           v.deviceType === 'mobile' ? 'bg-purple-500/20 text-purple-300' :
                           v.deviceType === 'tablet' ? 'bg-blue-500/20 text-blue-300' :
                           v.deviceType === 'bot' ? 'bg-red-500/20 text-red-300' :
-                          'bg-zinc-600/50 text-white/60'
+                          'bg-zinc-600/50 text-zinc-500'
                         }`}>{v.deviceType || 'desktop'}</span>
-                        <span className="ml-auto text-[11px] text-white/40">
+                        <span className="ml-auto text-[11px] text-zinc-400">
                           {v.viewCount} view{v.viewCount !== 1 ? 's' : ''}
                         </span>
                       </div>
@@ -2939,8 +2331,8 @@ function QuoteEditor({
 
   if (isLoading || !config) {
     return (
-      <div className="min-h-screen bg-zinc-900 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-white animate-spin" />
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-zinc-400 animate-spin" />
       </div>
     );
   }
@@ -2960,7 +2352,7 @@ function QuoteEditor({
     field: keyof AddonConfig,
     value: string | number
   ) => {
-    const addons = [...config.addons];
+    const addons = [...(config.addons || [])];
     addons[idx] = { ...addons[idx]!, [field]: value };
     updateConfig({ addons });
   };
@@ -2975,7 +2367,7 @@ function QuoteEditor({
   };
 
   const removeAddon = (idx: number) => {
-    updateConfig({ addons: config.addons.filter((_, i) => i !== idx) });
+    updateConfig({ addons: (config.addons || []).filter((_, i) => i !== idx) });
   };
 
   const updateScope = (
@@ -2983,35 +2375,35 @@ function QuoteEditor({
     field: keyof ScopeItemConfig,
     value: string
   ) => {
-    const scopeOfWorks = [...config.scopeOfWorks];
+    const scopeOfWorks = [...(config.scopeOfWorks || [])];
     scopeOfWorks[idx] = { ...scopeOfWorks[idx]!, [field]: value };
     updateConfig({ scopeOfWorks });
   };
 
   const addScope = () => {
     updateConfig({
-      scopeOfWorks: [...config.scopeOfWorks, { title: "", description: "" }],
+      scopeOfWorks: [...(config.scopeOfWorks || []), { title: "", description: "" }],
     });
   };
 
   const removeScope = (idx: number) => {
     updateConfig({
-      scopeOfWorks: config.scopeOfWorks.filter((_, i) => i !== idx),
+      scopeOfWorks: (config.scopeOfWorks || []).filter((_, i) => i !== idx),
     });
   };
 
   const updateTerm = (idx: number, value: string) => {
-    const terms = [...config.terms];
+    const terms = [...(config.terms || [])];
     terms[idx] = value;
     updateConfig({ terms });
   };
 
   const addTerm = () => {
-    updateConfig({ terms: [...config.terms, ""] });
+    updateConfig({ terms: [...(config.terms || []), ""] });
   };
 
   const removeTerm = (idx: number) => {
-    updateConfig({ terms: config.terms.filter((_, i) => i !== idx) });
+    updateConfig({ terms: (config.terms || []).filter((_, i) => i !== idx) });
   };
 
   // Copy the public quote link to clipboard; auto-advance draft → quote_sent
@@ -3076,35 +2468,43 @@ function QuoteEditor({
     }
   };
 
+  if (!config || isLoading) {
+    return (
+      <div className="min-h-screen bg-zinc-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-zinc-400" />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-zinc-900 text-white">
+    <div className="min-h-screen bg-zinc-50 text-zinc-900">
       {/* Header */}
-      <div className="sticky top-0 z-50 bg-white/5 backdrop-blur border-b border-white/10">
+      <div className="sticky top-0 z-50 bg-white/80 backdrop-blur border-b border-zinc-200">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={onBack}
               className="p-1.5 rounded-lg hover:bg-white/[0.04] transition-colors"
             >
-              <ArrowLeft className="w-5 h-5 text-white/50" />
+              <ArrowLeft className="w-5 h-5 text-zinc-500" />
             </button>
             <div>
               <h1
-                className="text-lg text-white leading-tight"
+                className="text-lg text-zinc-900 leading-tight"
                 
               >
                 {quoteData?.quoteNumber || "Quote Editor"}
               </h1>
-              <p className="text-xs text-white/40">
-                {config.client.name || "No client"} ·{" "}
-                {config.property.address || "No address"}
+              <p className="text-xs text-zinc-500">
+                {config.client?.name || "No client"} ·{" "}
+                {config.property?.address || "No address"}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={handleExportPDF}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 text-white font-semibold text-sm hover:bg-white/20 transition-colors border border-white/20"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-100 text-zinc-700 font-semibold text-sm hover:bg-zinc-200 transition-colors border border-zinc-200"
             >
               <Download className="w-4 h-4" />
               PDF
@@ -3112,7 +2512,7 @@ function QuoteEditor({
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black font-semibold text-sm hover:bg-white/90 disabled:opacity-50 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-900 text-white font-semibold text-sm hover:bg-zinc-800 disabled:opacity-50 transition-colors"
             >
               {saving ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -3131,7 +2531,7 @@ function QuoteEditor({
         <div className="flex gap-2 mb-2">
           <button
             onClick={handleCopyQuoteLink}
-            className="flex-1 py-2.5 rounded-xl bg-zinc-800/50 border border-white/10 text-sm text-white/60 hover:border-white hover:text-white transition-colors flex items-center justify-center gap-2"
+            className="flex-1 py-2.5 rounded-xl bg-white border border-zinc-200 text-sm text-zinc-600 hover:border-zinc-900 hover:text-zinc-900 transition-colors flex items-center justify-center gap-2 shadow-sm"
           >
             <Copy className="w-4 h-4" /> Copy Quote Link
           </button>
@@ -3139,7 +2539,7 @@ function QuoteEditor({
             href={`/quote/${slug}?preview=1`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 py-2.5 rounded-xl bg-zinc-800/50 border border-white/10 text-sm text-white/60 hover:border-white hover:text-white transition-colors flex items-center justify-center gap-2"
+            className="flex-1 py-2.5 rounded-xl bg-white border border-zinc-200 text-sm text-zinc-600 hover:border-zinc-900 hover:text-zinc-900 transition-colors flex items-center justify-center gap-2 shadow-sm"
           >
             <ExternalLink className="w-4 h-4" /> Preview
           </a>
@@ -3154,7 +2554,7 @@ function QuoteEditor({
               }
             }}
             disabled={duplicateQuoteMutation.isPending}
-            className="flex-1 py-2.5 rounded-xl bg-zinc-800/50 border border-white/10 text-sm text-white/60 hover:border-white hover:text-white transition-colors flex items-center justify-center gap-2"
+            className="flex-1 py-2.5 rounded-xl bg-white border border-zinc-200 text-sm text-zinc-600 hover:border-zinc-900 hover:text-zinc-900 transition-colors flex items-center justify-center gap-2 shadow-sm"
           >
             {duplicateQuoteMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <CopyPlus className="w-4 h-4" />}
             Duplicate
@@ -3172,7 +2572,7 @@ function QuoteEditor({
               {reactivatingQuote ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
               Reactivate Quote
             </button>
-            <p className="text-xs text-white/30 text-center mt-1.5">Resets to Draft — new 10-day expiry</p>
+            <p className="text-xs text-zinc-400 text-center mt-1.5">Resets to Draft — new 10-day expiry</p>
           </div>
         )}
 
@@ -3189,7 +2589,7 @@ function QuoteEditor({
             ) : (
               <div className="rounded-xl border border-red-500/50 bg-red-950/40 p-4">
                 <p className="text-sm text-red-300 font-semibold mb-1">Cancel this quote?</p>
-                <p className="text-xs text-white/50 mb-3">The customer link will show a blocked page. You can restore the status manually if needed.</p>
+                <p className="text-xs text-zinc-500 mb-3">The customer link will show a blocked page. You can restore the status manually if needed.</p>
                 <div className="flex gap-2">
                   <button
                     onClick={handleCancelQuote}
@@ -3201,7 +2601,7 @@ function QuoteEditor({
                   </button>
                   <button
                     onClick={() => setCancelConfirmOpen(false)}
-                    className="flex-1 px-3 py-2.5 rounded-lg bg-white/[0.06] text-white/60 text-sm font-medium hover:text-white transition-colors"
+                    className="flex-1 px-3 py-2.5 rounded-lg bg-zinc-100 text-zinc-500 text-sm font-medium hover:text-zinc-900 transition-colors"
                   >
                     Keep Quote
                   </button>
@@ -3217,7 +2617,7 @@ function QuoteEditor({
           {(config.quoteType === 'agent' || config.quoteType === 'real_estate' || config.quoteType === 'agency_single') && (
             <div className="mb-2">
               <EmailTemplateButton
-                clientName={agentFields.name || config.client.name}
+                clientName={config.client?.name || agentFields.name}
                 quoteLink={`${window.location.origin}/quote/${slug}`}
                 propertyAddress={config.property?.address || undefined}
                 onCopied={() => {
@@ -3228,7 +2628,7 @@ function QuoteEditor({
             </div>
           )}
           <TemplateMessageButtons
-            clientName={(config.quoteType === 'agent' || config.quoteType === 'real_estate' || config.quoteType === 'agency_single') ? (agentFields.name || config.client.name) : config.client.name}
+            clientName={config.client?.name || agentFields.name}
             quoteLink={`${window.location.origin}/quote/${slug}`}
             quoteSlug={slug}
             phone={agentFields.phone || undefined}
@@ -3329,7 +2729,7 @@ function QuoteEditor({
                 <div className="flex-1 min-w-0">
                   <p className={`text-sm font-semibold ${currentCfg.color}`}>{currentCfg.label}</p>
                   {quoteData.acceptedTier && (
-                    <p className="text-xs text-white/40 truncate">
+                    <p className="text-xs text-zinc-400 truncate">
                       {quoteData.acceptedTier} · {quoteData.acceptedColour} · ${quoteData.acceptedTotal?.toLocaleString()}
                       {quoteData.acceptedAt && ` · ${formatAESTDate(new Date(quoteData.acceptedAt), { day: 'numeric', month: 'short' })}`}
                     </p>
@@ -3368,7 +2768,7 @@ function QuoteEditor({
                   </div>
                 )}
                 {nextCfgs.length === 0 && (
-                  <span className="text-xs text-white/30 flex-shrink-0">Final stage</span>
+                  <span className="text-xs text-zinc-400 flex-shrink-0">Final stage</span>
                 )}
               </div>
 
@@ -3398,11 +2798,11 @@ function QuoteEditor({
                               : "bg-zinc-800 border-white/10"
                           }`}>
                             <Icon className={`w-3.5 h-3.5 ${
-                              isCurrent ? s.color : isPast ? "text-white/60" : "text-white/20"
+                              isCurrent ? s.color : isPast ? "text-zinc-500" : "text-zinc-300"
                             }`} />
                           </div>
                           <span className={`text-[9px] leading-tight text-center max-w-[44px] ${
-                            isCurrent ? s.color : isFuture ? "text-white/20" : "text-white/40"
+                            isCurrent ? s.color : isFuture ? "text-zinc-300" : "text-zinc-400"
                           }`}>{s.label}</span>
                         </button>
                         {idx < edPipeline.length - 1 && (
@@ -3419,8 +2819,8 @@ function QuoteEditor({
               {/* Agent notes if present */}
               {quoteData.acceptedNotes && (
                 <div className="px-4 py-3 border-t border-white/10 bg-zinc-900/30">
-                  <p className="text-xs text-white/40 uppercase tracking-wider mb-1">Agent Notes</p>
-                  <p className="text-sm text-white/70 whitespace-pre-wrap">{quoteData.acceptedNotes}</p>
+                  <p className="text-xs text-zinc-400 uppercase tracking-wider mb-1">Agent Notes</p>
+                  <p className="text-sm text-zinc-600 whitespace-pre-wrap">{quoteData.acceptedNotes}</p>
                 </div>
               )}
             </div>
@@ -3437,19 +2837,19 @@ function QuoteEditor({
           <div className="grid grid-cols-2 gap-3">
             <Field
               label="Quote Number"
-              value={config.quoteNumber}
+              value={config.quoteNumber || ""}
               onChange={(v) => updateConfig({ quoteNumber: v })}
             />
             <Field
               label="Issue Date"
-              value={config.issueDate}
+              value={config.issueDate || ""}
               onChange={(v) => updateConfig({ issueDate: v })}
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <Field
               label="Valid Days"
-              value={config.validDays}
+              value={config.validDays ?? ""}
               onChange={(v) => updateConfig({ validDays: parseInt(v) || 10 })}
               type="number"
             />
@@ -3457,7 +2857,7 @@ function QuoteEditor({
             {config.quoteType === "homeowner" && (
               <Field
                 label="Deposit % (0 = full payment on completion)"
-                value={config.depositPercent}
+                value={config.depositPercent ?? 0}
                 onChange={(v) => {
                   const parsed = parseInt(v, 10);
                   updateConfig({ depositPercent: isNaN(parsed) ? 0 : Math.min(100, Math.max(0, parsed)) });
@@ -3468,7 +2868,7 @@ function QuoteEditor({
           </div>
           {/* Discount / Credit — available on all quote types */}
           <div className="mt-3">
-            <label className="block text-xs text-white/50 mb-1">Discount / Credit ($)</label>
+            <label className="block text-xs text-zinc-500 mb-1">Discount / Credit ($)</label>
             <input
               type="number"
               min="0"
@@ -3479,7 +2879,7 @@ function QuoteEditor({
                 const v = parseInt(e.target.value, 10);
                 setDiscountAmount(isNaN(v) ? 0 : Math.max(0, v));
               }}
-              className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-amber-500/30 text-white text-sm focus:border-amber-400 focus:outline-none placeholder-white/20"
+              className="w-full px-3 py-2 rounded-lg bg-amber-50 border border-amber-200 text-zinc-900 text-sm focus:border-amber-400 focus:outline-none placeholder-zinc-400"
             />
             {discountAmount > 0 && (
               <p className="text-xs text-amber-400/70 mt-1">
@@ -3489,31 +2889,31 @@ function QuoteEditor({
           </div>
           {/* Expiry Date */}
           <div className="mt-2">
-            <label className="block text-xs text-white/50 mb-1.5">Expiry Date</label>
+            <label className="block text-xs text-zinc-500 mb-1.5">Expiry Date</label>
             <div className="flex gap-2">
               <input
                 type="date"
                 value={expiryInput}
                 onChange={(e) => setExpiryInput(e.target.value)}
-                className="flex-1 px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-white focus:outline-none"
+                className="flex-1 px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none"
               />
               <button
                 onClick={handleSaveExpiry}
                 disabled={savingExpiry}
-                className="px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-white text-xs hover:bg-white/10 disabled:opacity-50 transition-colors"
+                className="px-3 py-2 rounded-lg bg-zinc-100 border border-zinc-200 text-zinc-700 text-xs hover:bg-zinc-200 disabled:opacity-50 transition-colors"
               >
                 {savingExpiry ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Set"}
               </button>
               {expiryInput && (
                 <button
                   onClick={() => { setExpiryInput(""); }}
-                  className="px-3 py-2 rounded-lg bg-white/[0.04] text-white/50 text-xs hover:bg-white/10 transition-colors"
+                  className="px-3 py-2 rounded-lg bg-white/[0.04] text-zinc-500 text-xs hover:bg-white/10 transition-colors"
                 >
                   Clear
                 </button>
               )}
             </div>
-            {quoteData?.expiresAt && (() => {
+            {quoteData?.expiresAt && !['accepted','deposit_paid','scheduled','completed','paid_in_full','cancelled'].includes(quoteData.jobStatus ?? '') && (() => {
               const now = new Date();
               const exp = new Date(quoteData.expiresAt);
               const daysLeft = Math.ceil((exp.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
@@ -3530,7 +2930,7 @@ function QuoteEditor({
                 </div>
               );
               return (
-                <p className="text-xs text-white/40 mt-1">{daysLeft} day{daysLeft !== 1 ? "s" : ""} remaining</p>
+                <p className="text-xs text-zinc-400 mt-1">{daysLeft} day{daysLeft !== 1 ? "s" : ""} remaining</p>
               );
             })()}
           </div>
@@ -3547,9 +2947,9 @@ function QuoteEditor({
                 : contact.name || contact.agency || "";
               updateConfig({
                 client: {
-                  ...config.client,
+                  ...(config.client || {}),
                   name: displayName,
-                  type: contact.agency || config.client.type,
+                  type: contact.agency || config.client?.type,
                 },
               });
               // Also prefill agent contact fields from the selected contact
@@ -3565,14 +2965,14 @@ function QuoteEditor({
           <div className="grid grid-cols-2 gap-3">
             <Field
               label="Client Name"
-              value={config.client.name}
+              value={config.client?.name}
               onChange={(v) =>
-                updateConfig({ client: { ...config.client, name: v } })
+                updateConfig({ client: { ...(config.client || {}), name: v } })
               }
             />
             {/* Quote Type — switchable dropdown */}
             <div>
-              <label className="block text-xs text-white/50 mb-1">Quote Type</label>
+              <label className="block text-xs text-zinc-500 mb-1">Quote Type</label>
               <select
                 value={config.quoteType}
                 onChange={(e) => {
@@ -3583,12 +2983,12 @@ function QuoteEditor({
                     pricingMode: isSingleLayout ? "single" : "tiered",
                     depositPercent: newType === "homeowner" ? 50 : 0,
                     client: {
-                      ...config.client,
+                      ...(config.client || {}),
                       type: newType === "homeowner" ? "Residential" : "Real Estate Agency",
                     },
                   });
                 }}
-                className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-white focus:outline-none"
+                className="w-full px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none"
               >
                 <option value="homeowner">Homeowner</option>
                 <option value="real_estate">Real Estate Agency (3-Tier)</option>
@@ -3598,17 +2998,17 @@ function QuoteEditor({
           </div>
           <Field
             label="Property Address"
-            value={config.property.address}
+            value={config.property?.address}
             onChange={(v) =>
               updateConfig({
-                property: { ...config.property, address: v },
+                property: { ...(config.property || {}), address: v },
               })
             }
           />
           {/* Full Address removed — Property Address is the single source of truth */}
           <Field
             label="Scope Description"
-            value={config.scope}
+            value={config.scope || ""}
             onChange={(v) => updateConfig({ scope: v })}
           />
         </Section>
@@ -3621,8 +3021,8 @@ function QuoteEditor({
           const contactDesc = isHomeowner
             ? "The quote link will be emailed to the homeowner. You can update these details and resend at any time."
             : "The quote link will be emailed to the agent. You can update these details and resend at any time.";
-          // For agency quotes: Agent Name IS the property manager — relabel and remove separate PM field
-          const nameLabel = isHomeowner ? "Homeowner Name" : "Property Manager";
+          // For agency quotes: no PM name shown. For homeowner: show their name.
+          const showNameField = isHomeowner;
           const emailLabel = isHomeowner ? "Homeowner Email" : "Agent Email";
           const phoneLabel = isHomeowner ? "Homeowner Phone" : "Agent Phone";
           const emailErrorMsg = isHomeowner ? "Enter a homeowner email first" : "Enter an agent email first";
@@ -3631,14 +3031,15 @@ function QuoteEditor({
           const resendBtnLabel = "Resend Quote Link Email";
           return (
             <Section title={contactLabel} defaultOpen={true}>
-              <p className="text-xs text-white/40 mb-3">{contactDesc}</p>
+              <p className="text-xs text-zinc-400 mb-3">{contactDesc}</p>
               <div className="space-y-2 mb-3">
-                <Field
-                  label={nameLabel}
-                  value={agentFields.name}
-                  onChange={(v) => setAgentFields(f => ({ ...f, name: v }))}
-                />
-                {/* Property Manager field removed — Agent Name is relabelled to Property Manager for agency quotes */}
+                {showNameField && (
+                  <Field
+                    label="Homeowner Name"
+                    value={agentFields.name}
+                    onChange={(v) => setAgentFields(f => ({ ...f, name: v }))}
+                  />
+                )}
                 <Field
                   label={emailLabel}
                   value={agentFields.email}
@@ -3680,7 +3081,7 @@ function QuoteEditor({
                   setSendingLink(false);
                 }}
                 disabled={sendingLink || !agentFields.email}
-                className="w-full py-2.5 rounded-xl bg-zinc-800 border border-white/10 text-sm text-white/70 hover:border-white hover:text-white disabled:opacity-40 transition-colors flex items-center justify-center gap-2"
+                className="w-full py-2.5 rounded-xl bg-white border border-zinc-200 text-sm text-zinc-600 hover:border-zinc-900 hover:text-zinc-900 disabled:opacity-40 transition-colors flex items-center justify-center gap-2 shadow-sm"
               >
                 {sendingLink ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
                 {sendingLink ? "Sending..." : (quoteData?.quoteLinkEmailSent ? resendBtnLabel : sendBtnLabel)}
@@ -3702,7 +3103,7 @@ function QuoteEditor({
                     );
                   }
                 }}
-                className="w-full mt-2 py-2 rounded-xl bg-zinc-900 border border-white/10 text-sm text-white/50 hover:border-white/30 hover:text-white/80 transition-colors flex items-center justify-center gap-2"
+                className="w-full mt-2 py-2 rounded-xl bg-zinc-100 border border-zinc-200 text-sm text-zinc-500 hover:border-zinc-300 hover:text-zinc-900 transition-colors flex items-center justify-center gap-2"
               >
                 <Link2 className="w-4 h-4" />
                 Copy Quote Link
@@ -3749,9 +3150,9 @@ function QuoteEditor({
                       updateConfig({ rooms: [] });
                     }
                   }}
-                  className="w-4 h-4 rounded border-white/20 bg-zinc-900 text-white cursor-pointer"
+                  className="w-4 h-4 rounded border-zinc-300 bg-white text-zinc-900 cursor-pointer"
                 />
-                <label className="text-sm text-white/70">Enable room-by-room pricing</label>
+                <label className="text-sm text-zinc-600">Enable room-by-room pricing</label>
               </div>
 
               {(config.rooms?.length ?? 0) > 0 && (
@@ -3768,7 +3169,7 @@ function QuoteEditor({
                             updated[idx] = { ...room, name: e.target.value };
                             updateConfig({ rooms: updated });
                           }}
-                          className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-white focus:outline-none"
+                          className="w-full px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none"
                         />
                       </div>
                       <div className="w-32">
@@ -3781,7 +3182,7 @@ function QuoteEditor({
                             updated[idx] = { ...room, price: parseInt(e.target.value) || 0 };
                             updateConfig({ rooms: updated });
                           }}
-                          className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-white focus:outline-none"
+                          className="w-full px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none"
                         />
                       </div>
                       <button
@@ -3802,7 +3203,7 @@ function QuoteEditor({
                       const updated = [...(config.rooms || []), { id: `room-${Date.now()}`, name: "", price: 0 }];
                       updateConfig({ rooms: updated });
                     }}
-                    className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-dashed border-white/20 text-white/50 hover:border-white/40 hover:text-white/70 transition-colors text-sm flex items-center justify-center gap-2"
+                    className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-dashed border-white/20 text-zinc-500 hover:border-white/40 hover:text-zinc-600 transition-colors text-sm flex items-center justify-center gap-2"
                   >
                     <Plus className="w-4 h-4" />
                     Add Room
@@ -3810,8 +3211,8 @@ function QuoteEditor({
                   {(config.rooms?.length ?? 0) > 0 && (
                     <div className="pt-2 border-t border-white/10">
                       <div className="flex justify-between text-sm">
-                        <span className="text-white/50">Total from rooms (inc GST):</span>
-                        <span className="text-white font-semibold">${(config.rooms?.reduce((sum, r) => sum + r.price, 0) || 0).toLocaleString()}</span>
+                        <span className="text-zinc-500">Total from rooms (inc GST):</span>
+                        <span className="text-zinc-900 font-semibold">${(config.rooms?.reduce((sum, r) => sum + r.price, 0) || 0).toLocaleString()}</span>
                       </div>
                     </div>
                   )}
@@ -3823,7 +3224,7 @@ function QuoteEditor({
 
         {/* Add-on Services */}
         <Section title="Additional Services (Add-ons)">
-          {config.addons.map((addon, idx) => (
+          {(config.addons || []).map((addon, idx) => (
             <div
               key={addon.id}
               className="bg-zinc-900 rounded-lg p-3 border border-white/10"
@@ -3862,7 +3263,7 @@ function QuoteEditor({
           <button
             type="button"
             onClick={addAddon}
-            className="w-full py-2 rounded-lg border border-dashed border-white/15 text-white/50 text-sm hover:border-white hover:text-white transition-colors flex items-center justify-center gap-2"
+            className="w-full py-2 rounded-lg border border-dashed border-zinc-300 text-zinc-500 text-sm hover:border-zinc-900 hover:text-zinc-900 transition-colors flex items-center justify-center gap-2"
           >
             <Plus className="w-4 h-4" /> Add Service
           </button>
@@ -3874,10 +3275,10 @@ function QuoteEditor({
           <ScopeLibraryPicker
             onSelect={(title, description) => {
               updateConfig({
-                scopeOfWorks: [...config.scopeOfWorks, { title, description }],
+                scopeOfWorks: [...(config.scopeOfWorks || []), { title, description }],
               });
             }}
-            existingTitles={config.scopeOfWorks.map((s) => s.title)}
+            existingTitles={(config.scopeOfWorks || []).map((s) => s.title)}
           />
 
           {/* Drag-and-drop sortable list — works on desktop (pointer) and mobile (touch) */}
@@ -3887,19 +3288,19 @@ function QuoteEditor({
             onDragEnd={(event: DragEndEvent) => {
               const { active, over } = event;
               if (!over || active.id === over.id) return;
-              const oldIndex = config.scopeOfWorks.findIndex((_, i) => `scope-${i}` === active.id);
-              const newIndex = config.scopeOfWorks.findIndex((_, i) => `scope-${i}` === over.id);
+              const oldIndex = (config.scopeOfWorks || []).findIndex((_, i) => `scope-${i}` === active.id);
+              const newIndex = (config.scopeOfWorks || []).findIndex((_, i) => `scope-${i}` === over.id);
               if (oldIndex !== -1 && newIndex !== -1) {
                 updateConfig({ scopeOfWorks: arrayMove(config.scopeOfWorks, oldIndex, newIndex) });
               }
             }}
           >
             <SortableContext
-              items={config.scopeOfWorks.map((_, i) => `scope-${i}`)}
+              items={(config.scopeOfWorks || []).map((_, i) => `scope-${i}`)}
               strategy={verticalListSortingStrategy}
             >
               <div className="space-y-2">
-                {config.scopeOfWorks.map((item, idx) => (
+                {(config.scopeOfWorks || []).map((item, idx) => (
                   <SortableScopeItem
                     key={`scope-${idx}`}
                     id={`scope-${idx}`}
@@ -3916,7 +3317,7 @@ function QuoteEditor({
           <button
             type="button"
             onClick={addScope}
-            className="w-full py-2 rounded-lg border border-dashed border-white/15 text-white/50 text-sm hover:border-white hover:text-white transition-colors flex items-center justify-center gap-2"
+            className="w-full py-2 rounded-lg border border-dashed border-zinc-300 text-zinc-500 text-sm hover:border-zinc-900 hover:text-zinc-900 transition-colors flex items-center justify-center gap-2"
           >
             <Plus className="w-4 h-4" /> Add Custom Item
           </button>
@@ -3924,7 +3325,7 @@ function QuoteEditor({
 
         {/* Customer Notes */}
         <Section title="Customer Notes">
-          <p className="text-white/40 text-xs mb-2">Visible to the customer below the scope of works. Leave blank to hide.</p>
+          <p className="text-zinc-400 text-xs mb-2">Visible to the customer below the scope of works. Leave blank to hide.</p>
           <textarea
             value={config.customerNotes ?? ""}
             onChange={(e) => {
@@ -3940,18 +3341,18 @@ function QuoteEditor({
             }}
             placeholder="e.g. Furniture to be moved prior to install, access via side gate, colour sample to be confirmed..."
             rows={3}
-            className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-white focus:outline-none resize-none overflow-hidden placeholder:text-white/25"
+            className="w-full px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none resize-none overflow-hidden placeholder:text-zinc-300"
           />
         </Section>
 
         {/* Terms */}
-        <Section title="Payment Terms">
-          {config.terms.map((term, idx) => (
+        <Section title="Terms & Conditions">
+          {(config.terms || []).map((term, idx) => (
             <div key={idx} className="flex gap-2">
               <input
                 value={term}
                 onChange={(e) => updateTerm(idx, e.target.value)}
-                className="flex-1 px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-white focus:outline-none"
+                className="flex-1 px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none"
               />
               <button
                 type="button"
@@ -3965,7 +3366,7 @@ function QuoteEditor({
           <button
             type="button"
             onClick={addTerm}
-            className="w-full py-2 rounded-lg border border-dashed border-white/15 text-white/50 text-sm hover:border-white hover:text-white transition-colors flex items-center justify-center gap-2"
+            className="w-full py-2 rounded-lg border border-dashed border-zinc-300 text-zinc-500 text-sm hover:border-zinc-900 hover:text-zinc-900 transition-colors flex items-center justify-center gap-2"
           >
             <Plus className="w-4 h-4" /> Add Term
           </button>
@@ -3975,12 +3376,12 @@ function QuoteEditor({
         <Section title="Payment Terms" defaultOpen>
           <div className="flex items-center gap-3">
             <div className="flex-1">
-              <label className="block text-[10px] text-white/40 uppercase tracking-wider mb-1.5">Payment Due (days)</label>
+              <label className="block text-[10px] text-zinc-400 uppercase tracking-wider mb-1.5">Payment Due (days)</label>
               <PaymentTermsInput
                 value={paymentTermsDays}
                 onChange={(v) => setPaymentTermsDays(Math.max(1, v))}
               />
-              <p className="text-[10px] text-white/30 mt-1">Used for overdue detection and shown on invoice. Default: 30 days (agents). Use 7 days for homeowners.</p>
+              <p className="text-[10px] text-zinc-400 mt-1">Used for overdue detection and shown on invoice. Default: 30 days (agents). Use 7 days for homeowners.</p>
             </div>
             <button
               type="button"
@@ -4011,17 +3412,17 @@ function QuoteEditor({
                   isInsuranceAssessment ? "translate-x-5" : ""
                 }`} />
               </div>
-              <span className="text-sm text-white/70 group-hover:text-white/90 transition-colors">Insurance Assessment Only</span>
+              <span className="text-sm text-zinc-600 group-hover:text-zinc-900 transition-colors">Insurance Assessment Only</span>
             </label>
             {isInsuranceAssessment && (
               <>
                 <p className="text-xs text-amber-400/60">Accept button will be hidden on the client-facing page. This quote is for insurance assessment purposes only.</p>
                 <div>
-                  <p className="text-[11px] font-medium text-white/40 uppercase tracking-widest mb-2">Linked Quote (optional)</p>
+                  <p className="text-[11px] font-medium text-zinc-400 uppercase tracking-widest mb-2">Linked Quote (optional)</p>
                   <select
                     value={linkedQuoteSlug}
                     onChange={(e) => setLinkedQuoteSlug(e.target.value)}
-                    className="w-full bg-zinc-900 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500/50 transition-colors"
+                    className="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2.5 text-sm text-zinc-900 focus:outline-none focus:border-amber-500/50 transition-colors"
                   >
                     <option value="">None — no linked quote</option>
                     {(allQuotes || []).filter(q => q.slug !== slug && !q.isInsuranceAssessment).map(q => (
@@ -4030,7 +3431,7 @@ function QuoteEditor({
                       </option>
                     ))}
                   </select>
-                  <p className="text-[10px] text-white/30 mt-1">Link to the full replacement quote so clients can navigate to it</p>
+                  <p className="text-[10px] text-zinc-400 mt-1">Link to the full replacement quote so clients can navigate to it</p>
                 </div>
               </>
             )}
@@ -4045,7 +3446,7 @@ function QuoteEditor({
               onChange={(e) => setInternalNotes(e.target.value)}
               placeholder="Private notes — keys under mat, dog in backyard, parking info, etc. These are NOT visible on the public quote page or invoices."
               rows={4}
-              className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm focus:border-amber-500/50 focus:outline-none resize-none placeholder:text-white/25"
+              className="w-full px-3 py-2 rounded-lg bg-amber-50 border border-amber-200 text-zinc-900 text-sm focus:border-amber-400 focus:outline-none resize-none placeholder:text-zinc-400"
             />
             <button
               type="button"
@@ -4056,7 +3457,7 @@ function QuoteEditor({
               {savingNotes ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
               Save Notes
             </button>
-            <p className="text-[10px] text-white/25 mt-1.5">🔒 Private — only visible in admin panel</p>
+            <p className="text-[10px] text-zinc-300 mt-1.5">🔒 Private — only visible in admin panel</p>
           </div>
         </Section>
 
@@ -4092,18 +3493,18 @@ function QuoteEditor({
                 <Banknote className="w-5 h-5 text-emerald-400" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white">Record Deposit Received</h3>
-                <p className="text-xs text-white/40">Enter the actual amount paid by the client</p>
+                <h3 className="text-lg font-semibold text-zinc-900">Record Deposit Received</h3>
+                <p className="text-xs text-zinc-400">Enter the actual amount paid by the client</p>
               </div>
             </div>
             {quoteData?.acceptedTotal && (
-              <p className="text-xs text-white/40 mb-2">
+              <p className="text-xs text-zinc-400 mb-2">
                 Quote total: ${quoteData.acceptedTotal.toLocaleString()}
                 {quoteData.config?.depositPercent ? ` · ${quoteData.config.depositPercent}% deposit = $${Math.round(quoteData.acceptedTotal * quoteData.config.depositPercent / 100).toLocaleString()}` : ''}
               </p>
             )}
             <div className="relative mb-4">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 text-sm">$</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 text-sm">$</span>
               <input
                 type="number"
                 min="1"
@@ -4111,14 +3512,14 @@ function QuoteEditor({
                 value={editorDepositAmountInput}
                 onChange={(e) => setEditorDepositAmountInput(e.target.value)}
                 placeholder="e.g. 1250"
-                className="w-full pl-7 pr-4 py-3 rounded-xl bg-zinc-800/60 border border-white/10 text-white text-sm focus:outline-none focus:border-emerald-400 transition-colors"
+                className="w-full pl-7 pr-4 py-3 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:outline-none focus:border-emerald-400 transition-colors"
                 autoFocus
               />
             </div>
             <div className="flex gap-3">
               <button
                 onClick={() => setEditorDepositModal(false)}
-                className="flex-1 py-2.5 rounded-xl bg-zinc-800/50 border border-white/10 text-sm text-white/60 hover:text-white transition-colors"
+                className="flex-1 py-2.5 rounded-xl bg-zinc-100 border border-zinc-200 text-sm text-zinc-500 hover:text-zinc-900 transition-colors"
               >
                 Cancel
               </button>
@@ -4151,8 +3552,8 @@ function QuoteEditor({
                 <CheckCircle2 className="w-5 h-5 text-blue-400" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white">Which Tier Did They Choose?</h3>
-                <p className="text-xs text-white/40">Select the tier the client accepted</p>
+                <h3 className="text-lg font-semibold text-zinc-900">Which Tier Did They Choose?</h3>
+                <p className="text-xs text-zinc-400">Select the tier the client accepted</p>
               </div>
             </div>
             <div className="space-y-2 mb-4">
@@ -4163,12 +3564,12 @@ function QuoteEditor({
                   className={`w-full px-4 py-3 rounded-xl border text-left transition-colors ${
                     editorTierAcceptSelected === tier.name
                       ? "bg-blue-500/20 border-blue-500/50 text-white"
-                      : "bg-zinc-800/50 border-white/10 text-white/70 hover:border-white/20 hover:text-white"
+                      : "bg-zinc-50 border-zinc-200 text-zinc-600 hover:border-zinc-300 hover:text-zinc-900"
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-sm">{tier.name}</span>
-                    <span className="text-sm text-white/50">${tier.price.toLocaleString()}</span>
+                    <span className="text-sm text-zinc-500">${tier.price.toLocaleString()}</span>
                   </div>
                 </button>
               ))}
@@ -4176,7 +3577,7 @@ function QuoteEditor({
             <div className="flex gap-3">
               <button
                 onClick={() => setEditorTierAcceptModal(false)}
-                className="flex-1 py-2.5 rounded-xl bg-zinc-800/50 border border-white/10 text-sm text-white/60 hover:text-white transition-colors"
+                className="flex-1 py-2.5 rounded-xl bg-zinc-100 border border-zinc-200 text-sm text-zinc-500 hover:text-zinc-900 transition-colors"
               >
                 Cancel
               </button>
@@ -4209,20 +3610,20 @@ function QuoteEditor({
                 <Calendar className="w-5 h-5 text-purple-400" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white">Schedule Installation</h3>
-                <p className="text-xs text-white/40">Set the install date for this job</p>
+                <h3 className="text-lg font-semibold text-zinc-900">Schedule Installation</h3>
+                <p className="text-xs text-zinc-400">Set the install date for this job</p>
               </div>
             </div>
             <input
               type="date"
               value={editorScheduleDateInput}
               onChange={(e) => setEditorScheduleDateInput(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-zinc-800/60 border border-white/10 text-white text-sm focus:outline-none focus:border-purple-400 transition-colors mb-4 [color-scheme:dark]"
+              className="w-full px-4 py-3 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:outline-none focus:border-purple-400 transition-colors mb-4"
             />
             <div className="flex gap-3">
               <button
                 onClick={() => { setEditorScheduleModal(false); setPendingScheduleStatus(null); }}
-                className="flex-1 py-2.5 rounded-xl bg-zinc-800/50 border border-white/10 text-sm text-white/60 hover:text-white transition-colors"
+                className="flex-1 py-2.5 rounded-xl bg-zinc-100 border border-zinc-200 text-sm text-zinc-500 hover:text-zinc-900 transition-colors"
               >
                 Cancel
               </button>
@@ -4317,15 +3718,15 @@ function ContactsManager({ password }: { password: string }) {
   });
 
   if (isLoading) {
-    return <div className="min-h-screen bg-zinc-900 flex items-center justify-center"><Loader2 className="w-8 h-8 text-white animate-spin" /></div>;
+    return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 text-zinc-400 animate-spin" /></div>;
   }
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-4">
       {/* Add/Edit Form */}
       {showForm && (
-        <div className="mb-4 bg-zinc-800/50 rounded-xl border border-white/10 p-4 space-y-3">
-          <h3 className="text-sm font-medium text-white">{editingId ? "Edit Contact" : "New Contact"}</h3>
+        <div className="mb-4 bg-white rounded-xl border border-zinc-200 p-4 space-y-3 shadow-sm">
+          <h3 className="text-sm font-medium text-zinc-900">{editingId ? "Edit Contact" : "New Contact"}</h3>
           <Field label="Contact Name" value={form.name} onChange={(v) => setForm({ ...form, name: v })} placeholder="e.g. Eliana" />
           <Field label="Company / Agency" value={form.agency} onChange={(v) => setForm({ ...form, agency: v })} placeholder="e.g. Coronis" />
           <div className="grid grid-cols-2 gap-3">
@@ -4333,10 +3734,10 @@ function ContactsManager({ password }: { password: string }) {
             <Field label="Phone" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} placeholder="0400 000 000" />
           </div>
           <div className="flex gap-2 pt-1">
-            <button onClick={handleSave} className="flex-1 py-2.5 rounded-lg bg-white text-black font-semibold text-sm hover:bg-white/90 transition-colors">
+            <button onClick={handleSave} className="flex-1 py-2.5 rounded-lg bg-zinc-900 text-white font-semibold text-sm hover:bg-zinc-800 transition-colors">
               {editingId ? "Update" : "Add Contact"}
             </button>
-            <button onClick={resetForm} className="px-4 py-2.5 rounded-lg bg-white/[0.04] text-white/50 text-sm hover:text-white transition-colors">Cancel</button>
+            <button onClick={resetForm} className="px-4 py-2.5 rounded-lg bg-zinc-100 text-zinc-500 text-sm hover:text-zinc-900 transition-colors">Cancel</button>
           </div>
         </div>
       )}
@@ -4344,7 +3745,7 @@ function ContactsManager({ password }: { password: string }) {
       {!showForm && (
         <button
           onClick={() => { resetForm(); setShowForm(true); }}
-          className="w-full mb-4 py-3 rounded-xl border border-dashed border-white/15 text-white/50 text-sm hover:border-white hover:text-white transition-colors flex items-center justify-center gap-2"
+          className="w-full mb-4 py-3 rounded-xl border border-dashed border-zinc-300 text-zinc-500 text-sm hover:border-zinc-900 hover:text-zinc-900 transition-colors flex items-center justify-center gap-2"
         >
           <UserPlus className="w-4 h-4" /> Add New Contact
         </button>
@@ -4352,33 +3753,33 @@ function ContactsManager({ password }: { password: string }) {
 
       {/* Search */}
       <div className="relative mb-4">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-        <input type="text" placeholder="Search contacts..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-zinc-800/50 border border-white/10 text-white text-sm placeholder:text-white/30 focus:border-white focus:outline-none" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
+        <input type="text" placeholder="Search contacts..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-zinc-200 text-zinc-900 text-sm placeholder:text-zinc-400 focus:border-zinc-900 focus:outline-none shadow-sm" />
       </div>
 
       {/* Contacts List */}
       {filtered.length === 0 ? (
         <div className="text-center py-16">
-          <BookUser className="w-12 h-12 text-white/40 mx-auto mb-3" />
-          <p className="text-white/50 mb-1">{search ? "No contacts match" : "No contacts yet"}</p>
+          <BookUser className="w-12 h-12 text-zinc-300 mx-auto mb-3" />
+          <p className="text-zinc-500 mb-1">{search ? "No contacts match" : "No contacts yet"}</p>
         </div>
       ) : (
         <div className="space-y-2">
           {filtered.map((c) => (
-            <div key={c.id} className="bg-zinc-800/50 rounded-xl border border-white/10 p-4">
+            <div key={c.id} className="bg-white rounded-xl border border-zinc-200 p-4 shadow-sm">
               <div className="flex items-start justify-between">
                 <div className="flex-1 min-w-0">
-                  <p className="text-white text-sm font-medium truncate">
+                  <p className="text-zinc-900 text-sm font-medium truncate">
                     {c.name && c.agency ? `${c.name} — ${c.agency}` : c.name || c.agency || "(no name)"}
                   </p>
                   <div className="flex flex-wrap gap-3 mt-1.5">
-                    {c.email && <span className="text-white/40 text-xs flex items-center gap-1"><Mail className="w-3 h-3" /> {c.email}</span>}
-                    {c.phone && <span className="text-white/40 text-xs flex items-center gap-1"><Phone className="w-3 h-3" /> {c.phone}</span>}
+                    {c.email && <span className="text-zinc-500 text-xs flex items-center gap-1"><Mail className="w-3 h-3" /> {c.email}</span>}
+                    {c.phone && <span className="text-zinc-500 text-xs flex items-center gap-1"><Phone className="w-3 h-3" /> {c.phone}</span>}
                   </div>
                 </div>
                 <div className="flex items-center gap-1 ml-2">
-                  <button onClick={() => handleEdit(c)} className="p-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors"><FileText className="w-3.5 h-3.5" /></button>
-                  <button onClick={() => handleDeleteClick(c.id, c.name)} className="p-1.5 rounded-lg text-white/50 hover:text-red-400 hover:bg-red-500/10 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => handleEdit(c)} className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 transition-colors"><FileText className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => handleDeleteClick(c.id, c.name)} className="p-1.5 rounded-lg text-zinc-400 hover:text-red-600 hover:bg-red-50 transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
                 </div>
               </div>
             </div>
@@ -4388,13 +3789,13 @@ function ContactsManager({ password }: { password: string }) {
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-        <AlertDialogContent className="bg-zinc-800 border border-white/10 rounded-xl">
-          <AlertDialogTitle className="text-white">Delete Contact?</AlertDialogTitle>
-          <AlertDialogDescription className="text-white/60">
-            Are you sure you want to delete <span className="font-semibold text-white">"{deleteConfirmData?.name || 'this contact'}"</span>? This action cannot be undone.
+        <AlertDialogContent className="bg-white border border-zinc-200 rounded-xl">
+          <AlertDialogTitle className="text-zinc-900">Delete Contact?</AlertDialogTitle>
+          <AlertDialogDescription className="text-zinc-600">
+            Are you sure you want to delete <span className="font-semibold text-zinc-900">"{deleteConfirmData?.name || 'this contact'}"</span>? This action cannot be undone.
           </AlertDialogDescription>
           <div className="flex gap-3 justify-end mt-6">
-            <AlertDialogCancel onClick={handleDeleteCancel} className="bg-zinc-700 hover:bg-zinc-600 text-white border-0 rounded-lg">Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={handleDeleteCancel} className="bg-zinc-100 hover:bg-zinc-200 text-zinc-900 border-0 rounded-lg">Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-600 hover:bg-red-700 text-white rounded-lg">Delete</AlertDialogAction>
           </div>
         </AlertDialogContent>
@@ -4453,64 +3854,64 @@ function ContactPicker({
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="w-full py-2 rounded-lg border border-dashed border-white/15 text-white/50 text-xs hover:border-white hover:text-white transition-colors flex items-center justify-center gap-1.5"
+        className="w-full py-2 rounded-lg border border-dashed border-zinc-300 text-zinc-500 text-xs hover:border-zinc-900 hover:text-zinc-900 transition-colors flex items-center justify-center gap-1.5"
       >
         <BookUser className="w-3.5 h-3.5" /> Load from Contacts
       </button>
       {open && (
-        <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-[#1A1F28] border border-white/10 rounded-xl shadow-xl max-h-80 overflow-y-auto">
-          <div className="sticky top-0 bg-[#1A1F28] p-2 border-b border-white/10">
+        <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-white border border-zinc-200 rounded-xl shadow-xl max-h-80 overflow-y-auto">
+          <div className="sticky top-0 bg-white p-2 border-b border-zinc-200">
             <input
               type="text"
               placeholder="Search contacts..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full px-3 py-1.5 rounded-lg bg-zinc-900 border border-white/10 text-white text-xs placeholder:text-white/30 focus:border-white focus:outline-none"
+              className="w-full px-3 py-1.5 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-xs placeholder:text-zinc-400 focus:border-zinc-900 focus:outline-none"
               autoFocus
             />
           </div>
           {/* On-the-fly new contact form */}
           {showNewForm ? (
-            <div className="p-3 space-y-2 border-b border-white/10">
-              <p className="text-xs font-medium text-white">Quick Add Contact</p>
+            <div className="p-3 space-y-2 border-b border-zinc-200">
+              <p className="text-xs font-medium text-zinc-900">Quick Add Contact</p>
               <input
                 placeholder="Contact Name"
                 value={newContact.name}
                 onChange={(e) => setNewContact({ ...newContact, name: e.target.value })}
-                className="w-full px-2 py-1.5 rounded bg-zinc-900 border border-white/10 text-white text-xs placeholder:text-white/30 focus:border-white focus:outline-none"
+                className="w-full px-2 py-1.5 rounded bg-zinc-50 border border-zinc-200 text-zinc-900 text-xs placeholder:text-zinc-400 focus:border-zinc-900 focus:outline-none"
               />
               <input
                 placeholder="Company / Agency"
                 value={newContact.agency}
                 onChange={(e) => setNewContact({ ...newContact, agency: e.target.value })}
-                className="w-full px-2 py-1.5 rounded bg-zinc-900 border border-white/10 text-white text-xs placeholder:text-white/30 focus:border-white focus:outline-none"
+                className="w-full px-2 py-1.5 rounded bg-zinc-50 border border-zinc-200 text-zinc-900 text-xs placeholder:text-zinc-400 focus:border-zinc-900 focus:outline-none"
               />
               <div className="grid grid-cols-2 gap-2">
                 <input
                   placeholder="Email"
                   value={newContact.email}
                   onChange={(e) => setNewContact({ ...newContact, email: e.target.value })}
-                  className="px-2 py-1.5 rounded bg-zinc-900 border border-white/10 text-white text-xs placeholder:text-white/30 focus:border-white focus:outline-none"
+                  className="px-2 py-1.5 rounded bg-zinc-50 border border-zinc-200 text-zinc-900 text-xs placeholder:text-zinc-400 focus:border-zinc-900 focus:outline-none"
                 />
                 <input
                   placeholder="Phone"
                   value={newContact.phone}
                   onChange={(e) => setNewContact({ ...newContact, phone: e.target.value })}
-                  className="px-2 py-1.5 rounded bg-zinc-900 border border-white/10 text-white text-xs placeholder:text-white/30 focus:border-white focus:outline-none"
+                  className="px-2 py-1.5 rounded bg-zinc-50 border border-zinc-200 text-zinc-900 text-xs placeholder:text-zinc-400 focus:border-zinc-900 focus:outline-none"
                 />
               </div>
               <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={handleCreateAndSelect}
-                  className="flex-1 py-1.5 rounded bg-white text-black text-xs font-semibold hover:bg-white/90 transition-colors"
+                  className="flex-1 py-1.5 rounded bg-zinc-900 text-white text-xs font-semibold hover:bg-zinc-800 transition-colors"
                 >
                   Create & Use
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowNewForm(false)}
-                  className="px-3 py-1.5 rounded bg-white/[0.04] text-white/50 text-xs hover:text-white transition-colors"
+                  className="px-3 py-1.5 rounded bg-zinc-100 text-zinc-500 text-xs hover:text-zinc-900 transition-colors"
                 >
                   Cancel
                 </button>
@@ -4520,13 +3921,13 @@ function ContactPicker({
             <button
               type="button"
               onClick={() => setShowNewForm(true)}
-              className="w-full px-3 py-2 text-left text-xs text-white hover:bg-white/10 transition-colors border-b border-white/10 flex items-center gap-1.5"
+              className="w-full px-3 py-2 text-left text-xs text-zinc-700 hover:bg-zinc-50 transition-colors border-b border-zinc-200 flex items-center gap-1.5"
             >
               <UserPlus className="w-3 h-3" /> Add New Contact
             </button>
           )}
           {filtered.length === 0 ? (
-            <p className="text-white/40 text-xs text-center py-4">No contacts found</p>
+            <p className="text-zinc-400 text-xs text-center py-4">No contacts found</p>
           ) : (
             filtered.map((c) => (
               <button
@@ -4537,9 +3938,9 @@ function ContactPicker({
                   setOpen(false);
                   setSearch("");
                 }}
-                className="w-full px-3 py-2 text-left hover:bg-white/10 transition-colors border-b border-white/10 last:border-0"
+                className="w-full px-3 py-2 text-left hover:bg-zinc-50 transition-colors border-b border-zinc-100 last:border-0"
               >
-                <p className="text-white text-xs font-medium">
+                <p className="text-zinc-900 text-xs font-medium">
                   {c.name && c.agency ? `${c.name} — ${c.agency}` : c.name || c.agency || "(no name)"}
                 </p>
               </button>
@@ -4586,7 +3987,7 @@ function SortableScopeItem({
           type="button"
           {...attributes}
           {...listeners}
-          className="flex-shrink-0 mt-5 p-2 -ml-1 text-white/25 hover:text-white/60 cursor-grab active:cursor-grabbing touch-none"
+          className="flex-shrink-0 mt-5 p-2 -ml-1 text-zinc-300 hover:text-zinc-500 cursor-grab active:cursor-grabbing touch-none"
           aria-label="Drag to reorder"
         >
           <GripVertical className="w-4 h-4" />
@@ -4645,7 +4046,7 @@ function ScopeLibraryPicker({
       </button>
       {expanded && (
         <div className="mt-2 bg-zinc-900/80 rounded-lg border border-white/10 p-2">
-          <p className="text-white/30 text-[10px] mb-2 px-1">Tap to add to scope of works</p>
+          <p className="text-zinc-400 text-[10px] mb-2 px-1">Tap to add to scope of works</p>
           <div className="flex flex-col gap-1.5">
             {items.map((item) => {
               const added = alreadyAdded.has(item.text);
@@ -4662,14 +4063,14 @@ function ScopeLibraryPicker({
                   }`}
                 >
                   <div className={`flex items-center gap-1.5 text-xs font-medium ${
-                    added ? "text-green-400" : "text-white/70 group-hover:text-amber-400"
+                    added ? "text-green-400" : "text-zinc-600 group-hover:text-amber-400"
                   }`}>
                     {added && <Check className="w-3 h-3 flex-shrink-0" />}
                     <span>{item.text}</span>
                   </div>
                   {item.description && (
                     <p className={`text-[10px] mt-0.5 leading-snug ${
-                      added ? "text-green-400/60" : "text-white/35"
+                      added ? "text-green-500" : "text-zinc-300"
                     }`}>{item.description}</p>
                   )}
                 </button>
@@ -4738,19 +4139,19 @@ function ScopeLibraryManager() {
   };
 
   if (isLoading) {
-    return <div className="min-h-screen bg-zinc-900 flex items-center justify-center"><Loader2 className="w-8 h-8 text-white animate-spin" /></div>;
+    return <div className="min-h-screen bg-white flex items-center justify-center"><Loader2 className="w-8 h-8 text-zinc-400 animate-spin" /></div>;
   }
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-4">
       <div className="mb-4">
-        <p className="text-white/40 text-xs">Saved scope of work items for quick-pick in the quote editor. Each item has a title and optional description.</p>
+        <p className="text-zinc-500 text-xs">Saved scope of work items for quick-pick in the quote editor. Each item has a title and optional description.</p>
       </div>
 
       {/* Add new item */}
       {adding ? (
-        <div className="mb-4 bg-zinc-800/50 rounded-xl border border-white/10 p-4 space-y-3">
-          <p className="text-sm font-medium text-white">New Library Item</p>
+        <div className="mb-4 bg-white rounded-xl border border-zinc-200 p-4 space-y-3 shadow-sm">
+          <p className="text-sm font-medium text-zinc-900">New Library Item</p>
           <div className="space-y-2">
             <input
               autoFocus
@@ -4759,7 +4160,7 @@ function ScopeLibraryManager() {
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Escape') { setAdding(false); setNewTitle(''); setNewDesc(''); } }}
-              className="w-full px-3 py-2.5 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm placeholder:text-white/30 focus:border-white focus:outline-none"
+              className="w-full px-3 py-2.5 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm placeholder:text-zinc-400 focus:border-zinc-900 focus:outline-none"
             />
             <input
               type="text"
@@ -4767,20 +4168,20 @@ function ScopeLibraryManager() {
               value={newDesc}
               onChange={(e) => setNewDesc(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') handleAdd(); if (e.key === 'Escape') { setAdding(false); setNewTitle(''); setNewDesc(''); } }}
-              className="w-full px-3 py-2.5 rounded-lg bg-zinc-900 border border-white/10 text-white text-sm placeholder:text-white/30 focus:border-white focus:outline-none"
+              className="w-full px-3 py-2.5 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm placeholder:text-zinc-400 focus:border-zinc-900 focus:outline-none"
             />
           </div>
           <div className="flex gap-2">
-            <button onClick={handleAdd} disabled={!newTitle.trim() || createMutation.isPending} className="flex-1 py-2.5 rounded-lg bg-white text-black font-semibold text-sm hover:bg-white/90 disabled:opacity-40 transition-colors flex items-center justify-center gap-2">
+            <button onClick={handleAdd} disabled={!newTitle.trim() || createMutation.isPending} className="flex-1 py-2.5 rounded-lg bg-zinc-900 text-white font-semibold text-sm hover:bg-zinc-800 disabled:opacity-40 transition-colors flex items-center justify-center gap-2">
               {createMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} Add Item
             </button>
-            <button onClick={() => { setAdding(false); setNewTitle(''); setNewDesc(''); }} className="px-4 py-2.5 rounded-lg bg-white/[0.04] text-white/50 text-sm hover:text-white transition-colors">Cancel</button>
+            <button onClick={() => { setAdding(false); setNewTitle(''); setNewDesc(''); }} className="px-4 py-2.5 rounded-lg bg-zinc-100 text-zinc-500 text-sm hover:text-zinc-900 transition-colors">Cancel</button>
           </div>
         </div>
       ) : (
         <button
           onClick={() => setAdding(true)}
-          className="w-full mb-4 py-3 rounded-xl border border-dashed border-white/15 text-white/50 text-sm hover:border-white hover:text-white transition-colors flex items-center justify-center gap-2"
+          className="w-full mb-4 py-3 rounded-xl border border-dashed border-zinc-300 text-zinc-500 text-sm hover:border-zinc-900 hover:text-zinc-900 transition-colors flex items-center justify-center gap-2"
         >
           <Plus className="w-4 h-4" /> Add Library Item
         </button>
@@ -4789,15 +4190,15 @@ function ScopeLibraryManager() {
       {/* Items list */}
       {(items || []).length === 0 ? (
         <div className="text-center py-16">
-          <BookOpen className="w-12 h-12 text-white/40 mx-auto mb-3" />
-          <p className="text-white/50 mb-1">No library items yet</p>
-          <p className="text-white/30 text-xs">Add common scope of work items to speed up quoting</p>
+          <BookOpen className="w-12 h-12 text-zinc-300 mx-auto mb-3" />
+          <p className="text-zinc-500 mb-1">No library items yet</p>
+          <p className="text-zinc-400 text-xs">Add common scope of work items to speed up quoting</p>
         </div>
       ) : (
         <div className="space-y-2">
           {(items || []).map((item) => (
-            <div key={item.id} className="bg-zinc-800/50 rounded-xl border border-white/10 px-4 py-3 flex items-start gap-3">
-              <GripVertical className="w-4 h-4 text-white/20 flex-shrink-0 mt-1" />
+            <div key={item.id} className="bg-white rounded-xl border border-zinc-200 px-4 py-3 flex items-start gap-3 shadow-sm">
+              <GripVertical className="w-4 h-4 text-zinc-300 flex-shrink-0 mt-1" />
               {editingId === item.id ? (
                 <div className="flex-1 space-y-2">
                   <input
@@ -4807,7 +4208,7 @@ function ScopeLibraryManager() {
                     value={editTitle}
                     onChange={(e) => setEditTitle(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Escape') setEditingId(null); }}
-                    className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-white/20 text-white text-sm focus:border-white focus:outline-none"
+                    className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none"
                   />
                   <input
                     type="text"
@@ -4815,25 +4216,25 @@ function ScopeLibraryManager() {
                     value={editDesc}
                     onChange={(e) => setEditDesc(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter') handleUpdate(item.id); if (e.key === 'Escape') setEditingId(null); }}
-                    className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-white/20 text-white text-sm placeholder:text-white/30 focus:border-white focus:outline-none"
+                    className="w-full px-2.5 py-1.5 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm placeholder:text-zinc-400 focus:border-zinc-900 focus:outline-none"
                   />
                   <div className="flex gap-2">
-                    <button onClick={() => handleUpdate(item.id)} disabled={!editTitle.trim() || updateMutation.isPending} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-black text-xs font-semibold hover:bg-white/90 disabled:opacity-40 transition-colors">
+                    <button onClick={() => handleUpdate(item.id)} disabled={!editTitle.trim() || updateMutation.isPending} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 text-white text-xs font-semibold hover:bg-zinc-800 disabled:opacity-40 transition-colors">
                       {updateMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />} Save
                     </button>
-                    <button onClick={() => setEditingId(null)} className="px-3 py-1.5 rounded-lg bg-white/[0.04] text-white/50 text-xs hover:text-white transition-colors">Cancel</button>
+                    <button onClick={() => setEditingId(null)} className="px-3 py-1.5 rounded-lg bg-zinc-100 text-zinc-500 text-xs hover:text-zinc-900 transition-colors">Cancel</button>
                   </div>
                 </div>
               ) : (
                 <>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-white/80 font-medium">{item.text}</p>
+                    <p className="text-sm text-zinc-900 font-medium">{item.text}</p>
                     {item.description && (
-                      <p className="text-xs text-white/40 mt-0.5 leading-snug">{item.description}</p>
+                      <p className="text-xs text-zinc-500 mt-0.5 leading-snug">{item.description}</p>
                     )}
                   </div>
-                  <button onClick={() => { setEditingId(item.id); setEditTitle(item.text); setEditDesc(item.description ?? ""); }} className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors flex-shrink-0"><Pencil className="w-3.5 h-3.5" /></button>
-                  <button onClick={() => handleDelete(item.id, item.text)} className="p-1.5 rounded-lg text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-colors flex-shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => { setEditingId(item.id); setEditTitle(item.text); setEditDesc(item.description ?? ""); }} className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 transition-colors flex-shrink-0"><Pencil className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => handleDelete(item.id, item.text)} className="p-1.5 rounded-lg text-zinc-400 hover:text-red-600 hover:bg-red-50 transition-colors flex-shrink-0"><Trash2 className="w-3.5 h-3.5" /></button>
                 </>
               )}
             </div>
@@ -4891,14 +4292,14 @@ function CalendarView({ password, onEditQuote }: { password: string; onEditQuote
       <div className="flex items-center justify-between mb-6">
         <button
           onClick={goToPrevMonth}
-          className="w-10 h-10 rounded-xl bg-zinc-800/50 border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:border-white/30 transition-colors"
+          className="w-10 h-10 rounded-xl bg-zinc-100 border border-zinc-200 flex items-center justify-center text-zinc-500 hover:text-zinc-900 hover:border-zinc-300 transition-colors"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
-        <h2 className="text-lg font-semibold text-white">{monthName}</h2>
+        <h2 className="text-lg font-semibold text-zinc-900">{monthName}</h2>
         <button
           onClick={goToNextMonth}
-          className="w-10 h-10 rounded-xl bg-zinc-800/50 border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:border-white/30 transition-colors"
+          className="w-10 h-10 rounded-xl bg-zinc-100 border border-zinc-200 flex items-center justify-center text-zinc-500 hover:text-zinc-900 hover:border-zinc-300 transition-colors"
         >
           <ChevronRight className="w-5 h-5" />
         </button>
@@ -4906,7 +4307,7 @@ function CalendarView({ password, onEditQuote }: { password: string; onEditQuote
 
       {isLoading && (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-6 h-6 animate-spin text-white/40" />
+          <Loader2 className="w-6 h-6 animate-spin text-zinc-400" />
         </div>
       )}
 
@@ -4915,7 +4316,7 @@ function CalendarView({ password, onEditQuote }: { password: string; onEditQuote
           {/* Day-of-week headers */}
           <div className="grid grid-cols-7 gap-1 mb-1">
             {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-              <div key={d} className="text-center text-[10px] font-medium text-white/30 py-1">{d}</div>
+              <div key={d} className="text-center text-[10px] font-medium text-zinc-400 py-1">{d}</div>
             ))}
           </div>
 
@@ -4940,25 +4341,25 @@ function CalendarView({ password, onEditQuote }: { password: string; onEditQuote
                   onClick={() => setSelectedDay(isSelected ? null : day)}
                   className={`aspect-square rounded-xl flex flex-col items-center justify-center gap-0.5 text-sm transition-all relative ${
                     isSelected
-                      ? "bg-white text-black font-bold ring-2 ring-white"
+                      ? "bg-zinc-900 text-white font-bold ring-2 ring-zinc-900"
                       : isToday
-                        ? "bg-zinc-800 text-white font-semibold border border-white/20"
+                        ? "bg-zinc-200 text-zinc-900 font-semibold border border-zinc-300"
                         : hasJobs
-                          ? "bg-purple-500/10 text-purple-300 hover:bg-purple-500/20"
-                          : "text-white/50 hover:bg-zinc-800/50"
+                          ? "bg-amber-50 text-amber-700 hover:bg-amber-100"
+                          : "text-zinc-400 hover:bg-zinc-100"
                   }`}
                 >
-                  <span className={isSelected ? "text-black" : ""}>{day}</span>
+                  <span className={isSelected ? "text-white" : ""}>{day}</span>
                   {hasJobs && (
                     <div className="flex gap-0.5">
                       {jobs.slice(0, 3).map((_, ji) => (
                         <div
                           key={ji}
-                          className={`w-1 h-1 rounded-full ${isSelected ? "bg-black/60" : "bg-purple-400"}`}
+                          className={`w-1 h-1 rounded-full ${isSelected ? "bg-white/60" : "bg-amber-500"}`}
                         />
                       ))}
                       {jobs.length > 3 && (
-                        <span className={`text-[8px] ${isSelected ? "text-black/60" : "text-purple-400"}`}>+</span>
+                        <span className={`text-[8px] ${isSelected ? "text-zinc-500" : "text-amber-500"}`}>+</span>
                       )}
                     </div>
                   )}
@@ -4970,16 +4371,16 @@ function CalendarView({ password, onEditQuote }: { password: string; onEditQuote
           {/* Selected day job list */}
           {selectedDay !== null && (
             <div className="mt-4">
-              <h3 className="text-sm font-semibold text-white/60 mb-3">
+              <h3 className="text-sm font-semibold text-zinc-500 mb-3">
                 {formatAESTDate(new Date(year, month - 1, selectedDay), { weekday: "long", day: "numeric", month: "long" })}
                 {selectedJobs.length > 0 && (
-                  <span className="ml-2 text-purple-400">({selectedJobs.length} job{selectedJobs.length !== 1 ? "s" : ""})</span>
+                  <span className="ml-2 text-amber-600">({selectedJobs.length} job{selectedJobs.length !== 1 ? "s" : ""})</span>
                 )}
               </h3>
               {selectedJobs.length === 0 ? (
-                <div className="rounded-xl border border-white/10 bg-zinc-800/30 py-8 text-center">
-                  <Calendar className="w-8 h-8 text-white/20 mx-auto mb-2" />
-                  <p className="text-sm text-white/30">No jobs scheduled</p>
+                <div className="rounded-xl border border-zinc-200 bg-zinc-50 py-8 text-center">
+                  <Calendar className="w-8 h-8 text-zinc-300 mx-auto mb-2" />
+                  <p className="text-sm text-zinc-400">No jobs scheduled</p>
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -4987,27 +4388,23 @@ function CalendarView({ password, onEditQuote }: { password: string; onEditQuote
                     <button
                       key={job.id}
                       onClick={() => onEditQuote(job.slug)}
-                      className="w-full text-left rounded-xl border border-white/10 bg-zinc-800/30 p-4 hover:border-white/20 hover:bg-zinc-800/50 transition-colors"
+                      className="w-full text-left rounded-xl border border-zinc-200 bg-white p-4 hover:border-zinc-300 hover:bg-zinc-50 transition-colors"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-semibold text-white truncate">
+                          <p className="text-sm font-semibold text-zinc-900 truncate">
                             {job.quoteNumber} · {job.clientName || "Unnamed"}
                           </p>
-                          <p className="text-xs text-white/40 truncate mt-0.5">
+                          <p className="text-xs text-zinc-500 truncate mt-0.5">
                             {job.propertyAddress || "No address"}
                           </p>
                           {job.agentName && (
-                            <p className="text-xs text-white/30 mt-0.5">{job.agentName}</p>
+                            <p className="text-xs text-zinc-400 mt-0.5">{job.agentName}</p>
                           )}
                         </div>
                         <div className="flex flex-col items-end gap-1 flex-shrink-0">
                           <StatusBadge status={job.jobStatus as JobStatus} />
-                          {job.acceptedTotal && (
-                            <span className="text-xs text-green-400 font-medium">
-                              ${job.acceptedTotal.toLocaleString()}
-                            </span>
-                          )}
+
                         </div>
                       </div>
                     </button>
@@ -5019,18 +4416,12 @@ function CalendarView({ password, onEditQuote }: { password: string; onEditQuote
 
           {/* Monthly summary */}
           {(calendarJobs || []).length > 0 && (
-            <div className="mt-6 rounded-xl border border-white/10 bg-zinc-800/30 p-4">
-              <p className="text-xs text-white/40 mb-1">Monthly Summary</p>
+            <div className="mt-6 rounded-xl border border-zinc-200 bg-zinc-50 p-4">
+              <p className="text-xs text-zinc-500 mb-1">Monthly Summary</p>
               <div className="flex items-center gap-4">
                 <div>
-                  <p className="text-2xl font-bold text-white">{(calendarJobs || []).length}</p>
-                  <p className="text-xs text-white/40">Jobs</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-green-400">
-                    ${(calendarJobs || []).reduce((sum, j) => sum + (j.acceptedTotal || 0), 0).toLocaleString()}
-                  </p>
-                  <p className="text-xs text-white/40">Revenue</p>
+                  <p className="text-2xl font-bold text-zinc-900">{(calendarJobs || []).length}</p>
+                  <p className="text-xs text-zinc-500">Jobs</p>
                 </div>
               </div>
             </div>
@@ -5084,7 +4475,7 @@ function XeroSyncButton({ password, invoiceId, onSynced }: { password: string; i
         }
       }}
       disabled={syncing}
-      className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-zinc-700/50 border border-white/10 text-white/40 text-[10px] hover:bg-zinc-700 hover:text-white/70 transition-colors"
+      className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 border border-gray-200 text-gray-400 text-[10px] hover:bg-gray-200 hover:text-gray-600 transition-colors"
       title="Sync to Saasu manually"
     >
       {syncing ? <Loader2 className="w-2.5 h-2.5 animate-spin" /> : <RefreshCw className="w-2.5 h-2.5" />}
@@ -5144,8 +4535,6 @@ function InvoicesTab({ password }: { password: string }) {
     setSendingDirect(false);
   };
 
-  const formatPrice = (n: number) => "$" + n.toLocaleString("en-AU", { minimumFractionDigits: 0 });
-
   const handlePaymentStatusChange = async (invoiceId: number, newStatus: PaymentStatus) => {
     try {
       await updatePaymentMutation.mutateAsync({ password, invoiceId, paymentStatus: newStatus });
@@ -5177,18 +4566,9 @@ function InvoicesTab({ password }: { password: string }) {
     return daysSince >= terms;
   };
 
-  // Summary stats
+  // Workflow stats
   const invoices = invoicesList || [];
   const overdueCount = invoices.filter(isOverdue).length;
-  const totalOutstanding = invoices
-    .filter((i) => i.paymentStatus !== "paid_in_full")
-    .reduce((sum, i) => sum + i.totalAmount, 0);
-  const totalPaid = invoices
-    .filter((i) => i.paymentStatus === "paid_in_full")
-    .reduce((sum, i) => sum + i.totalAmount, 0);
-  const depositsPaid = invoices
-    .filter((i) => i.paymentStatus === "deposit_paid")
-    .reduce((sum, i) => sum + i.depositAmount, 0);
 
   const paymentCounts = invoices.reduce(
     (acc, inv) => {
@@ -5202,49 +4582,49 @@ function InvoicesTab({ password }: { password: string }) {
 
   if (isLoading) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-12 flex items-center justify-center">
-        <Loader2 className="w-6 h-6 animate-spin text-white/40" />
+      <div className="max-w-4xl mx-auto px-6 py-12 flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-gray-300" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6">
+    <div className="max-w-4xl mx-auto px-6 py-6">
       {/* Overdue Alert */}
       {overdueCount > 0 && (
-        <div className="mb-4 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-red-500/15 flex items-center justify-center flex-shrink-0">
-            <Clock className="w-4 h-4 text-red-400" />
+        <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0">
+            <Clock className="w-4 h-4 text-red-500" />
           </div>
           <div>
-            <p className="text-sm font-medium text-red-400">{overdueCount} overdue invoice{overdueCount !== 1 ? "s" : ""}</p>
-            <p className="text-[10px] text-red-400/60">Unpaid for 30+ days — reminder emails are sent automatically</p>
+            <p className="text-sm font-medium text-red-600">{overdueCount} overdue invoice{overdueCount !== 1 ? "s" : ""}</p>
+            <p className="text-[10px] text-red-400">Past payment terms. Reminder emails are sent automatically.</p>
           </div>
         </div>
       )}
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-3 gap-2 mb-4">
-        <div className="bg-zinc-800/50 border border-white/10 rounded-xl p-3">
-          <div className="flex items-center gap-1.5 mb-1">
-            <DollarSign className="w-3.5 h-3.5 text-red-400" />
-            <span className="text-[10px] text-white/40 uppercase tracking-wider">Outstanding</span>
-          </div>
-          <p className="text-lg font-semibold text-red-400">{formatPrice(totalOutstanding)}</p>
+      {/* Workflow Status Counts */}
+      <div className="flex items-center gap-4 mb-4">
+        <div className="flex items-center gap-1.5">
+          <span className="text-2xl font-bold text-gray-900">{invoices.length}</span>
+          <span className="text-xs text-gray-400 uppercase tracking-wider">Total</span>
         </div>
-        <div className="bg-zinc-800/50 border border-white/10 rounded-xl p-3">
-          <div className="flex items-center gap-1.5 mb-1">
-            <Banknote className="w-3.5 h-3.5 text-amber-400" />
-            <span className="text-[10px] text-white/40 uppercase tracking-wider">Deposits</span>
-          </div>
-          <p className="text-lg font-semibold text-amber-400">{formatPrice(depositsPaid)}</p>
+        <div className="h-6 w-px bg-gray-200" />
+        <div className="flex items-center gap-1.5">
+          <span className="text-lg font-semibold text-red-500">{paymentCounts.unpaid || 0}</span>
+          <span className="text-xs text-gray-400">Unpaid</span>
         </div>
-        <div className="bg-zinc-800/50 border border-white/10 rounded-xl p-3">
-          <div className="flex items-center gap-1.5 mb-1">
-            <CircleCheckBig className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="text-[10px] text-white/40 uppercase tracking-wider">Paid</span>
-          </div>
-          <p className="text-lg font-semibold text-emerald-400">{formatPrice(totalPaid)}</p>
+        <div className="flex items-center gap-1.5">
+          <span className="text-lg font-semibold text-amber-500">{paymentCounts.deposit_paid || 0}</span>
+          <span className="text-xs text-gray-400">Deposit</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="text-lg font-semibold text-orange-500">{paymentCounts.balance_due || 0}</span>
+          <span className="text-xs text-gray-400">Balance Due</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="text-lg font-semibold text-emerald-500">{paymentCounts.paid_in_full || 0}</span>
+          <span className="text-xs text-gray-400">Paid</span>
         </div>
       </div>
 
@@ -5253,7 +4633,7 @@ function InvoicesTab({ password }: { password: string }) {
         <button
           onClick={() => setPaymentFilter("all")}
           className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
-            paymentFilter === "all" ? "bg-white/10 border-white/20 text-white" : "border-white/10 text-white/40 hover:text-white/60"
+            paymentFilter === "all" ? "bg-gray-900 border-gray-900 text-white" : "border-gray-200 text-gray-500 hover:text-gray-700 hover:border-gray-300"
           }`}
         >
           All ({invoices.length})
@@ -5263,7 +4643,7 @@ function InvoicesTab({ password }: { password: string }) {
             key={s.value}
             onClick={() => setPaymentFilter(paymentFilter === s.value ? "all" : s.value)}
             className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
-              paymentFilter === s.value ? `${s.bg} ${s.border} ${s.color}` : "border-white/10 text-white/40 hover:text-white/60"
+              paymentFilter === s.value ? `${s.bg} ${s.border} ${s.color}` : "border-gray-200 text-gray-500 hover:text-gray-700 hover:border-gray-300"
             }`}
           >
             {s.label} ({paymentCounts[s.value] || 0})
@@ -5275,7 +4655,7 @@ function InvoicesTab({ password }: { password: string }) {
       <div className="flex justify-end mb-4">
         <button
           onClick={() => setShowDirectInvoiceModal(true)}
-          className="flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 text-sm font-medium hover:bg-amber-500/20 transition-all"
+          className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-all"
         >
           <Plus className="w-4 h-4" />
           Create Direct Invoice
@@ -5285,14 +4665,14 @@ function InvoicesTab({ password }: { password: string }) {
       {/* Direct Invoice Modal */}
       {showDirectInvoiceModal && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="w-full max-w-lg bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+          <div className="w-full max-w-lg bg-white border border-gray-200 rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
             {/* Modal Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
               <div>
-                <h2 className="text-base font-semibold text-white">Create Direct Invoice</h2>
-                <p className="text-xs text-white/40 mt-0.5">For jobs confirmed via phone or text — no quote needed</p>
+                <h2 className="text-base font-semibold text-gray-900">Create Direct Invoice</h2>
+                <p className="text-xs text-gray-400 mt-0.5">For jobs confirmed via phone or text</p>
               </div>
-              <button onClick={() => setShowDirectInvoiceModal(false)} className="text-white/40 hover:text-white/70 transition-colors">
+              <button onClick={() => setShowDirectInvoiceModal(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -5301,40 +4681,40 @@ function InvoicesTab({ password }: { password: string }) {
             <div className="overflow-y-auto flex-1 px-5 py-4 space-y-4">
               {/* Client Details */}
               <div className="space-y-3">
-                <p className="text-xs font-medium text-white/50 uppercase tracking-wider">Client Details</p>
+                <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">Client Details</p>
                 <input
                   type="text"
                   placeholder="Client / Agent Name *"
                   value={directForm.recipientName}
                   onChange={(e) => setDirectForm((f) => ({ ...f, recipientName: e.target.value }))}
-                  className="w-full bg-zinc-800 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-amber-500/50"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-400"
                 />
                 <input
                   type="email"
                   placeholder="Email Address *"
                   value={directForm.recipientEmail}
                   onChange={(e) => setDirectForm((f) => ({ ...f, recipientEmail: e.target.value }))}
-                  className="w-full bg-zinc-800 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-amber-500/50"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-400"
                 />
                 <input
                   type="tel"
                   placeholder="Phone (optional)"
                   value={directForm.recipientPhone}
                   onChange={(e) => setDirectForm((f) => ({ ...f, recipientPhone: e.target.value }))}
-                  className="w-full bg-zinc-800 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-amber-500/50"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-400"
                 />
                 <input
                   type="text"
                   placeholder="Property Address *"
                   value={directForm.propertyAddress}
                   onChange={(e) => setDirectForm((f) => ({ ...f, propertyAddress: e.target.value }))}
-                  className="w-full bg-zinc-800 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-amber-500/50"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-400"
                 />
               </div>
 
               {/* Line Items */}
               <div className="space-y-2">
-                <p className="text-xs font-medium text-white/50 uppercase tracking-wider">Line Items</p>
+                <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">Line Items</p>
                 {lineItems.map((item, idx) => (
                   <div key={idx} className="flex gap-2 items-center">
                     <input
@@ -5346,7 +4726,7 @@ function InvoicesTab({ password }: { password: string }) {
                         updated[idx] = { ...updated[idx], description: e.target.value };
                         setLineItems(updated);
                       }}
-                      className="flex-1 bg-zinc-800 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-amber-500/50"
+                      className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-400"
                     />
                     <input
                       type="number"
@@ -5357,12 +4737,12 @@ function InvoicesTab({ password }: { password: string }) {
                         updated[idx] = { ...updated[idx], amount: e.target.value };
                         setLineItems(updated);
                       }}
-                      className="w-24 bg-zinc-800 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-amber-500/50"
+                      className="w-24 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-400"
                     />
                     {lineItems.length > 1 && (
                       <button
                         onClick={() => setLineItems(lineItems.filter((_, i) => i !== idx))}
-                        className="text-white/30 hover:text-red-400 transition-colors"
+                        className="text-gray-300 hover:text-red-400 transition-colors"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -5371,7 +4751,7 @@ function InvoicesTab({ password }: { password: string }) {
                 ))}
                 <button
                   onClick={() => setLineItems([...lineItems, { description: "", amount: "" }])}
-                  className="flex items-center gap-1.5 text-xs text-amber-400/70 hover:text-amber-400 transition-colors mt-1"
+                  className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 transition-colors mt-1"
                 >
                   <Plus className="w-3.5 h-3.5" /> Add line item
                 </button>
@@ -5379,9 +4759,9 @@ function InvoicesTab({ password }: { password: string }) {
 
               {/* Total Preview */}
               {lineItems.some((li) => parseFloat(li.amount) > 0) && (
-                <div className="bg-zinc-800/50 border border-white/10 rounded-xl px-4 py-3 flex justify-between items-center">
-                  <span className="text-xs text-white/50">Total (inc. GST)</span>
-                  <span className="text-base font-semibold text-amber-400">
+                <div className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 flex justify-between items-center">
+                  <span className="text-xs text-gray-500">Total (inc. GST)</span>
+                  <span className="text-base font-semibold text-gray-900">
                     ${lineItems.reduce((sum, li) => sum + (parseFloat(li.amount) || 0), 0).toLocaleString("en-AU", { minimumFractionDigits: 2 })}
                   </span>
                 </div>
@@ -5389,11 +4769,11 @@ function InvoicesTab({ password }: { password: string }) {
 
               {/* Payment Terms */}
               <div className="flex items-center gap-3">
-                <label className="text-xs text-white/50 whitespace-nowrap">Payment terms</label>
+                <label className="text-xs text-gray-500 whitespace-nowrap">Payment terms</label>
                 <select
                   value={directForm.paymentTermsDays}
                   onChange={(e) => setDirectForm((f) => ({ ...f, paymentTermsDays: parseInt(e.target.value) }))}
-                  className="bg-zinc-800 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500/50"
+                  className="bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-900 focus:outline-none focus:border-gray-400"
                 >
                   <option value={7}>7 days</option>
                   <option value={14}>14 days</option>
@@ -5404,17 +4784,17 @@ function InvoicesTab({ password }: { password: string }) {
             </div>
 
             {/* Modal Footer */}
-            <div className="px-5 py-4 border-t border-white/10 flex gap-3">
+            <div className="px-5 py-4 border-t border-gray-100 flex gap-3">
               <button
                 onClick={() => setShowDirectInvoiceModal(false)}
-                className="flex-1 py-2.5 rounded-xl border border-white/10 text-sm text-white/50 hover:text-white/70 hover:bg-white/5 transition-all"
+                className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-all"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSendDirectInvoice}
                 disabled={sendingDirect}
-                className="flex-1 py-2.5 rounded-xl bg-amber-500 text-black text-sm font-semibold hover:bg-amber-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-semibold hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {sendingDirect ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 {sendingDirect ? "Sending..." : "Send Invoice"}
@@ -5424,111 +4804,114 @@ function InvoicesTab({ password }: { password: string }) {
         </div>
       )}
 
-      {/* Invoice List */}
+      {/* Invoice Table */}
       {filtered.length === 0 ? (
         <div className="text-center py-16">
-          <FileText className="w-10 h-10 text-white/20 mx-auto mb-3" />
-          <p className="text-white/40 text-sm">No invoices yet</p>
-          <p className="text-white/25 text-xs mt-1">Invoices are auto-generated when jobs are marked as completed</p>
+          <FileText className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+          <p className="text-gray-400 text-sm">No invoices yet</p>
+          <p className="text-gray-300 text-xs mt-1">Invoices are auto-generated when jobs are marked as completed</p>
         </div>
       ) : (
-        <div className="space-y-2">
-          {filtered.map((inv) => (
-            <div key={inv.id} className="bg-zinc-800/50 border border-white/10 rounded-xl p-4">
-              {/* Header Row */}
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-white">{inv.invoiceNumber}</span>
-                    <span className="text-xs text-white/30">·</span>
-                    <span className="text-xs text-white/40">Ref: {inv.quoteNumber}</span>
-                  </div>
-                  <p className="text-xs text-white/50 mt-0.5">{inv.recipientName}</p>
-                  {inv.propertyAddress && (
-                    <p className="text-xs text-white/30 mt-0.5 truncate max-w-[280px]">{inv.propertyAddress}</p>
-                  )}
-                </div>
-                <div className="text-right">
-                  <p className="text-lg font-semibold text-white">{formatPrice(inv.totalAmount)}</p>
-                  <PaymentStatusBadge status={inv.paymentStatus} />
-                  {isOverdue(inv) && (
-                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-red-500/15 text-red-400 text-[10px] font-medium mt-0.5">
-                      <Clock className="w-2.5 h-2.5" /> Overdue
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* Details Row */}
-              <div className="flex items-center gap-3 text-xs text-white/30 mb-3">
-                <span>Deposit: {formatPrice(inv.depositAmount)}</span>
-                <span>·</span>
-                <span>Balance: {formatPrice(inv.totalAmount - inv.depositAmount)}</span>
-                <span>·</span>
-                <span className="text-amber-400/60">{inv.paymentTermsDays ?? 30} day terms</span>
-                <span>·</span>
-                <span>{formatAESTDate(new Date(inv.createdAt), { day: "numeric", month: "short", year: "numeric" })}</span>
-              </div>
-
-              {/* Actions Row */}
-              <div className="flex items-center gap-2 flex-wrap">
-                {/* PDF Download */}
-                {inv.pdfUrl && (
-                  <a
-                    href={inv.pdfUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors border border-white/10"
-                  >
-                    <Download className="w-3 h-3" /> PDF
-                  </a>
-                )}
-
-                {/* Send Email */}
-                <button
-                  onClick={() => handleSendEmail(inv.id)}
-                  disabled={sendingEmailId === inv.id || !inv.recipientEmail}
-                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors border border-white/10 disabled:opacity-30 disabled:cursor-not-allowed"
-                  title={inv.recipientEmail ? `Send to ${inv.recipientEmail}` : "No email address"}
-                >
-                  {sendingEmailId === inv.id ? (
-                    <Loader2 className="w-3 h-3 animate-spin" />
-                  ) : (
-                    <Send className="w-3 h-3" />
-                  )}
-                  {inv.emailSent ? "Resend" : "Email"}
-                </button>
-                {inv.emailSent === 1 && inv.emailSentAt && (
-                  <span className="text-[10px] text-emerald-400/60">
-                    Sent {formatAESTDate(new Date(inv.emailSentAt), { day: "numeric", month: "short" })}
-                  </span>
-                )}
-
-                {/* Saasu Sync Indicator */}
-                {(inv as any).xeroInvoiceId ? (
-                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-medium">
-                    <CheckCircle2 className="w-2.5 h-2.5" /> Saasu
-                  </span>
-                ) : (
-                  <XeroSyncButton password={password} invoiceId={inv.id} onSynced={() => refetch()} />
-                )}
-
-                {/* Payment Status Dropdown */}
-                <div className="ml-auto relative">
-                  <select
-                    value={inv.paymentStatus}
-                    onChange={(e) => handlePaymentStatusChange(inv.id, e.target.value as PaymentStatus)}
-                    className="appearance-none bg-zinc-700/50 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white/70 cursor-pointer hover:bg-zinc-700 transition-colors pr-6"
-                  >
-                    {PAYMENT_STATUSES.map((s) => (
-                      <option key={s.value} value={s.value}>{s.label}</option>
-                    ))}
-                  </select>
-                  <ChevronRight className="w-3 h-3 text-white/30 absolute right-1.5 top-1/2 -translate-y-1/2 rotate-90 pointer-events-none" />
-                </div>
-              </div>
-            </div>
-          ))}
+        <div className="overflow-x-auto rounded-xl border border-gray-200">
+          <table className="w-full min-w-[700px] text-sm">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-200">
+                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Invoice</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Client</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Property</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Sent</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Saasu</th>
+                <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {filtered.map((inv) => (
+                <tr key={inv.id} className={`hover:bg-gray-50 transition-colors ${isOverdue(inv) ? "bg-red-50/50" : ""}`}>
+                  {/* Invoice # + Date */}
+                  <td className="px-4 py-3">
+                    <div className="font-medium text-gray-900">{inv.invoiceNumber}</div>
+                    <div className="text-xs text-gray-400">{formatAESTDate(new Date(inv.createdAt), { day: "numeric", month: "short", year: "2-digit" })}</div>
+                  </td>
+                  {/* Client */}
+                  <td className="px-4 py-3">
+                    <div className="text-gray-700">{inv.recipientName || "—"}</div>
+                    <div className="text-xs text-gray-400 truncate max-w-[160px]">{inv.recipientEmail}</div>
+                  </td>
+                  {/* Property */}
+                  <td className="px-4 py-3">
+                    <div className="text-gray-600 truncate max-w-[180px]">{inv.propertyAddress || "—"}</div>
+                    <div className="text-xs text-gray-400">Ref: {inv.quoteNumber}</div>
+                  </td>
+                  {/* Status */}
+                  <td className="px-4 py-3">
+                    <PaymentStatusBadge status={inv.paymentStatus} />
+                    {isOverdue(inv) && (
+                      <span className="block mt-1 text-[10px] text-red-500 font-medium">Overdue</span>
+                    )}
+                  </td>
+                  {/* Sent */}
+                  <td className="px-4 py-3">
+                    {inv.emailSent === 1 ? (
+                      <span className="inline-flex items-center gap-1 text-xs text-emerald-600">
+                        <CheckCircle2 className="w-3 h-3" />
+                        {inv.emailSentAt ? formatAESTDate(new Date(inv.emailSentAt), { day: "numeric", month: "short" }) : "Yes"}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-gray-300">Not sent</span>
+                    )}
+                  </td>
+                  {/* Saasu */}
+                  <td className="px-4 py-3">
+                    {(inv as any).xeroInvoiceId ? (
+                      <span className="inline-flex items-center gap-1 text-xs text-blue-600">
+                        <CheckCircle2 className="w-3 h-3" /> Synced
+                      </span>
+                    ) : (
+                      <XeroSyncButton password={password} invoiceId={inv.id} onSynced={() => refetch()} />
+                    )}
+                  </td>
+                  {/* Actions */}
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex items-center justify-end gap-1.5">
+                      {inv.pdfUrl && (
+                        <a
+                          href={inv.pdfUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors"
+                          title="Download PDF"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                        </a>
+                      )}
+                      <button
+                        onClick={() => handleSendEmail(inv.id)}
+                        disabled={sendingEmailId === inv.id || !inv.recipientEmail}
+                        className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                        title={inv.recipientEmail ? `Send to ${inv.recipientEmail}` : "No email address"}
+                      >
+                        {sendingEmailId === inv.id ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Send className="w-3.5 h-3.5" />
+                        )}
+                      </button>
+                      <select
+                        value={inv.paymentStatus}
+                        onChange={(e) => handlePaymentStatusChange(inv.id, e.target.value as PaymentStatus)}
+                        className="appearance-none bg-gray-50 border border-gray-200 rounded-lg px-2 py-1 text-xs text-gray-600 cursor-pointer hover:bg-gray-100 transition-colors"
+                      >
+                        {PAYMENT_STATUSES.map((s) => (
+                          <option key={s.value} value={s.value}>{s.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>
@@ -5541,8 +4924,8 @@ function XeroSettings({ password }: { password: string }) {
   // Renamed internally but kept component name for backward compat with tab references
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
-      <h2 className="text-lg font-semibold text-white mb-4">Saasu Integration</h2>
-      <p className="text-xs text-white/40 mb-6">
+      <h2 className="text-lg font-semibold text-zinc-900 mb-4">Saasu Integration</h2>
+      <p className="text-xs text-zinc-400 mb-6">
         Saasu accounting is connected via API key. Invoices are automatically created in Saasu when a job is marked as Completed. If a deposit was already paid, it’s recorded as a partial payment against the invoice.
       </p>
 
@@ -5554,14 +4937,14 @@ function XeroSettings({ password }: { password: string }) {
           </div>
           <div>
             <p className="text-sm font-medium text-emerald-400">Connected (API Key)</p>
-            <p className="text-xs text-white/40">Saasu File ID configured</p>
+            <p className="text-xs text-zinc-400">Saasu File ID configured</p>
           </div>
         </div>
       </div>
 
       {/* How It Works */}
       <div className="mt-4 space-y-3">
-        <h3 className="text-sm font-medium text-white/60">How It Works</h3>
+        <h3 className="text-sm font-medium text-zinc-500">How It Works</h3>
         <div className="space-y-2">
           {[
             { step: "1", text: "When a job is marked Completed, a sales invoice is auto-created in Saasu" },
@@ -5570,10 +4953,10 @@ function XeroSettings({ password }: { password: string }) {
             { step: "4", text: "Invoice summary uses quote code + property address for easy reference" },
           ].map((item) => (
             <div key={item.step} className="flex items-start gap-3">
-              <span className="w-5 h-5 rounded-full bg-white/5 flex items-center justify-center text-[10px] text-white/40 flex-shrink-0 mt-0.5">
+              <span className="w-5 h-5 rounded-full bg-white/5 flex items-center justify-center text-[10px] text-zinc-400 flex-shrink-0 mt-0.5">
                 {item.step}
               </span>
-              <p className="text-xs text-white/40">{item.text}</p>
+              <p className="text-xs text-zinc-400">{item.text}</p>
             </div>
           ))}
         </div>
@@ -5607,25 +4990,25 @@ function NotificationHistorySection({ quoteNumber }: { quoteNumber: string }) {
       <div className="px-4 py-3 flex items-center justify-between bg-zinc-800/40 border-b border-white/10">
         <div className="flex items-center gap-2">
           <Bell className="w-4 h-4 text-amber-400/80" />
-          <span className="text-sm font-semibold text-white">Notification History</span>
+          <span className="text-sm font-semibold text-zinc-900">Notification History</span>
           {entries.length > 0 && (
             <span className="text-xs bg-amber-500/15 text-amber-400 px-1.5 py-0.5 rounded-full">{entries.length}</span>
           )}
         </div>
         <button
           onClick={() => refetch()}
-          className="text-white/30 hover:text-white/60 transition-colors"
+          className="text-zinc-400 hover:text-zinc-500 transition-colors"
           title="Refresh"
         >
           <RefreshCw className="w-3.5 h-3.5" />
         </button>
       </div>
       {isLoading ? (
-        <div className="px-4 py-4 flex items-center gap-2 text-white/30 text-sm">
+        <div className="px-4 py-4 flex items-center gap-2 text-zinc-400 text-sm">
           <Loader2 className="w-4 h-4 animate-spin" /> Loading...
         </div>
       ) : entries.length === 0 ? (
-        <div className="px-4 py-4 flex items-center gap-2 text-white/30 text-sm">
+        <div className="px-4 py-4 flex items-center gap-2 text-zinc-400 text-sm">
           <BellOff className="w-4 h-4" /> No notifications sent yet
         </div>
       ) : (
@@ -5643,23 +5026,23 @@ function NotificationHistorySection({ quoteNumber }: { quoteNumber: string }) {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xs font-medium text-white/80">
+                  <span className="text-xs font-medium text-zinc-700">
                     {triggerLabels[entry.statusTrigger] ?? entry.statusTrigger}
                   </span>
-                  <span className="text-xs text-white/30 uppercase tracking-wide">{entry.channel}</span>
+                  <span className="text-xs text-zinc-400 uppercase tracking-wide">{entry.channel}</span>
                   {!entry.success && (
                     <span className="text-xs text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded-full">Failed</span>
                   )}
                 </div>
-                <div className="text-xs text-white/35 mt-0.5 truncate">
+                <div className="text-xs text-zinc-400 mt-0.5 truncate">
                   {entry.recipientEmail || entry.recipientPhone || "—"}
                   {entry.recipientName ? ` · ${entry.recipientName}` : ""}
                 </div>
                 {entry.errorMessage && (
-                  <div className="text-xs text-red-400/70 mt-0.5 truncate">{entry.errorMessage}</div>
+                  <div className="text-xs text-red-500 mt-0.5 truncate">{entry.errorMessage}</div>
                 )}
               </div>
-              <div className="text-xs text-white/25 flex-shrink-0 mt-0.5">
+              <div className="text-xs text-zinc-300 flex-shrink-0 mt-0.5">
                 {new Date(entry.sentAt).toLocaleString("en-AU", {
                   day: "2-digit", month: "short",
                   hour: "2-digit", minute: "2-digit",
@@ -5702,14 +5085,14 @@ function NotificationLogView() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <Bell className="w-5 h-5 text-amber-400" /> Notification Log
+          <h2 className="text-lg font-bold text-zinc-900 flex items-center gap-2">
+            <Bell className="w-5 h-5 text-amber-500" /> Notification Log
           </h2>
-          <p className="text-xs text-white/35 mt-0.5">Every SMS and email the system has attempted to send</p>
+          <p className="text-xs text-zinc-500 mt-0.5">Every SMS and email the system has attempted to send</p>
         </div>
         <button
           onClick={() => refetch()}
-          className="text-white/30 hover:text-white/60 transition-colors p-2"
+          className="text-zinc-400 hover:text-zinc-600 transition-colors p-2"
           title="Refresh"
         >
           <RefreshCw className="w-4 h-4" />
@@ -5724,7 +5107,7 @@ function NotificationLogView() {
           onChange={(e) => setFilterQuote(e.target.value.toUpperCase())}
           onKeyDown={(e) => { if (e.key === "Enter") setAppliedFilter(filterQuote.trim()); }}
           placeholder="Filter by quote number (e.g. BC-008)"
-          className="flex-1 px-3 py-2 rounded-xl bg-zinc-800/60 border border-white/10 text-white text-sm placeholder-white/25 focus:outline-none focus:border-amber-400/50"
+          className="flex-1 px-3 py-2 rounded-xl bg-white border border-zinc-200 text-zinc-900 text-sm placeholder-zinc-400 focus:outline-none focus:border-zinc-900 shadow-sm"
         />
         <button
           onClick={() => setAppliedFilter(filterQuote.trim())}
@@ -5735,7 +5118,7 @@ function NotificationLogView() {
         {appliedFilter && (
           <button
             onClick={() => { setFilterQuote(""); setAppliedFilter(""); }}
-            className="px-3 py-2 rounded-xl bg-zinc-800/60 border border-white/10 text-white/50 hover:text-white text-sm transition-colors"
+            className="px-3 py-2 rounded-xl bg-zinc-100 border border-zinc-200 text-zinc-500 hover:text-zinc-900 text-sm transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -5745,39 +5128,39 @@ function NotificationLogView() {
       {/* Summary stats */}
       {!isLoading && entries.length > 0 && (
         <div className="grid grid-cols-3 gap-2 mb-4">
-          <div className="rounded-xl bg-zinc-800/40 border border-white/8 px-3 py-2.5 text-center">
-            <p className="text-lg font-bold text-white">{entries.length}</p>
-            <p className="text-xs text-white/35">Total</p>
+          <div className="rounded-xl bg-white border border-zinc-200 px-3 py-2.5 text-center shadow-sm">
+            <p className="text-lg font-bold text-zinc-900">{entries.length}</p>
+            <p className="text-xs text-zinc-500">Total</p>
           </div>
-          <div className="rounded-xl bg-emerald-900/20 border border-emerald-500/15 px-3 py-2.5 text-center">
-            <p className="text-lg font-bold text-emerald-400">{entries.filter(e => e.success).length}</p>
-            <p className="text-xs text-white/35">Delivered</p>
+          <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2.5 text-center">
+            <p className="text-lg font-bold text-emerald-600">{entries.filter(e => e.success).length}</p>
+            <p className="text-xs text-zinc-500">Delivered</p>
           </div>
-          <div className="rounded-xl bg-red-900/20 border border-red-500/15 px-3 py-2.5 text-center">
-            <p className="text-lg font-bold text-red-400">{entries.filter(e => !e.success).length}</p>
-            <p className="text-xs text-white/35">Failed</p>
+          <div className="rounded-xl bg-red-50 border border-red-200 px-3 py-2.5 text-center">
+            <p className="text-lg font-bold text-red-600">{entries.filter(e => !e.success).length}</p>
+            <p className="text-xs text-zinc-500">Failed</p>
           </div>
         </div>
       )}
 
       {/* Log table */}
       {isLoading ? (
-        <div className="flex items-center gap-2 text-white/30 text-sm py-8 justify-center">
+        <div className="flex items-center gap-2 text-zinc-400 text-sm py-8 justify-center">
           <Loader2 className="w-5 h-5 animate-spin" /> Loading notifications...
         </div>
       ) : entries.length === 0 ? (
         <div className="text-center py-12">
-          <BellOff className="w-10 h-10 text-white/15 mx-auto mb-3" />
-          <p className="text-white/30 text-sm">
+          <BellOff className="w-10 h-10 text-zinc-300 mx-auto mb-3" />
+          <p className="text-zinc-500 text-sm">
             {appliedFilter ? `No notifications found for ${appliedFilter}` : "No notifications logged yet"}
           </p>
-          <p className="text-white/20 text-xs mt-1">Notifications will appear here as quotes are processed</p>
+          <p className="text-zinc-400 text-xs mt-1">Notifications will appear here as quotes are processed</p>
         </div>
       ) : (
-        <div className="rounded-xl border border-white/10 overflow-hidden">
-          <div className="divide-y divide-white/5">
+        <div className="rounded-xl border border-zinc-200 overflow-hidden bg-white shadow-sm">
+          <div className="divide-y divide-zinc-100">
             {entries.map((entry) => (
-              <div key={entry.id} className="px-4 py-3 flex items-start gap-3 hover:bg-white/2 transition-colors">
+              <div key={entry.id} className="px-4 py-3 flex items-start gap-3 hover:bg-zinc-50 transition-colors">
                 <div className={`mt-0.5 flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
                   entry.success ? "bg-emerald-500/15" : "bg-red-500/15"
                 }`}>
@@ -5789,24 +5172,24 @@ function NotificationLogView() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-xs font-semibold text-amber-400">{entry.quoteNumber}</span>
-                    <span className="text-xs font-medium text-white/80">
+                    <span className="text-xs font-semibold text-amber-600">{entry.quoteNumber}</span>
+                    <span className="text-xs font-medium text-zinc-700">
                       {triggerLabels[entry.statusTrigger] ?? entry.statusTrigger}
                     </span>
-                    <span className="text-xs text-white/30 uppercase tracking-wide">{entry.channel}</span>
+                    <span className="text-xs text-zinc-400 uppercase tracking-wide">{entry.channel}</span>
                     {!entry.success && (
                       <span className="text-xs text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded-full">Failed</span>
                     )}
                   </div>
-                  <div className="text-xs text-white/35 mt-0.5 truncate">
+                  <div className="text-xs text-zinc-500 mt-0.5 truncate">
                     {entry.recipientEmail || entry.recipientPhone || "—"}
                     {entry.recipientName ? ` · ${entry.recipientName}` : ""}
                   </div>
                   {entry.errorMessage && (
-                    <div className="text-xs text-red-400/70 mt-0.5 truncate">{entry.errorMessage}</div>
+                    <div className="text-xs text-red-500 mt-0.5 truncate">{entry.errorMessage}</div>
                   )}
                 </div>
-                <div className="text-xs text-white/25 flex-shrink-0 mt-0.5 text-right">
+                <div className="text-xs text-zinc-400 flex-shrink-0 mt-0.5 text-right">
                   <div>{formatAESTDate(new Date(entry.sentAt), { day: "2-digit", month: "short" })}</div>
                   <div>{formatAESTDateTime(new Date(entry.sentAt), { hour: "2-digit", minute: "2-digit" })}</div>
                 </div>
@@ -5855,22 +5238,22 @@ function AgencyProfileView({
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-zinc-900 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-white animate-spin" />
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-zinc-400 animate-spin" />
       </div>
     );
   }
 
   if (!data) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-8 text-white/40 text-sm">
+      <div className="max-w-2xl mx-auto px-4 py-8 text-zinc-400 text-sm">
         Agency not found.
       </div>
     );
   }
 
   const statusColors: Record<string, string> = {
-    draft: "text-white/30",
+    draft: "text-zinc-400",
     quote_sent: "text-blue-400",
     accepted: "text-emerald-400",
     deposit_paid: "text-amber-400",
@@ -5896,7 +5279,7 @@ function AgencyProfileView({
       {/* Back button */}
       <button
         onClick={onBack}
-        className="flex items-center gap-2 text-white/40 hover:text-white text-sm transition-colors"
+        className="flex items-center gap-2 text-zinc-400 hover:text-white text-sm transition-colors"
       >
         <ChevronLeft className="w-4 h-4" /> All Agencies
       </button>
@@ -5910,16 +5293,16 @@ function AgencyProfileView({
           <div className="flex-1 min-w-0">
             <h2 className="text-white font-semibold text-lg leading-tight">{data.agencyName}</h2>
             {data.contactPerson && (
-              <p className="text-white/50 text-sm mt-0.5">{data.contactPerson}</p>
+              <p className="text-zinc-500 text-sm mt-0.5">{data.contactPerson}</p>
             )}
             <div className="flex flex-wrap gap-3 mt-3">
               {data.email && (
-                <a href={`mailto:${data.email}`} className="flex items-center gap-1.5 text-white/50 hover:text-white text-xs transition-colors">
+                <a href={`mailto:${data.email}`} className="flex items-center gap-1.5 text-zinc-500 hover:text-white text-xs transition-colors">
                   <Mail className="w-3.5 h-3.5" /> {data.email}
                 </a>
               )}
               {data.phone && (
-                <a href={`tel:${data.phone}`} className="flex items-center gap-1.5 text-white/50 hover:text-white text-xs transition-colors">
+                <a href={`tel:${data.phone}`} className="flex items-center gap-1.5 text-zinc-500 hover:text-white text-xs transition-colors">
                   <Phone className="w-3.5 h-3.5" /> {data.phone}
                 </a>
               )}
@@ -5931,32 +5314,32 @@ function AgencyProfileView({
       {/* Revenue summary */}
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-zinc-800/50 rounded-xl border border-white/10 p-4">
-          <p className="text-white/40 text-xs mb-1">Total Revenue</p>
+          <p className="text-zinc-400 text-xs mb-1">Total Revenue</p>
           <p className="text-white font-bold text-xl">{fmt(data.revenue.totalQuoted)}</p>
-          <p className="text-white/30 text-xs mt-0.5">{data.quotes.length} quote{data.quotes.length !== 1 ? "s" : ""}</p>
+          <p className="text-zinc-400 text-xs mt-0.5">{data.quotes.length} quote{data.quotes.length !== 1 ? "s" : ""}</p>
         </div>
         <div className="bg-zinc-800/50 rounded-xl border border-white/10 p-4">
-          <p className="text-white/40 text-xs mb-1">Outstanding</p>
+          <p className="text-zinc-400 text-xs mb-1">Outstanding</p>
           <p className={`font-bold text-xl ${data.revenue.outstanding > 0 ? "text-amber-400" : "text-emerald-400"}`}>
             {fmt(data.revenue.outstanding)}
           </p>
-          <p className="text-white/30 text-xs mt-0.5">{data.invoices.length} invoice{data.invoices.length !== 1 ? "s" : ""}</p>
+          <p className="text-zinc-400 text-xs mt-0.5">{data.invoices.length} invoice{data.invoices.length !== 1 ? "s" : ""}</p>
         </div>
         <div className="bg-zinc-800/50 rounded-xl border border-white/10 p-4">
-          <p className="text-white/40 text-xs mb-1">Total Invoiced</p>
+          <p className="text-zinc-400 text-xs mb-1">Total Invoiced</p>
           <p className="text-white font-semibold text-lg">{fmt(data.revenue.totalInvoiced)}</p>
         </div>
         <div className="bg-zinc-800/50 rounded-xl border border-white/10 p-4">
-          <p className="text-white/40 text-xs mb-1">Total Paid</p>
+          <p className="text-zinc-400 text-xs mb-1">Total Paid</p>
           <p className="text-emerald-400 font-semibold text-lg">{fmt(data.revenue.totalPaid)}</p>
         </div>
       </div>
 
       {/* Quotes */}
       <div>
-        <h3 className="text-white/60 text-xs font-semibold uppercase tracking-wider mb-3">Quotes</h3>
+        <h3 className="text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-3">Quotes</h3>
         {data.quotes.length === 0 ? (
-          <p className="text-white/30 text-sm">No quotes yet.</p>
+          <p className="text-zinc-400 text-sm">No quotes yet.</p>
         ) : (
           <div className="space-y-2">
             {data.quotes.map((q) => (
@@ -5969,12 +5352,12 @@ function AgencyProfileView({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="text-white font-medium text-sm">{q.quoteNumber}</span>
-                      <span className={`text-xs font-medium ${statusColors[q.jobStatus || "draft"] || "text-white/40"}`}>
+                      <span className={`text-xs font-medium ${statusColors[q.jobStatus || "draft"] || "text-zinc-400"}`}>
                         {statusLabels[q.jobStatus || "draft"] || q.jobStatus}
                       </span>
                     </div>
                     {q.propertyAddress && (
-                      <p className="text-white/40 text-xs mt-0.5 truncate">{q.propertyAddress}</p>
+                      <p className="text-zinc-400 text-xs mt-0.5 truncate">{q.propertyAddress}</p>
                     )}
                     {q.scheduledDate && (
                       <p className="text-cyan-400 text-xs mt-0.5">
@@ -5987,7 +5370,7 @@ function AgencyProfileView({
                     {q.acceptedTotal ? (
                       <p className="text-white font-semibold text-sm">${q.acceptedTotal.toLocaleString("en-AU")}</p>
                     ) : null}
-                    <p className="text-white/25 text-xs">
+                    <p className="text-zinc-300 text-xs">
                       {formatAESTDate(new Date(q.createdAt), { day: "numeric", month: "short", year: "numeric" })}
                     </p>
                   </div>
@@ -6001,7 +5384,7 @@ function AgencyProfileView({
       {/* Invoices */}
       {data.invoices.length > 0 && (
         <div>
-          <h3 className="text-white/60 text-xs font-semibold uppercase tracking-wider mb-3">Invoices</h3>
+          <h3 className="text-zinc-500 text-xs font-semibold uppercase tracking-wider mb-3">Invoices</h3>
           <div className="space-y-2">
             {data.invoices.map((inv) => {
               const paymentConfig = getPaymentStatusConfig(inv.paymentStatus);
@@ -6018,8 +5401,8 @@ function AgencyProfileView({
                           {paymentConfig.label}
                         </span>
                       </div>
-                      <p className="text-white/40 text-xs mt-0.5">{inv.propertyAddress}</p>
-                      <p className="text-white/25 text-xs mt-0.5">
+                      <p className="text-zinc-400 text-xs mt-0.5">{inv.propertyAddress}</p>
+                      <p className="text-zinc-300 text-xs mt-0.5">
                         {formatAESTDate(new Date(inv.createdAt), { day: "numeric", month: "short", year: "numeric" })}
                       </p>
                     </div>
@@ -6031,7 +5414,7 @@ function AgencyProfileView({
                           target="_blank"
                           rel="noreferrer"
                           onClick={(e) => e.stopPropagation()}
-                          className="inline-flex items-center gap-1 text-white/30 hover:text-white text-xs mt-1 transition-colors"
+                          className="inline-flex items-center gap-1 text-zinc-400 hover:text-white text-xs mt-1 transition-colors"
                         >
                           <Download className="w-3 h-3" /> PDF
                         </a>
@@ -6094,28 +5477,28 @@ function AgenciesTab({
         <div className="grid grid-cols-3 gap-2">
           <div className="bg-zinc-800/50 rounded-xl border border-white/10 p-3 text-center">
             <p className="text-white font-bold text-lg">{agencies.length}</p>
-            <p className="text-white/40 text-xs">Agencies</p>
+            <p className="text-zinc-400 text-xs">Agencies</p>
           </div>
           <div className="bg-zinc-800/50 rounded-xl border border-white/10 p-3 text-center">
             <p className="text-white font-bold text-lg">{totalQuotes}</p>
-            <p className="text-white/40 text-xs">Quotes</p>
+            <p className="text-zinc-400 text-xs">Quotes</p>
           </div>
           <div className="bg-zinc-800/50 rounded-xl border border-white/10 p-3 text-center">
             <p className="text-white font-bold text-lg">{fmt(totalRevenue)}</p>
-            <p className="text-white/40 text-xs">Revenue</p>
+            <p className="text-zinc-400 text-xs">Revenue</p>
           </div>
         </div>
       )}
 
       {/* Search */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" />
         <input
           type="text"
           placeholder="Search agencies..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-zinc-800/50 border border-white/10 text-white text-sm placeholder:text-white/30 focus:border-white/30 focus:outline-none"
+          className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-zinc-800/50 border border-white/10 text-white text-sm placeholder:text-zinc-400 focus:border-white/30 focus:outline-none"
         />
       </div>
 
@@ -6125,7 +5508,7 @@ function AgenciesTab({
           <Loader2 className="w-6 h-6 text-white animate-spin" />
         </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-12 text-white/30 text-sm">
+        <div className="text-center py-12 text-zinc-400 text-sm">
           {search ? "No agencies match your search." : "No agency quotes yet."}
         </div>
       ) : (
@@ -6145,14 +5528,14 @@ function AgenciesTab({
                     <div className="min-w-0">
                       <p className="text-white font-medium text-sm leading-tight truncate">{agency.agencyName}</p>
                       {agency.contactPerson && (
-                        <p className="text-white/40 text-xs mt-0.5">{agency.contactPerson}</p>
+                        <p className="text-zinc-400 text-xs mt-0.5">{agency.contactPerson}</p>
                       )}
                     </div>
                     <div className="text-right flex-shrink-0">
                       {agency.totalRevenue > 0 ? (
                         <p className="text-white font-semibold text-sm">{fmt(agency.totalRevenue)}</p>
                       ) : null}
-                      <p className="text-white/30 text-xs">
+                      <p className="text-zinc-400 text-xs">
                         {agency.quoteCount} quote{agency.quoteCount !== 1 ? "s" : ""}
                         {agency.acceptedCount > 0 ? ` · ${agency.acceptedCount} accepted` : ""}
                       </p>
@@ -6160,18 +5543,18 @@ function AgenciesTab({
                   </div>
                   <div className="flex items-center gap-3 mt-2">
                     {agency.email && (
-                      <span className="flex items-center gap-1 text-white/30 text-xs">
+                      <span className="flex items-center gap-1 text-zinc-400 text-xs">
                         <Mail className="w-3 h-3" /> {agency.email}
                       </span>
                     )}
                     {agency.lastActivityAt && (
-                      <span className="text-white/20 text-xs">
+                      <span className="text-zinc-300 text-xs">
                         {formatRelativeTime(new Date(agency.lastActivityAt))}
                       </span>
                     )}
                   </div>
                 </div>
-                <ChevronRight className="w-4 h-4 text-white/20 group-hover:text-white/40 flex-shrink-0 mt-1 transition-colors" />
+                <ChevronRight className="w-4 h-4 text-zinc-300 group-hover:text-zinc-400 flex-shrink-0 mt-1 transition-colors" />
               </div>
             </button>
           ))}
@@ -6182,7 +5565,7 @@ function AgenciesTab({
 }
 
 // ─── Export ─────────────────────────────────────────────────────────────────────
-type AdminView = "dashboard" | "calendar" | "contacts" | "library" | "invoices" | "xero" | "notifications" | "agencies";;
+type AdminView = "dashboard" | "calendar" | "contacts" | "library" | "invoices" | "xero" | "notifications";
 
 const ADMIN_SESSION_KEY = "bell_admin_session";
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
@@ -6267,118 +5650,164 @@ export default function Admin() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-zinc-900 text-white">
-      {/* Tab Header */}
-      <div className="sticky top-0 z-50 bg-white/5 backdrop-blur border-b border-white/10">
-        <div className="max-w-2xl mx-auto px-4">
-          <div className="py-3 flex items-center justify-between gap-3">
-            <div className="flex flex-col items-start">
-              <img
-                src={LOGO_WHITE_PNG}
-                alt="Bell Carpets"
-                className="h-5"
-              />
+    // Sidebar nav items grouped by category
+  const NAV_ITEMS: { view: AdminView; label: string; icon: React.ElementType; group: string }[] = [
+    { view: "dashboard",     label: "Quotes",        icon: LayoutDashboard, group: "pipeline" },
+    { view: "calendar",      label: "Calendar",      icon: Calendar,        group: "pipeline" },
+    { view: "invoices",      label: "Invoices",      icon: FileText,        group: "finance" },
+    { view: "contacts",      label: "Contacts",      icon: BookUser,        group: "people" },
+    { view: "library",       label: "Library",       icon: BookOpen,        group: "tools" },
+    { view: "xero",          label: "Saasu",         icon: Settings,        group: "tools" },
+    { view: "notifications", label: "Notifications", icon: Bell,            group: "tools" },
+  ];
+  const NAV_GROUPS = [
+    { key: "pipeline", label: "Pipeline" },
+    { key: "finance",  label: "Billing" },
+    { key: "people",   label: "People" },
+    { key: "tools",    label: "Tools" },
+  ];
+  // Mobile bottom bar: 5 primary items
+  const MOBILE_NAV: AdminView[] = ["dashboard", "calendar", "invoices", "contacts"];
 
-            </div>
-            <button
-              onClick={handleLogout}
-              title="Log out"
-              className="flex items-center gap-1.5 text-xs text-white/30 hover:text-white/70 transition-colors px-2 py-1 rounded-lg hover:bg-white/5"
-            >
-              <Lock className="w-3 h-3" />
-              <span className="hidden sm:inline">Lock</span>
-            </button>
-          </div>
-          {/* Tab bar — horizontally scrollable on mobile, min-width per tab so items never jam */}
-          <div className="overflow-x-auto -mb-px scrollbar-none" style={{ WebkitOverflowScrolling: "touch" }}>
-            <div className="flex min-w-max">
+  return (
+    <div className="min-h-screen bg-[#f8f8f7] text-zinc-900 flex admin-root">
+      {/* ── Left Sidebar (desktop) ── */}
+      <aside className="hidden md:flex flex-col w-56 shrink-0 bg-[#080807] border-r border-white/[0.05] sticky top-0 h-screen overflow-y-auto">
+        {/* Logo + subtitle */}
+        <div className="px-5 pt-6 pb-5">
+          <img src={LOGO_WHITE_PNG} alt="Bell Carpets" className="h-[18px] mb-1.5" />
+          <p className="sidebar-subtitle text-[11px] text-zinc-300">Quote Manager</p>
+        </div>
+        {/* Nav groups */}
+        <nav className="flex-1 px-3 pb-4 space-y-6">
+          {NAV_GROUPS.map(group => {
+            const items = NAV_ITEMS.filter(i => i.group === group.key);
+            return (
+              <div key={group.key}>
+                <p className="px-2 mb-1.5 text-[9px] font-semibold tracking-[0.18em] uppercase text-zinc-300">{group.label}</p>
+                {items.map(item => {
+                  const Icon = item.icon;
+                  const active = view === item.view;
+                  return (
+                    <button
+                      key={item.view}
+                      onClick={() => setView(item.view)}
+                      className={`relative w-full flex items-center gap-3 px-3 py-[7px] rounded-lg text-[13px] font-medium transition-all duration-150 mb-0.5 ${
+                        active
+                          ? "text-white bg-white/[0.07]"
+                          : "text-zinc-400 hover:text-zinc-600 hover:bg-white/[0.03]"
+                      }`}
+                    >
+                      {active && (
+                        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-white rounded-r-full" />
+                      )}
+                      <Icon className={`w-[15px] h-[15px] shrink-0 ${active ? "text-white" : "text-zinc-400"}`} />
+                      {item.label}
+                    </button>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </nav>
+        {/* Lock button */}
+        <div className="px-3 py-4 border-t border-white/[0.05]">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-3 py-[7px] rounded-lg text-[13px] text-zinc-300 hover:text-zinc-500 hover:bg-white/[0.03] transition-all duration-150"
+          >
+            <Lock className="w-[15px] h-[15px] shrink-0" />
+            Lock
+          </button>
+        </div>
+      </aside>
+
+      {/* ── Main content ── */}
+      <div className="flex-1 min-w-0 flex flex-col bg-[#f8f8f7]">
+        {/* Mobile top bar */}
+        <div className="md:hidden sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-zinc-200 px-4 py-3 flex items-center justify-between">
+          <img src={LOGO_PNG} alt="Bell Carpets" className="h-5" />
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-600 transition-colors px-2 py-1 rounded-lg hover:bg-white/5"
+          >
+            <Lock className="w-3 h-3" />
+          </button>
+        </div>
+
+        {/* View content */}
+        <div className="flex-1 pb-20 md:pb-0">
+          {view === "dashboard"     && <QuotesDashboard password={password} onEditQuote={setEditingSlug} />}
+          {view === "calendar"      && <CalendarView password={password} onEditQuote={setEditingSlug} />}
+          {view === "contacts"      && <ContactsManager password={password} />}
+          {view === "invoices"      && <InvoicesTab password={password} />}
+          {view === "library"       && <ScopeLibraryManager />}
+          {view === "xero"          && <XeroSettings password={password} />}
+          {view === "notifications" && <NotificationLogView />}
+        </div>
+
+        {/* ── Mobile bottom tab bar ── */}
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-t border-zinc-200 flex">
+          {NAV_ITEMS.filter(i => MOBILE_NAV.includes(i.view)).map(item => {
+            const Icon = item.icon;
+            const active = view === item.view;
+            return (
               <button
-                onClick={() => setView("dashboard")}
-                className={`min-w-[72px] px-3 py-3 text-xs font-medium flex flex-col items-center gap-1 border-b-2 transition-colors ${
-                  view === "dashboard" ? "border-white text-white" : "border-transparent text-white/40 hover:text-white/60"
+                key={item.view}
+                onClick={() => setView(item.view)}
+                className={`flex-1 flex flex-col items-center gap-1 py-2.5 text-[10px] font-medium transition-colors ${
+                  active ? "text-zinc-900" : "text-zinc-400 hover:text-zinc-600"
                 }`}
               >
-                <LayoutDashboard className="w-4 h-4" />
-                <span>Quotes</span>
+                <Icon className={`w-5 h-5 ${active ? "text-zinc-900" : "text-zinc-400"}`} />
+                {item.label}
               </button>
-              <button
-                onClick={() => setView("calendar")}
-                className={`min-w-[72px] px-3 py-3 text-xs font-medium flex flex-col items-center gap-1 border-b-2 transition-colors ${
-                  view === "calendar" ? "border-white text-white" : "border-transparent text-white/40 hover:text-white/60"
-                }`}
-              >
-                <Calendar className="w-4 h-4" />
-                <span>Calendar</span>
-              </button>
-              <button
-                onClick={() => setView("contacts")}
-                className={`min-w-[72px] px-3 py-3 text-xs font-medium flex flex-col items-center gap-1 border-b-2 transition-colors ${
-                  view === "contacts" ? "border-white text-white" : "border-transparent text-white/40 hover:text-white/60"
-                }`}
-              >
-                <BookUser className="w-4 h-4" />
-                <span>Contacts</span>
-              </button>
-              <button
-                onClick={() => setView("invoices")}
-                className={`min-w-[72px] px-3 py-3 text-xs font-medium flex flex-col items-center gap-1 border-b-2 transition-colors ${
-                  view === "invoices" ? "border-white text-white" : "border-transparent text-white/40 hover:text-white/60"
-                }`}
-              >
-                <FileText className="w-4 h-4" />
-                <span>Invoices</span>
-              </button>
-              <button
-                onClick={() => setView("library")}
-                className={`min-w-[72px] px-3 py-3 text-xs font-medium flex flex-col items-center gap-1 border-b-2 transition-colors ${
-                  view === "library" ? "border-white text-white" : "border-transparent text-white/40 hover:text-white/60"
-                }`}
-              >
-                <BookOpen className="w-4 h-4" />
-                <span>Library</span>
-              </button>
-              <button
-                onClick={() => setView("xero")}
-                className={`min-w-[72px] px-3 py-3 text-xs font-medium flex flex-col items-center gap-1 border-b-2 transition-colors ${
-                  view === "xero" ? "border-white text-white" : "border-transparent text-white/40 hover:text-white/60"
-                }`}
-              >
-                <Settings className="w-4 h-4" />
-                <span>Saasu</span>
-              </button>
-              <button
-                onClick={() => setView("agencies")}
-                className={`min-w-[72px] px-3 py-3 text-xs font-medium flex flex-col items-center gap-1 border-b-2 transition-colors ${
-                  view === "agencies" ? "border-purple-400 text-purple-400" : "border-transparent text-white/40 hover:text-white/60"
-                }`}
-              >
-                <Building2 className="w-4 h-4" />
-                <span>Agencies</span>
-              </button>
-              <button
-                onClick={() => setView("notifications")}
-                className={`min-w-[72px] px-3 py-3 text-xs font-medium flex flex-col items-center gap-1 border-b-2 transition-colors ${
-                  view === "notifications" ? "border-amber-400 text-amber-400" : "border-transparent text-white/40 hover:text-white/60"
-                }`}
-              >
-                <Bell className="w-4 h-4" />
-                <span>Notifs</span>
-              </button>
-            </div>
-          </div>
+            );
+          })}
+          {/* More button for non-primary items on mobile */}
+          {(() => {
+            const moreItems = NAV_ITEMS.filter(i => !MOBILE_NAV.includes(i.view));
+            const moreActive = moreItems.some(i => i.view === view);
+            return (
+              <div className="flex-1 relative group">
+                <button
+                  className={`w-full flex flex-col items-center gap-1 py-2.5 text-[10px] font-medium transition-colors ${
+                    moreActive ? "text-zinc-900" : "text-zinc-400 hover:text-zinc-600"
+                  }`}
+                >
+                  <Layers className={`w-5 h-5 ${moreActive ? "text-zinc-900" : "text-zinc-400"}`} />
+                  More
+                </button>
+                <div className="absolute bottom-full right-0 mb-1 bg-white border border-zinc-200 rounded-xl shadow-xl overflow-hidden hidden group-focus-within:block">
+                  {moreItems.map(item => {
+                    const Icon = item.icon;
+                    const active = view === item.view;
+                    return (
+                      <button
+                        key={item.view}
+                        onClick={() => setView(item.view)}
+                        className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors ${
+                          active ? "text-zinc-900 bg-zinc-100" : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50"
+                        }`}
+                      >
+                        <Icon className="w-4 h-4" />
+                        {item.label}
+                      </button>
+                    );
+                  })}
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-400/70 hover:text-red-400 hover:bg-red-500/[0.04] transition-colors border-t border-white/[0.06]"
+                  >
+                    <Lock className="w-4 h-4" />
+                    Lock
+                  </button>
+                </div>
+              </div>
+            );
+          })()}
         </div>
       </div>
-
-      {/* View Content */}
-      {view === "dashboard" && <QuotesDashboard password={password} onEditQuote={setEditingSlug} />}
-      {view === "calendar" && <CalendarView password={password} onEditQuote={setEditingSlug} />}
-      {view === "contacts" && <ContactsManager password={password} />}
-      {view === "invoices" && <InvoicesTab password={password} />}
-      {view === "library" && <ScopeLibraryManager />}
-      {view === "xero" && <XeroSettings password={password} />}
-      {view === "notifications" && <NotificationLogView />}
-      {view === "agencies" && <AgenciesTab password={password} onEditQuote={(slug) => { setEditingSlug(slug); setView("dashboard"); }} />}
     </div>
   );
 }
