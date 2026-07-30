@@ -179,3 +179,8 @@
 - [x] Fix "Dear [name]" to use agency name instead of PM name for agency quotes
 - [x] Fix empty PROPERTY field in expiry reminder emails (populates from configJson when quote is saved from editor)
 - [x] Fix empty CLIENT field in expiry reminder emails (backfill populated config.client.name)
+
+## Phase 19: Tier Config Update
+- [x] Update GOOD tier: Godfrey Hirst Enforcer, Bell Carpets link, no colour swatches, price placeholder 0
+- [x] Add BETTER tier: Godfrey Hirst Serina, Bell Carpets link, no colour swatches, price placeholder 0
+- [x] Update BEST tier: Victoria Carpets Lemar Twist, Bell Carpets link, no colour swatches, price placeholder 0
