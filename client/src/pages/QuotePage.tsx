@@ -177,7 +177,6 @@ function ExpiredQuotePage({ slug, expiresAt }: { slug: string; expiresAt: string
           className="text-center max-w-sm"
         >
           <img src={LOGO_WHITE_PNG} alt="Bell Carpets" className="h-8 mx-auto mb-2 opacity-40" />
-          <p className="text-[9px] tracking-[0.3em] text-white/40 uppercase font-light mb-8">{QUOTE_DATA.business.tagline}</p>
           <div className="w-16 h-16 rounded-full mx-auto mb-5 flex items-center justify-center bg-emerald-500/10 border border-emerald-500/30">
             <svg className="w-7 h-7 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
           </div>
@@ -202,7 +201,6 @@ function ExpiredQuotePage({ slug, expiresAt }: { slug: string; expiresAt: string
     <div className="min-h-screen flex items-center justify-center px-6 bg-zinc-900">
       <div className="text-center max-w-sm">
         <img src={LOGO_WHITE_PNG} alt="Bell Carpets" className="h-8 mx-auto mb-2 opacity-30" />
-        <p className="text-[9px] tracking-[0.3em] text-white/40 uppercase font-light mb-6">{QUOTE_DATA.business.tagline}</p>
         <div className="w-16 h-16 rounded-full mx-auto mb-5 flex items-center justify-center bg-white/5 border border-white/10">
           <AlertCircle className="w-7 h-7 text-red-400" />
         </div>
@@ -484,7 +482,6 @@ export default function QuotePage({ slug }: QuotePageProps) {
             animate={{ opacity: [0.3, 0.6, 0.3] }}
             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
           />
-          <p className="text-[9px] tracking-[0.3em] text-white/40 uppercase font-light mb-5">{QUOTE_DATA.business.tagline}</p>
           <div className="flex items-center justify-center gap-1.5">
             {[0, 1, 2].map((i) => (
               <motion.div
@@ -507,7 +504,6 @@ export default function QuotePage({ slug }: QuotePageProps) {
       <div className="min-h-screen flex items-center justify-center px-6 bg-zinc-900">
         <div className="text-center max-w-sm">
           <img src={LOGO_WHITE_PNG} alt="Bell Carpets" className="h-8 mx-auto mb-2 opacity-30" />
-          <p className="text-[9px] tracking-[0.3em] text-white/40 uppercase font-light mb-6">{QUOTE_DATA.business.tagline}</p>
           <AlertCircle className="w-10 h-10 mx-auto mb-4 text-white/20" />
           <h2 className="text-xl font-semibold mb-2 text-white">
             Quote Not Found
@@ -532,7 +528,6 @@ export default function QuotePage({ slug }: QuotePageProps) {
       <div className="min-h-screen flex items-center justify-center px-6 bg-zinc-900">
         <div className="text-center max-w-sm">
           <img src={LOGO_WHITE_PNG} alt="Bell Carpets" className="h-10 mx-auto mb-2 opacity-60" />
-          <p className="text-[9px] tracking-[0.3em] text-white/40 uppercase font-light mb-10">{QUOTE_DATA.business.tagline}</p>
           <h2 className="text-2xl font-semibold mb-3 text-white">
             This quote has expired.
           </h2>
@@ -631,9 +626,6 @@ export default function QuotePage({ slug }: QuotePageProps) {
           alt="Bell Carpets — Established 1987"
           className="h-12 sm:h-14 w-auto mx-auto"
         />
-        <p className="text-[10px] tracking-[0.3em] mt-3 text-white/50 uppercase font-light">
-          {QUOTE_DATA.business.tagline}
-        </p>
       </motion.div>
     </header>
   );
