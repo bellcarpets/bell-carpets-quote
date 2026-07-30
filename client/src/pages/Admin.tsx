@@ -146,7 +146,7 @@ function PasswordGate({
             alt="Bell Carpets"
             className="h-10 mx-auto mb-1"
           />
-          <p className="text-[9px] tracking-[0.25em] text-white/50 uppercase font-light mb-4">RESIDENTIAL | COMMERCIAL | PROJECTS</p>
+
           <h1 className="text-xl text-white font-semibold">
             Admin Panel
           </h1>
@@ -1381,7 +1381,7 @@ function QuotesDashboard({
                 alt="Bell Carpets"
                 className="h-5"
               />
-              <p className="text-[7px] tracking-[0.2em] text-white/40 uppercase font-light mt-0.5">RESIDENTIAL | COMMERCIAL | PROJECTS</p>
+
             </div>
             <div className="h-5 w-px bg-white/10" />
             <div>
@@ -6279,7 +6279,7 @@ export default function Admin() {
                 alt="Bell Carpets"
                 className="h-5"
               />
-              <p className="text-[7px] tracking-[0.2em] text-white/40 uppercase font-light mt-0.5">RESIDENTIAL | COMMERCIAL | PROJECTS</p>
+
             </div>
             <button
               onClick={handleLogout}

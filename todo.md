@@ -114,3 +114,17 @@
 - [x] Add "Create Invoice" button on completed/paid_in_full quote cards
 - [x] Add Saasu manual sync fallback button on invoices without xeroInvoiceId
 - [x] Add weekly pipeline SMS (Monday morning summary to Leon's number)
+
+## Phase 12: White Theme Conversion
+- [x] Convert QuotePage main layout to white background with dark text
+- [x] Convert TierCard component to white/light theme
+- [x] Convert ScopeOfWorks component to white/light theme
+- [x] Convert QuoteTerms component to white/light theme
+- [x] Convert Footer component to white/light theme (dark logo)
+- [x] Convert AddonSelector component to white/light theme
+- [x] Convert HomeownerQuotePanel to white/light theme
+- [x] Convert JobStatusTracker to white/light theme
+- [x] Remove WhyBellCarpets "second-generation" text (returns null)
+- [x] Fix customer notes section dark theme remnant in agent layout
+- [x] Verify bc-013 (agent 3-tier) renders correctly on white
+- [x] Verify bc-012 (homeowner/single-price) renders correctly on white
