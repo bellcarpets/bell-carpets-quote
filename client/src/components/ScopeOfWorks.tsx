@@ -55,11 +55,8 @@ export default function ScopeOfWorks({ items }: ScopeOfWorksProps) {
 
               {/* Item content */}
               <div className="rounded-xl px-4 py-3.5 bg-white/[0.02]">
-                <p className="text-sm font-medium mb-0.5 text-white">
+                <p className="text-sm font-medium text-white">
                   {item.title}
-                </p>
-                <p className="text-sm text-white/50">
-                  {item.description}
                 </p>
               </div>
             </motion.div>
