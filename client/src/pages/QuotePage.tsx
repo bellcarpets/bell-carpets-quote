@@ -16,7 +16,6 @@ import HomeownerQuotePanel from "@/components/HomeownerQuotePanel";
 import ScopeOfWorks from "@/components/ScopeOfWorks";
 import QuoteTerms from "@/components/QuoteTerms";
 
-import WhyBellCarpets from "@/components/WhyBellCarpets";
 import Footer from "@/components/Footer";
 import AcceptModal from "@/components/AcceptModal";
 import JobStatusTracker from "@/components/JobStatusTracker";
@@ -745,9 +744,6 @@ export default function QuotePage({ slug }: QuotePageProps) {
             </div>
           )}
           <div className="max-w-lg mx-auto">
-            {quoteType === "agent" ? <WhyBellCarpets /> : null}
-          </div>
-          <div className="max-w-lg mx-auto">
             <QuoteTerms terms={config.terms} validUntil={validUntil} />
           </div>
           <DownloadQuotePDF />
@@ -858,9 +854,6 @@ export default function QuotePage({ slug }: QuotePageProps) {
             </div>
           </div>
         )}
-        <div className="max-w-lg mx-auto">
-          <WhyBellCarpets />
-        </div>
         <div className="max-w-lg mx-auto">
           <QuoteTerms terms={config.terms} validUntil={validUntil} />
         </div>
