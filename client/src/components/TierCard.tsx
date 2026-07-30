@@ -245,7 +245,7 @@ export default function TierCard({
   onAccept,
   index,
 }: TierCardProps) {
-  const selectedColour = tier.colours.find((c) => c.id === selectedColourId);
+  const selectedColour = tier.colours?.find((c) => c.id === selectedColourId);
   const [lightboxColour, setLightboxColour] = useState<ColourOption | null>(null);
   const [showSpecs, setShowSpecs] = useState(false);
 
@@ -411,7 +411,7 @@ export default function TierCard({
                   )}
 
                   {/* Badges */}
-                  {tier.badges.length > 0 && (
+                  {tier.badges && tier.badges.length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-6">
                       {tier.badges.map((badge) => (
                         <div
@@ -445,7 +445,7 @@ export default function TierCard({
 
                   {/* Colour swatches */}
                   <div className="grid grid-cols-5 gap-3 sm:gap-4 mb-6">
-                    {tier.colours.map((colour) => {
+                    {(tier.colours || []).map((colour) => {
                       const isChosen = selectedColourId === colour.id;
                       return (
                         <div key={colour.id} className="flex flex-col items-center gap-2">
