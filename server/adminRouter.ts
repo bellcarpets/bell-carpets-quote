@@ -75,33 +75,24 @@ export const DEFAULT_AGENT_CONFIG: QuoteConfigData = {
       id: "bronze",
       name: "Good",
       label: "GOOD",
-      productName: "Enforcer",
+      productName: "Ovation",
       manufacturer: "Godfrey Hirst",
-      fibre: "",
-      pileType: "",
+      fibre: "Polypropylene",
+      pileType: "Textured Loop Pile",
+      width: "4.0m",
       badges: [],
-      price: 0,
+      price: 4367,
       color: "#A67C52",
       colorAccent: "#C4956A",
       image: `${CDN}/carpet-bronze_7e298111.jpg`,
-      productUrl: "https://www.bellcarpets.com.au/products/godfrey-hirst-enforcer",
-      colours: [],
-    },
-    {
-      id: "silver",
-      name: "Better",
-      label: "BETTER",
-      productName: "Serina",
-      manufacturer: "Godfrey Hirst",
-      fibre: "",
-      pileType: "",
-      badges: [],
-      price: 0,
-      color: "#8A9BA8",
-      colorAccent: "#A8BCC9",
-      image: `${CDN}/carpet-silver_7e298111.jpg`,
-      productUrl: "https://www.bellcarpets.com.au/products/godfrey-hirst-serina",
-      colours: [],
+      productUrl: "https://www.godfreyhirst.com/au/products/ovation",
+      colours: [
+        { id: "doeskin", name: "Doeskin", swatchImage: "/manus-storage/ovation_doeskin_ab90ed0f.jpg" },
+        { id: "oyster", name: "Oyster", swatchImage: "/manus-storage/ovation_oyster_b875d791.jpg" },
+        { id: "woodland", name: "Woodland", swatchImage: "/manus-storage/ovation_woodland_2062bb0d.jpg" },
+        { id: "folkstone", name: "Folkstone", swatchImage: "/manus-storage/ovation_folkstone_5f3f1fa0.jpg" },
+        { id: "caviar", name: "Caviar", swatchImage: "/manus-storage/ovation_caviar_9bba2912.jpg" },
+      ],
     },
     {
       id: "gold",
@@ -109,15 +100,22 @@ export const DEFAULT_AGENT_CONFIG: QuoteConfigData = {
       label: "BEST",
       productName: "Lemar Twist",
       manufacturer: "Victoria Carpets",
-      fibre: "",
-      pileType: "",
-      badges: [],
-      price: 0,
+      fibre: "100% Solution Dyed Nylon",
+      pileType: "Twist Pile",
+      pileWeight: "26oz",
+      badges: ["7 Year Premium Warranty", "Australian Made", "Red List Free"],
+      price: 4830,
       color: "#D4AF37",
       colorAccent: "#E8C84D",
       image: `${CDN}/carpet-gold_acdbbbe3.jpg`,
-      productUrl: "https://www.bellcarpets.com.au/products/victoria-carpets-lemar-twist",
-      colours: [],
+      productUrl: "https://victoriacarpets.com.au/product/lemar-twist/",
+      colours: [
+        { id: "smokey-canvas", name: "Smokey Canvas", swatchImage: "/manus-storage/lemar_smokey_canvas_f5db828b.jpg" },
+        { id: "alicante", name: "Alicante", swatchImage: "/manus-storage/lemar_alicante_b0886e73.jpg" },
+        { id: "platinum-grey", name: "Platinum Grey", swatchImage: "/manus-storage/lemar_platinum_grey_4873e30b.jpg" },
+        { id: "black-finestone", name: "Black Finestone", swatchImage: "/manus-storage/lemar_black_finestone_f78ec584.jpg" },
+        { id: "belleville", name: "Belleville", swatchImage: "/manus-storage/lemar_belleville_9bd21b8a.jpg" },
+      ],
     },
   ],
 
@@ -247,7 +245,7 @@ export async function sendSchedulingConfirmationEmail(data: SchedulingConfirmati
 
   const htmlBody = `<!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Installation Scheduled from Bell Carpets</title></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Installation Scheduled — Bell Carpets</title></head>
 <body style="margin:0;padding:0;background:#ffffff;font-family:Georgia,'Times New Roman',serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;">
     <tr><td align="center" style="padding:40px 16px 0;">
@@ -318,8 +316,7 @@ export async function sendSchedulingConfirmationEmail(data: SchedulingConfirmati
         from: "Bell Carpets <quotes@bellcarpets.com.au>",
         reply_to: "hello@bellcarpets.com.au",
         to: [data.recipientEmail],
-        bcc: ["hello@bellcarpets.com.au"],
-        subject: `Installation Scheduled: ${data.propertyAddress} on ${dateStr}`,
+        subject: `Installation Scheduled — ${data.propertyAddress} on ${dateStr}`,
         html: htmlBody,
       }),
     });
@@ -364,7 +361,7 @@ export async function sendQuoteLinkEmail(data: QuoteLinkEmailData): Promise<bool
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Your Flooring Quote from Bell Carpets</title>
+  <title>Your Flooring Quote — Bell Carpets</title>
 </head>
 <body style="margin:0;padding:0;background:#f5f5f5;font-family:Georgia,'Times New Roman',serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;">
@@ -381,7 +378,7 @@ export async function sendQuoteLinkEmail(data: QuoteLinkEmailData): Promise<bool
         <tr><td style="padding:48px 48px 40px;">
 
           <p style="color:#333;font-size:14px;margin:0 0 32px;font-family:Arial,sans-serif;line-height:1.6;">
-            Dear ${data.clientName || data.agentName},
+            Dear ${data.agentPropertyManager ? data.agentPropertyManager : data.agentName},
           </p>
 
           <h1 style="color:#111;font-size:28px;font-weight:400;margin:0 0 8px;line-height:1.2;letter-spacing:-0.01em;">
@@ -431,7 +428,7 @@ export async function sendQuoteLinkEmail(data: QuoteLinkEmailData): Promise<bool
           <!-- CTA Button -->
           <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:40px;">
             <tr><td>
-              <a href="${quoteUrl}" style="display:inline-block;background:#111111;color:#ffffff;text-decoration:none;padding:16px 40px;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;font-family:Arial,sans-serif;border-radius:6px;">
+              <a href="${quoteUrl}" style="display:inline-block;background:#ffffff;color:#fff;text-decoration:none;padding:16px 40px;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;font-family:Arial,sans-serif;">
                 View Your Quote
               </a>
             </td></tr>
@@ -473,7 +470,7 @@ export async function sendQuoteLinkEmail(data: QuoteLinkEmailData): Promise<bool
         reply_to: "hello@bellcarpets.com.au",
         to: [data.agentEmail],
         bcc: ["hello@bellcarpets.com.au"],
-        subject: `Your Flooring Quote ${data.quoteNumber} from Bell Carpets`,
+        subject: `Your Flooring Quote ${data.quoteNumber} — Bell Carpets`,
         html: htmlBody,
       }),
     });
@@ -506,7 +503,7 @@ export async function sendReminderEmail(data: QuoteLinkEmailData & { daysLeft: n
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Quote Reminder from Bell Carpets</title>
+  <title>Quote Reminder — Bell Carpets</title>
 </head>
 <body style="margin:0;padding:0;background:#f5f5f5;font-family:Georgia,'Times New Roman',serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;">
@@ -523,7 +520,7 @@ export async function sendReminderEmail(data: QuoteLinkEmailData & { daysLeft: n
         <tr><td style="padding:48px 48px 40px;">
 
           <p style="color:#333;font-size:14px;margin:0 0 32px;font-family:Arial,sans-serif;line-height:1.6;">
-            Dear ${data.clientName || data.agentName},
+            Dear ${data.agentPropertyManager ? data.agentPropertyManager : data.agentName},
           </p>
 
           <h1 style="color:#111;font-size:28px;font-weight:400;margin:0 0 8px;line-height:1.2;letter-spacing:-0.01em;">
@@ -573,7 +570,7 @@ export async function sendReminderEmail(data: QuoteLinkEmailData & { daysLeft: n
           <!-- CTA Button -->
           <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:40px;">
             <tr><td>
-              <a href="${quoteUrl}" style="display:inline-block;background:#111111;color:#ffffff;text-decoration:none;padding:16px 40px;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;font-family:Arial,sans-serif;border-radius:6px;">
+              <a href="${quoteUrl}" style="display:inline-block;background:#ffffff;color:#fff;text-decoration:none;padding:16px 40px;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;font-family:Arial,sans-serif;">
                 ${isUrgent ? "Accept Now" : "Review Quote"}
               </a>
             </td></tr>
@@ -616,7 +613,7 @@ export async function sendReminderEmail(data: QuoteLinkEmailData & { daysLeft: n
         reply_to: "hello@bellcarpets.com.au",
         to: [data.agentEmail],
         bcc: ["hello@bellcarpets.com.au"],
-        subject: `Reminder: Your Quote ${data.quoteNumber} ${urgencyText} from Bell Carpets`,
+        subject: `Reminder: Your Quote ${data.quoteNumber} ${urgencyText} — Bell Carpets`,
         html: htmlBody,
       }),
     });

@@ -46,9 +46,17 @@ export default function AddonSelector({
     >
       {/* Section header */}
       <div className="flex items-center gap-3 mb-4">
-        <div className="h-px flex-1 bg-white/10" />
-        <p className="text-[10px] uppercase tracking-[0.25em] text-white/30 font-light">Optional Extras</p>
-        <div className="h-px flex-1 bg-white/10" />
+        <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-white/[0.04] border border-white/10">
+          <Package className="w-4 h-4 text-white/40" />
+        </div>
+        <div>
+          <p className="text-xs uppercase tracking-[0.18em] text-white/40">
+            Additional Services
+          </p>
+          <p className="text-sm text-white/60">
+            Optional extras — add to your quote
+          </p>
+        </div>
       </div>
 
       {/* Addon cards */}
@@ -119,22 +127,20 @@ export default function AddonSelector({
         })}
       </div>
 
-      {/* Live price summary — only show breakdown when an addon is selected */}
+      {/* Live price summary */}
       <motion.div
         layout
         className="mt-4 rounded-xl px-4 py-4 bg-white/[0.02] border border-white/10"
       >
         <div className="space-y-2">
-          {addonsTotal > 0 && (
-            <div className="flex justify-between items-center">
-              <span className="text-xs text-white/40">
-                {tierName} base price
-              </span>
-              <span className="text-sm text-white/60">
-                {formatPrice(baseTierPrice)}
-              </span>
-            </div>
-          )}
+          <div className="flex justify-between items-center">
+            <span className="text-xs text-white/40">
+              {tierName} base price
+            </span>
+            <span className="text-sm text-white/60">
+              {formatPrice(baseTierPrice)}
+            </span>
+          </div>
 
           {addons
             .filter((a) => selectedAddonIds.includes(a.id))

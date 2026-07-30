@@ -170,7 +170,7 @@ async function sendOverdueEmail(data: {
         reply_to: REPLY_TO_EMAIL,
         to: [data.recipientEmail],
         bcc: ["hello@bellcarpets.com.au"],
-        subject: `Payment Overdue: ${data.quoteNumber} from Bell Carpets`,
+        subject: `Payment Overdue: ${data.quoteNumber} — Bell Carpets`,
         html: buildOverdueEmail(data),
       }),
     });

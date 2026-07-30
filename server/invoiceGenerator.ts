@@ -163,8 +163,14 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
       doc.font("Helvetica-Bold").fontSize(6.5).fillColor(INK_MID);
       doc.text(
         "BELL CARPETS  |  ESTABLISHED 1987",
-        leftMargin, footerY + 5,
+        leftMargin, footerY,
         { width: pageWidth * 0.5, align: "left", characterSpacing: 0.8 }
+      );
+      doc.font("Helvetica").fontSize(6).fillColor(INK_LIGHT);
+      doc.text(
+        "RESIDENTIAL  |  COMMERCIAL  |  PROJECTS",
+        leftMargin, footerY + 10,
+        { width: pageWidth * 0.5, align: "left", characterSpacing: 0.6 }
       );
       doc.font("Helvetica").fontSize(6.5).fillColor(INK_LIGHT);
       doc.text(
@@ -254,7 +260,13 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
       doc.text("BELL CARPETS", leftMargin, y + 8);
     }
 
-    // (tagline removed)
+    // Tagline below logo
+    doc.font("Helvetica").fontSize(5.5).fillColor("#888888");
+    doc.text("RESIDENTIAL  |  COMMERCIAL  |  PROJECTS", leftMargin, y + 40, {
+      width: 160,
+      align: "left",
+      characterSpacing: 0.8,
+    });
 
     // Quote number (right side of header)
     doc.font("Helvetica").fontSize(7).fillColor("#999999");
@@ -512,7 +524,7 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
       width: pageWidth * 0.68,
       characterSpacing: 0.5,
     });
-    doc.text("Amount (inc GST)", leftMargin + pageWidth * 0.68, y + 6, {
+    doc.text("Amount (ex GST)", leftMargin + pageWidth * 0.68, y + 6, {
       width: pageWidth * 0.32 - 8,
       align: "right",
       characterSpacing: 0.5,
@@ -529,7 +541,7 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
           width: pageWidth * 0.68,
         });
         doc.font("Helvetica-Bold").fontSize(8.5).fillColor(INK_BLACK);
-        doc.text(formatPrice(room.price), leftMargin + pageWidth * 0.68, y + 6, {
+        doc.text(formatPrice(Math.round(room.price / 1.1)), leftMargin + pageWidth * 0.68, y + 6, {
           width: pageWidth * 0.32 - 8,
           align: "right",
         });
@@ -547,7 +559,7 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
           width: pageWidth * 0.68,
         });
         doc.font("Helvetica-Bold").fontSize(8.5).fillColor(INK_BLACK);
-        doc.text(formatPrice(tier.price), leftMargin + pageWidth * 0.68, y + 6, {
+        doc.text(formatPrice(Math.round(tier.price / 1.1)), leftMargin + pageWidth * 0.68, y + 6, {
           width: pageWidth * 0.32 - 8,
           align: "right",
         });
@@ -563,7 +575,7 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
         width: pageWidth * 0.68,
       });
       doc.font("Helvetica-Bold").fontSize(8.5).fillColor(INK_BLACK);
-      doc.text(formatPrice(data.basePrice), leftMargin + pageWidth * 0.68, y + 6, {
+      doc.text(formatPrice(Math.round(data.basePrice / 1.1)), leftMargin + pageWidth * 0.68, y + 6, {
         width: pageWidth * 0.32 - 8,
         align: "right",
       });
@@ -579,7 +591,7 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
       doc.font("Helvetica").fontSize(8.5).fillColor(INK_DARK);
       doc.text(addon.title, leftMargin + 8, y + 6, { width: pageWidth * 0.68 });
       doc.font("Helvetica-Bold").fontSize(8.5).fillColor(INK_BLACK);
-      doc.text(formatPrice(addon.price), leftMargin + pageWidth * 0.68, y + 6, {
+      doc.text(formatPrice(Math.round(addon.price / 1.1)), leftMargin + pageWidth * 0.68, y + 6, {
         width: pageWidth * 0.32 - 8,
         align: "right",
       });
@@ -591,8 +603,18 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
     // For multi-tier: no single "Total" row — each tier has its own price shown above.
     // For single-tier: show GST row then grand total row.
     if (!data.allTiers || data.allTiers.length <= 1) {
-      // Total row
+      // GST row
       y += 4;
+      doc.rect(leftMargin, y, pageWidth, 20).fill(WHITE);
+      doc.font("Helvetica").fontSize(8.5).fillColor(INK_MID);
+      doc.text("GST (10%)", leftMargin + 12, y + 5, { width: pageWidth * 0.6 });
+      doc.font("Helvetica").fontSize(8.5).fillColor(INK_MID);
+      doc.text(formatPrice(Math.round(data.grandTotal / 11)), leftMargin + pageWidth * 0.6, y + 5, {
+        width: pageWidth * 0.4 - 8,
+        align: "right",
+      });
+      y += 20;
+      // Total row
       doc.rect(leftMargin, y, pageWidth, 30).fill(ROW_ALT);
       doc.rect(leftMargin, y, 3, 30).fill(CHAMPAGNE);
       doc.font("Helvetica").fontSize(9).fillColor(INK_MID);
@@ -609,7 +631,7 @@ export async function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
       doc.rect(leftMargin, y, pageWidth, 24).fill(ROW_ALT);
       doc.rect(leftMargin, y, 3, 24).fill(CHAMPAGNE);
       doc.font("Helvetica").fontSize(8).fillColor(INK_MID);
-      doc.text("Prices shown per option above (inc GST). Select one option to proceed.", leftMargin + 12, y + 7, {
+      doc.text("Prices shown per option above (ex GST). Select one option to proceed.", leftMargin + 12, y + 7, {
         width: pageWidth - 20,
       });
       y += 24;

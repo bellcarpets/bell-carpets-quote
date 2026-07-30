@@ -74,8 +74,8 @@ export interface TierConfig {
   underlay?: UnderlayOption;
 }
 
-/** Underlay options available on quotes */
-export type UnderlayOption = "Dunlop Springtred Protect" | "Dunlop Springtred Ultimate" | "Dunlop Eureka" | "Dunlop Government Red" | "";
+/** Underlay options available on single-product quotes */
+export type UnderlayOption = "Dunlop Springtred Protect" | "Dunlop Springtred Ultimate" | "Dunlop Eureka" | "";
 
 /**
  * Single product config — used for homeowner quotes and agency_single quotes.
@@ -156,14 +156,4 @@ export interface QuoteConfigData {
 
   /** Optional customer-visible notes shown below scope of works (e.g. access instructions, colour confirmations) */
   customerNotes?: string;
-
-  /** Underlay product — single selection applies to all tiers */
-  underlay?: UnderlayOption;
-
-  /**
-   * Optional freeform customer-facing description.
-   * One line per row. When filled in, replaces the auto-generated Scope of Works list
-   * on the customer-facing quote page. Leave blank to use the generated scope.
-   */
-  customerDescription?: string;
 }

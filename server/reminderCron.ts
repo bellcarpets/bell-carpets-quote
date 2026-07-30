@@ -68,7 +68,7 @@ function buildReminderEmail(data: {
         <tr>
           <td style="padding:36px 40px;">
             <h1 style="color:#111111;font-size:22px;font-weight:600;margin:0 0 20px;font-family:Arial,sans-serif;">Quote Expiry Reminder</h1>
-            <p style="color:#333333;font-size:14px;margin:0 0 6px;font-family:Arial,sans-serif;">Dear ${data.clientName || data.agentName},</p>
+            <p style="color:#333333;font-size:14px;margin:0 0 6px;font-family:Arial,sans-serif;">Dear ${data.agentPropertyManager ? data.agentPropertyManager : data.agentName},</p>
             <p style="color:#333333;font-size:14px;margin:0 0 24px;line-height:1.7;font-family:Arial,sans-serif;">
               This is a friendly reminder that your Bell Carpets quote is expiring soon.
               Please review and accept the quote before it expires to secure your pricing.
@@ -82,18 +82,18 @@ function buildReminderEmail(data: {
                   <td style="color:#111111;font-size:14px;font-family:Arial,sans-serif;font-weight:600;">${data.quoteNumber}</td>
                 </tr></table>
               </td></tr>
-              ${data.propertyAddress ? `<tr><td style="padding:12px 0;border-bottom:1px solid #e8e8e8;">
+              <tr><td style="padding:12px 0;border-bottom:1px solid #e8e8e8;">
                 <table width="100%" cellpadding="0" cellspacing="0"><tr>
                   <td style="color:#999999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:160px;">Property</td>
                   <td style="color:#111111;font-size:14px;font-family:Arial,sans-serif;font-weight:600;">${data.propertyAddress}</td>
                 </tr></table>
-              </td></tr>` : ''}
-              ${data.clientName ? `<tr><td style="padding:12px 0;">
+              </td></tr>
+              <tr><td style="padding:12px 0;">
                 <table width="100%" cellpadding="0" cellspacing="0"><tr>
                   <td style="color:#999999;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;font-family:Arial,sans-serif;width:160px;">Client</td>
                   <td style="color:#111111;font-size:14px;font-family:Arial,sans-serif;font-weight:600;">${data.clientName}</td>
                 </tr></table>
-              </td></tr>` : ''}
+              </td></tr>
             </table>
 
             <!-- CTA Button -->

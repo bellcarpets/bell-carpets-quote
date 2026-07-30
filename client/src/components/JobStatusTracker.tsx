@@ -81,6 +81,9 @@ export default function JobStatusTracker({
         {/* Header */}
         <div className="text-center mb-10">
           <img src={LOGO_WHITE_PNG} alt="Bell Carpets" className="h-10 mx-auto mb-2" />
+          <p className="text-[10px] tracking-[0.3em] text-white/50 uppercase font-light">
+            {QUOTE_DATA.business.tagline}
+          </p>
         </div>
 
         {/* Quote Reference */}
