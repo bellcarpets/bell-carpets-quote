@@ -147,7 +147,6 @@ function PasswordGate({
             alt="Bell Carpets"
             className="h-10 mx-auto mb-1"
           />
-          <p className="text-[9px] tracking-[0.25em] text-zinc-400 uppercase font-light mb-4">RESIDENTIAL | COMMERCIAL | PROJECTS</p>
           <h1 className="text-xl text-zinc-900 font-semibold">
             Admin Panel
           </h1>
