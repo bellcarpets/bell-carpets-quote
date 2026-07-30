@@ -1098,6 +1098,7 @@ function QuotesDashboard({
     { enabled: statusFilter === "archived", refetchOnWindowFocus: false }
   );
   const [agentFilter, setAgentFilter] = useState<string>("all");
+  const [typeFilter, setTypeFilter] = useState<"all" | "agency" | "homeowner">("all");
   const [dateFrom, setDateFrom] = useState<string>("");
   const [dateTo, setDateTo] = useState<string>("");
 
@@ -1338,6 +1339,9 @@ function QuotesDashboard({
     if (statusFilter === "expired") return isExpiredQuote(q);
     // Status filter
     if (statusFilter !== "all" && q.jobStatus !== statusFilter) return false;
+    // Type filter
+    if (typeFilter === "agency" && q.quoteType === "homeowner") return false;
+    if (typeFilter === "homeowner" && q.quoteType !== "homeowner") return false;
     // Agent filter
     if (agentFilter !== "all") {
       const qAgent = q.agentName || q.acceptedAgentName || "";
@@ -1557,6 +1561,33 @@ function QuotesDashboard({
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-9 pr-3 py-2 rounded-lg bg-white border border-zinc-200 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-200 transition-all"
             />
+          </div>
+          {/* Type toggle */}
+          <div className="flex items-center gap-1 bg-zinc-100 rounded-lg p-1">
+            <button
+              onClick={() => setTypeFilter("all")}
+              className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                typeFilter === "all" ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-700"
+              }`}
+            >
+              All
+            </button>
+            <button
+              onClick={() => setTypeFilter(typeFilter === "agency" ? "all" : "agency")}
+              className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${
+                typeFilter === "agency" ? "bg-sky-500 text-white shadow-sm" : "text-zinc-500 hover:text-zinc-700"
+              }`}
+            >
+              Agency
+            </button>
+            <button
+              onClick={() => setTypeFilter(typeFilter === "homeowner" ? "all" : "homeowner")}
+              className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${
+                typeFilter === "homeowner" ? "bg-violet-500 text-white shadow-sm" : "text-zinc-500 hover:text-zinc-700"
+              }`}
+            >
+              Owner
+            </button>
           </div>
           <select
             value={agentFilter}
