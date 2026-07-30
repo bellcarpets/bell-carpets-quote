@@ -414,31 +414,7 @@ function HomeownerProductEditor({
       <Field label="Price (inc GST, whole dollars)" value={product.price} onChange={(v) => update({ price: parseInt(v) || 0 })} type="number" />
       <Field label="Product URL" value={product.productUrl} onChange={(v) => update({ productUrl: v })} />
 
-      {/* Badges */}
-      <div>
-        <label className="block text-xs text-zinc-500 mb-1">Badges / Certifications</label>
-        <div className="flex flex-wrap gap-2 mb-2">
-          {product.badges.map((badge, i) => (
-            <div key={i} className="flex items-center gap-1 bg-zinc-100 px-2 py-1 rounded border border-zinc-200 text-xs text-zinc-600">
-              <input
-                value={badge}
-                onChange={(e) => {
-                  const badges = [...product.badges];
-                  badges[i] = e.target.value;
-                  update({ badges });
-                }}
-                className="bg-transparent border-none text-xs text-zinc-600 focus:outline-none w-24"
-              />
-              <button type="button" onClick={() => update({ badges: product.badges.filter((_, bi) => bi !== i) })} className="text-red-400">
-                <Trash2 className="w-3 h-3" />
-              </button>
-            </div>
-          ))}
-          <button type="button" onClick={() => update({ badges: [...product.badges, ""] })} className="text-xs text-zinc-600 border border-dashed border-zinc-300 px-2 py-1 rounded hover:bg-zinc-100">
-            <Plus className="w-3 h-3 inline mr-1" />Add
-          </button>
-        </div>
-      </div>
+
 
     </div>
   );
@@ -3317,6 +3293,61 @@ function QuoteEditor({
             rows={3}
             className="w-full px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none resize-none overflow-hidden placeholder:text-zinc-300"
           />
+        </Section>
+
+        {/* Customer Description */}
+        <Section title="Customer Description">
+          <p className="text-zinc-400 text-xs mb-2">Shown to the customer as a flowing description on the quote page. One line per row. When filled in, this replaces the titled "Scope of Works" list on the customer-facing page. Leave blank to fall back to the generated scope.</p>
+          <textarea
+            value={config.customerDescription ?? ""}
+            onChange={(e) => {
+              updateConfig({ customerDescription: e.target.value });
+              e.target.style.height = "auto";
+              e.target.style.height = `${e.target.scrollHeight}px`;
+            }}
+            ref={(el) => {
+              if (el) {
+                el.style.height = "auto";
+                el.style.height = `${el.scrollHeight}px`;
+              }
+            }}
+            placeholder="e.g. Supply & Installation of new carpet to all bedrooms and living areas..."
+            rows={5}
+            className="w-full px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none resize-none overflow-hidden placeholder:text-zinc-300 mb-2"
+          />
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                // Generate description from scope of works items
+                const lines: string[] = [];
+                const underlayName = config.underlay || "";
+                // For tiered quotes, use tier product names
+                if ((config.quoteType === "agent" || config.quoteType === "real_estate") && config.tiers?.length) {
+                  const tier = config.tiers[0];
+                  if (tier?.productName) lines.push(`Supply & Installation of new ${tier.colourName ? tier.colourName + " colour " : ""}${tier.manufacturer ? tier.manufacturer + " " : ""}${tier.productName} carpet.`);
+                } else if (config.product?.productName) {
+                  lines.push(`Supply & Installation of new ${config.product.colourName ? config.product.colourName + " colour " : ""}${config.product.manufacturer ? config.product.manufacturer + " " : ""}${config.product.productName} carpet.`);
+                }
+                if (underlayName) lines.push(`Supply & Installation of new ${underlayName} underlay.`);
+                // Add scope of works items
+                (config.scopeOfWorks || []).forEach((item) => {
+                  if (item.title) lines.push(item.description ? `${item.title} — ${item.description}` : item.title + ".");
+                });
+                updateConfig({ customerDescription: lines.join("\n") });
+              }}
+              className="flex-1 py-2 rounded-lg border border-zinc-300 text-zinc-600 text-xs hover:border-zinc-900 hover:text-zinc-900 transition-colors"
+            >
+              Generate from quote
+            </button>
+            <button
+              type="button"
+              onClick={() => updateConfig({ customerDescription: "" })}
+              className="px-4 py-2 rounded-lg border border-zinc-200 text-zinc-400 text-xs hover:border-red-300 hover:text-red-400 transition-colors"
+            >
+              Clear
+            </button>
+          </div>
         </Section>
 
         {/* Terms */}

@@ -159,4 +159,11 @@ export interface QuoteConfigData {
 
   /** Underlay product — single selection applies to all tiers */
   underlay?: UnderlayOption;
+
+  /**
+   * Optional freeform customer-facing description.
+   * One line per row. When filled in, replaces the auto-generated Scope of Works list
+   * on the customer-facing quote page. Leave blank to use the generated scope.
+   */
+  customerDescription?: string;
 }
