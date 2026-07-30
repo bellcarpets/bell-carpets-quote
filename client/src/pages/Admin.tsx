@@ -1587,7 +1587,13 @@ function QuotesDashboard({
                 <div key={q.slug} className="bg-white rounded-xl border border-zinc-200 p-4 flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-zinc-900">{q.quoteNumber}</p>
-                    <p className="text-xs text-zinc-400">{q.quoteType === "homeowner" ? (q.agentName || q.clientName || "No client") : (q.clientName || "No client")}</p>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <p className="text-xs text-zinc-400">{q.quoteType === "homeowner" ? (q.agentName || q.clientName || "No client") : (q.clientName || "No client")}</p>
+                      {q.quoteType === "homeowner"
+                        ? <span className="shrink-0 inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold uppercase tracking-wide bg-violet-100 text-violet-700">Owner</span>
+                        : <span className="shrink-0 inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold uppercase tracking-wide bg-sky-100 text-sky-700">Agency</span>
+                      }
+                    </div>
                   </div>
                   <button
                     onClick={() => { if (confirm(`Restore ${q.quoteNumber}?`)) { restoreMutation.mutate({ password, slug: q.slug }, { onSuccess: () => { refetchArchived(); refetch(); } }); } }}
@@ -1698,9 +1704,15 @@ function QuotesDashboard({
                         {qExpiringSoon && <span className="ml-1.5 text-[9px] font-bold text-amber-500 uppercase tracking-wider">{qDaysLeft}D Left</span>}
                       </td>
                       <td className="py-3 pr-3 max-w-[200px]">
-                        <p className="text-xs font-medium text-zinc-800 truncate">
-                          {q.quoteType === "homeowner" ? (q.agentName || q.clientName || "No client") : (q.clientName || "No client")}
-                        </p>
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <p className="text-xs font-medium text-zinc-800 truncate">
+                            {q.quoteType === "homeowner" ? (q.agentName || q.clientName || "No client") : (q.clientName || "No client")}
+                          </p>
+                          {q.quoteType === "homeowner"
+                            ? <span className="shrink-0 inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold uppercase tracking-wide bg-violet-100 text-violet-700">Owner</span>
+                            : <span className="shrink-0 inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold uppercase tracking-wide bg-sky-100 text-sky-700">Agency</span>
+                          }
+                        </div>
                         {q.propertyAddress && (
                           <p className="text-[10px] text-zinc-400 truncate mt-0.5">{q.propertyAddress}</p>
                         )}
