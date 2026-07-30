@@ -1,4 +1,5 @@
 import { LOGO_WHITE_PNG, LOGO_PNG } from "@/lib/logo";
+const LOGO_BLACK_PNG = LOGO_PNG;
 /**
  * Admin Panel — Bell Carpets Multi-Quote Manager
  * Password-protected, mobile-first, dark theme
@@ -135,35 +136,35 @@ function PasswordGate({
   };
 
   return (
-    <div className="min-h-screen bg-zinc-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm bg-zinc-800/50 rounded-2xl p-6 border border-white/10"
+        className="w-full max-w-sm bg-white rounded-2xl p-8 border border-zinc-200 shadow-sm"
       >
         <div className="text-center mb-6">
           <img
-            src={LOGO_WHITE_PNG}
+            src={LOGO_BLACK_PNG}
             alt="Bell Carpets"
             className="h-10 mx-auto mb-1"
           />
-          <p className="text-[9px] tracking-[0.25em] text-zinc-500 uppercase font-light mb-4">RESIDENTIAL | COMMERCIAL | PROJECTS</p>
-          <h1 className="text-xl text-white font-semibold">
+          <p className="text-[9px] tracking-[0.25em] text-zinc-400 uppercase font-light mb-4">RESIDENTIAL | COMMERCIAL | PROJECTS</p>
+          <h1 className="text-xl text-zinc-900 font-semibold">
             Admin Panel
           </h1>
-          <p className="text-sm text-zinc-400 mt-1">Quote Manager</p>
+          <p className="text-sm text-zinc-500 mt-1">Quote Manager</p>
         </div>
         <input
           type="password"
           placeholder="Enter password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full px-4 py-3 rounded-xl bg-zinc-900 border border-white/10 text-white placeholder:text-zinc-400 focus:border-white/50 focus:outline-none mb-3"
+          className="w-full px-4 py-3 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-900 focus:outline-none mb-3"
         />
-        {error && <p className="text-red-400 text-sm mb-3">{error}</p>}
+        {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
         <button
           type="submit"
           disabled={loading || !password}
-          className="w-full py-3 rounded-xl bg-white text-black font-semibold hover:bg-white/90 disabled:opacity-50 transition-colors"
+          className="w-full py-3 rounded-xl bg-zinc-900 text-white font-semibold hover:bg-zinc-800 disabled:opacity-50 transition-colors"
         >
           {loading ? "Verifying..." : "Access Admin"}
         </button>
