@@ -22,9 +22,6 @@ export default function Footer() {
           alt="Bell Carpets"
           className="h-8 mx-auto mb-1.5 opacity-50"
         />
-        <p className="text-[9px] tracking-[0.3em] text-white/20 uppercase font-light">
-          {business.tagline}
-        </p>
       </div>
 
       {/* Contact details */}
