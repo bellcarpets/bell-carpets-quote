@@ -480,18 +480,6 @@ function TierEditor({
           onChange={(v) => update({ manufacturer: v })}
         />
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        <Field
-          label="Fibre"
-          value={tier.fibre}
-          onChange={(v) => update({ fibre: v })}
-        />
-        <Field
-          label="Pile Type"
-          value={tier.pileType}
-          onChange={(v) => update({ pileType: v })}
-        />
-      </div>
       <Field
         label="Price (inc GST, whole dollars)"
         value={tier.price}
@@ -499,28 +487,10 @@ function TierEditor({
         type="number"
       />
       <Field
-        label="Hero Image URL"
-        value={tier.image}
-        onChange={(v) => update({ image: v })}
-      />
-      <Field
         label="Product URL"
         value={tier.productUrl}
         onChange={(v) => update({ productUrl: v })}
       />
-      <div className="grid grid-cols-2 gap-3">
-        <Field
-          label="Primary Colour"
-          value={tier.color}
-          onChange={(v) => update({ color: v })}
-        />
-        <Field
-          label="Accent Colour"
-          value={tier.colorAccent}
-          onChange={(v) => update({ colorAccent: v })}
-        />
-      </div>
-
       {/* Carpet Colour */}
       <div>
         <label className="block text-xs text-zinc-500 mb-1">Carpet Colour</label>
@@ -548,47 +518,7 @@ function TierEditor({
           <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 text-xs">▾</span>
         </div>
       </div>
-      {/* Badges */}
-      <div>
-        <label className="block text-xs text-zinc-500 mb-1">
-          Badges / Certifications
-        </label>
-        <div className="flex flex-wrap gap-2 mb-2">
-          {tier.badges.map((badge, i) => (
-            <div
-              key={i}
-              className="flex items-center gap-1 bg-zinc-100 px-2 py-1 rounded border border-zinc-200 text-xs text-zinc-600"
-            >
-              <input
-                value={badge}
-                onChange={(e) => {
-                  const badges = [...tier.badges];
-                  badges[i] = e.target.value;
-                  update({ badges });
-                }}
-                className="bg-transparent border-none text-xs text-zinc-600 focus:outline-none w-24"
-              />
-              <button
-                type="button"
-                onClick={() =>
-                  update({ badges: tier.badges.filter((_, bi) => bi !== i) })
-                }
-                className="text-red-400"
-              >
-                <Trash2 className="w-3 h-3" />
-              </button>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={() => update({ badges: [...tier.badges, ""] })}
-            className="text-xs text-zinc-600 border border-dashed border-zinc-300 px-2 py-1 rounded hover:bg-zinc-100"
-          >
-            <Plus className="w-3 h-3 inline mr-1" />
-            Add
-          </button>
-        </div>
-      </div>
+
 
     </div>
   );
