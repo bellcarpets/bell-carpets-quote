@@ -315,6 +315,7 @@ const UNDERLAY_OPTIONS = [
   "Dunlop Springtred Protect",
   "Dunlop Springtred Ultimate",
   "Dunlop Eureka",
+  "Dunlop Government Red",
 ];
 
 function ComboSelect({
@@ -503,23 +504,6 @@ function TierEditor({
           className="w-full px-3 py-2 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none"
         />
       </div>
-      {/* Underlay */}
-      <div>
-        <label className="block text-xs text-zinc-500 mb-1">Underlay</label>
-        <div className="relative">
-          <select
-            value={tier.underlay || ""}
-            onChange={(e) => update({ underlay: e.target.value as import("../../../shared/quoteConfigTypes").UnderlayOption })}
-            style={{ WebkitAppearance: "none", appearance: "none" }}
-            className="w-full px-3 py-2 pr-8 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none"
-          >
-            <option value="">No underlay selected</option>
-            {UNDERLAY_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
-          </select>
-          <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 text-xs">▾</span>
-        </div>
-      </div>
-
 
     </div>
   );
@@ -2907,6 +2891,22 @@ function QuoteEditor({
                 <p className="text-xs text-zinc-400 mt-1">{daysLeft} day{daysLeft !== 1 ? "s" : ""} remaining</p>
               );
             })()}
+          </div>
+          {/* Underlay — single selection applies to all tiers */}
+          <div className="mt-3">
+            <label className="block text-xs text-zinc-500 mb-1">Underlay</label>
+            <div className="relative">
+              <select
+                value={config.underlay || ""}
+                onChange={(e) => updateConfig({ underlay: e.target.value as import("../../../shared/quoteConfigTypes").UnderlayOption })}
+                style={{ WebkitAppearance: "none", appearance: "none" }}
+                className="w-full px-3 py-2 pr-8 rounded-lg bg-zinc-50 border border-zinc-200 text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none"
+              >
+                <option value="">No underlay selected</option>
+                {UNDERLAY_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
+              </select>
+              <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 text-xs">▾</span>
+            </div>
           </div>
         </Section>
 

@@ -93,6 +93,26 @@ const UNDERLAY_SPECS: Record<NonNullable<Exclude<UnderlayOption, "">>, {
       { icon: Shield, label: "10mm comfort underfoot" },
     ],
   },
+  "Dunlop Government Red": {
+    name: "Dunlop Government Red",
+    tagline: "Built for high-traffic commercial and rental environments.",
+    specs: [
+      { icon: Layers, label: "9mm Thickness" },
+      { icon: Shield, label: "High Density" },
+      { icon: Volume2, label: "Acoustic Performance" },
+      { icon: Thermometer, label: "Thermal Insulation" },
+    ],
+    highlight: {
+      icon: Shield,
+      title: "Commercial Grade Durability",
+      body: "Designed for rental and commercial applications where long-term performance matters",
+    },
+    benefits: [
+      { icon: Shield, label: "High-traffic rated" },
+      { icon: Layers, label: "Consistent density for lasting support" },
+      { icon: Volume2, label: "Reduces noise transfer" },
+    ],
+  },
 };
 
 /** Map underlay option to a compact scope item for display in the Scope of Works list */
@@ -108,6 +128,10 @@ const UNDERLAY_SCOPE_ITEMS: Record<NonNullable<Exclude<UnderlayOption, "">>, { t
   "Dunlop Eureka": {
     title: "Premium Underlay",
     description: "Dunlop Eureka, 10mm, 80 kg/m\u00b3",
+  },
+  "Dunlop Government Red": {
+    title: "Underlay",
+    description: "Dunlop Government Red, high-density commercial grade",
   },
 };
 
@@ -802,7 +826,7 @@ export default function QuotePage({ slug }: QuotePageProps) {
 
 
         <div className="max-w-lg mx-auto">
-          <ScopeOfWorks items={withUnderlayItem(config.scopeOfWorks, selectedTier?.underlay || tiers[0]?.underlay)} />
+          <ScopeOfWorks items={withUnderlayItem(config.scopeOfWorks, config.underlay || selectedTier?.underlay || tiers[0]?.underlay)} />
         </div>
         {config.customerNotes && config.customerNotes.trim() && (
           <div className="max-w-lg mx-auto">
