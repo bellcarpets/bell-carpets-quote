@@ -223,11 +223,6 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
 
   return (
     <div className="space-y-5 mt-2">
-      {/* Section heading */}
-      <h2 className="text-sm font-medium tracking-[0.2em] uppercase text-white/35 mb-4 mt-2">
-        Selected Products
-      </h2>
-
       {/* ─── Product card ─── */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
@@ -285,6 +280,7 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
               "Dunlop Springtred Protect": { name: "Dunlop Springtred Protect", specs: "10mm \u00b7 80 kg/m\u00b3" },
               "Dunlop Springtred Ultimate": { name: "Dunlop Springtred Ultimate", specs: "10mm \u00b7 120 kg/m\u00b3" },
               "Dunlop Eureka": { name: "Dunlop Eureka", specs: "10mm \u00b7 80 kg/m\u00b3" },
+              "Dunlop Government Red": { name: "Dunlop Government Red", specs: "9mm \u00b7 High Density Commercial Grade" },
             };
             const u = underlaySpecs[config.product!.underlay!];
             if (!u) return null;
@@ -374,9 +370,7 @@ export default function HomeownerQuotePanel({ config, addons, slug, validUntil, 
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.15 }}
         >
-          <h2 className="text-sm font-medium tracking-[0.2em] uppercase text-white/35 mb-4">
-            Additional Services
-          </h2>
+
           <div className="space-y-3">
             {addons.map((addon) => {
               const isSelected = selectedAddonIds.includes(addon.id);

@@ -639,7 +639,7 @@ export default function QuotePage({ slug }: QuotePageProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8, delay: 0.2 }}
-      className="mt-10 mb-10 max-w-lg mx-auto lg:mx-0"
+      className="mt-10 mb-10 max-w-2xl mx-auto"
     >
       <h2 className="text-2xl sm:text-3xl font-semibold leading-snug mb-5 text-white">
         {quoteType === "homeowner" ? (
@@ -697,12 +697,12 @@ export default function QuotePage({ slug }: QuotePageProps) {
     return (
       <div className="min-h-screen bg-zinc-900">
         <PreviewBackButton />
-        <div className="max-w-lg mx-auto px-5 sm:px-6">
+        <div className="max-w-2xl lg:max-w-3xl mx-auto px-5 sm:px-8 lg:px-12">
           <Header />
           <Greeting />
 
           {/* Single product panel */}
-          <div className="max-w-lg mx-auto">
+          <div className="max-w-2xl mx-auto">
              <HomeownerQuotePanel
               config={config}
               addons={addons}
@@ -713,7 +713,7 @@ export default function QuotePage({ slug }: QuotePageProps) {
               linkedQuoteNumber={linkedQuoteNumber}
             />
           </div>
-          <div className="max-w-lg mx-auto">
+          <div className="max-w-2xl mx-auto">
             {config.customerDescription && config.customerDescription.trim() ? (
               <div className="mt-6">
                 <h2 className="text-[10px] tracking-[0.25em] text-white/30 uppercase font-light text-center mb-5">SCOPE OF WORKS</h2>
@@ -728,18 +728,18 @@ export default function QuotePage({ slug }: QuotePageProps) {
             )}
           </div>
           {config.customerNotes && config.customerNotes.trim() && (
-            <div className="max-w-lg mx-auto">
+            <div className="max-w-2xl mx-auto">
               <div className="bg-amber-950/30 border border-amber-400/20 rounded-xl p-5 mt-1">
                 <h3 className="text-amber-300/80 text-xs font-semibold uppercase tracking-widest mb-2">Notes</h3>
                 <p className="text-white/70 text-sm leading-relaxed whitespace-pre-wrap">{config.customerNotes.trim()}</p>
               </div>
             </div>
           )}
-          <div className="max-w-lg mx-auto">
+          <div className="max-w-2xl mx-auto">
             <QuoteTerms terms={config.terms} validUntil={validUntil} />
           </div>
           <DownloadQuotePDF />
-          <div className="max-w-lg mx-auto">
+          <div className="max-w-2xl mx-auto">
             <Footer />
           </div>
         </div>
@@ -749,7 +749,7 @@ export default function QuotePage({ slug }: QuotePageProps) {
   return (
     <div className="min-h-screen bg-zinc-900">
       <PreviewBackButton />
-      <div className="max-w-lg lg:max-w-4xl mx-auto px-5 sm:px-6">
+      <div className="max-w-2xl lg:max-w-5xl mx-auto px-5 sm:px-8 lg:px-12">
         <Header />
         <Greeting />
         <DownloadQuotePDF />
@@ -763,31 +763,8 @@ export default function QuotePage({ slug }: QuotePageProps) {
             </h2>
             <div className="h-px flex-1 bg-white/10" />
           </motion.div>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="mb-8 max-w-lg mx-auto"
-          >
-            <div className="rounded-xl border border-white/10 bg-white/[0.03] px-5 py-4">
-              <p className="text-xs font-medium tracking-[0.15em] uppercase text-white/40 mb-3">How to accept your quote</p>
-              <ol className="space-y-2">
-                {[
-                  "Select your preferred carpet below",
-                  "Choose your colour from the swatches",
-                  "Tap Accept Quote to confirm",
-                ].map((text, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <span className="w-5 h-5 rounded-full border border-white/20 flex items-center justify-center text-[10px] font-semibold text-white/40 flex-shrink-0 mt-0.5">
-                      {i + 1}
-                    </span>
-                    <span className="text-sm text-white/60 leading-snug">{text}</span>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          </motion.div>
-          <div className={`space-y-4 lg:grid lg:gap-5 lg:space-y-0 lg:items-start ${tiers.length === 2 ? 'lg:grid-cols-2 max-w-3xl mx-auto' : 'lg:grid-cols-3'}`}>
+
+          <div className={`space-y-4 lg:grid lg:gap-6 lg:space-y-0 lg:items-start ${tiers.length === 2 ? 'lg:grid-cols-2' : 'lg:grid-cols-3'}`}>
             {tiers.map((tier, i) => (
               <TierCard
                 key={tier.id}
@@ -810,7 +787,7 @@ export default function QuotePage({ slug }: QuotePageProps) {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className="mt-8 max-w-lg mx-auto"
+            className="mt-8 max-w-2xl mx-auto"
           >
             <AddonSelector
               addons={addons}
@@ -824,7 +801,7 @@ export default function QuotePage({ slug }: QuotePageProps) {
 
 
 
-        <div className="max-w-lg mx-auto">
+        <div className="max-w-2xl mx-auto">
           {config.customerDescription && config.customerDescription.trim() ? (
             <div className="mt-6">
               <h2 className="text-[10px] tracking-[0.25em] text-white/30 uppercase font-light text-center mb-5">SCOPE OF WORKS</h2>
@@ -839,17 +816,17 @@ export default function QuotePage({ slug }: QuotePageProps) {
           )}
         </div>
         {config.customerNotes && config.customerNotes.trim() && (
-          <div className="max-w-lg mx-auto">
+          <div className="max-w-2xl mx-auto">
             <div className="bg-amber-950/30 border border-amber-400/20 rounded-xl p-5 mt-1">
               <h3 className="text-amber-300/80 text-xs font-semibold uppercase tracking-widest mb-2">Notes</h3>
               <p className="text-white/70 text-sm leading-relaxed whitespace-pre-wrap">{config.customerNotes.trim()}</p>
             </div>
           </div>
         )}
-        <div className="max-w-lg mx-auto">
+        <div className="max-w-2xl mx-auto">
           <QuoteTerms terms={config.terms} validUntil={validUntil} />
         </div>
-        <div className="max-w-lg mx-auto">
+        <div className="max-w-2xl mx-auto">
           <Footer />
         </div>
       </div>
