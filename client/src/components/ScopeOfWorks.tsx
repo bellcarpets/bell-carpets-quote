@@ -12,9 +12,18 @@ interface ScopeItem {
 
 interface ScopeOfWorksProps {
   items: ScopeItem[];
+  areas?: string;
 }
 
-export default function ScopeOfWorks({ items }: ScopeOfWorksProps) {
+export default function ScopeOfWorks({ items, areas }: ScopeOfWorksProps) {
+  // Build display items: areas as first item (if present), then scope items (title only)
+  const displayItems: string[] = [
+    ...(areas && areas.trim() ? [areas.trim()] : []),
+    ...items.map(item => item.title).filter(Boolean),
+  ];
+
+  if (displayItems.length === 0) return null;
+
   return (
     <motion.section
       initial={{ opacity: 0 }}
@@ -39,7 +48,7 @@ export default function ScopeOfWorks({ items }: ScopeOfWorksProps) {
 
         {/* Scope items */}
         <div className="space-y-4">
-          {items.map((item, i) => (
+          {displayItems.map((title, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, x: -10 }}
@@ -56,7 +65,7 @@ export default function ScopeOfWorks({ items }: ScopeOfWorksProps) {
               {/* Item content */}
               <div className="rounded-xl px-4 py-3.5 bg-white/[0.02]">
                 <p className="text-sm font-medium text-white">
-                  {item.title}
+                  {title}
                 </p>
               </div>
             </motion.div>

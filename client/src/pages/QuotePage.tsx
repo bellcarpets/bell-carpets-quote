@@ -661,9 +661,6 @@ export default function QuotePage({ slug }: QuotePageProps) {
               <p className="text-base font-medium text-white">
                 {config.property.address}
               </p>
-              <p className="text-sm mt-0.5 text-white/40">
-                {config.scope}
-              </p>
             </div>
           </div>
         </div>
@@ -714,18 +711,10 @@ export default function QuotePage({ slug }: QuotePageProps) {
             />
           </div>
           <div className="max-w-2xl mx-auto">
-            {config.customerDescription && config.customerDescription.trim() ? (
-              <div className="mt-6">
-                <h2 className="text-[10px] tracking-[0.25em] text-white/30 uppercase font-light text-center mb-5">SCOPE OF WORKS</h2>
-                <div className="rounded-xl border border-white/10 bg-white/[0.02] px-5 py-4">
-                  {config.customerDescription.trim().split("\n").filter(Boolean).map((line, i) => (
-                    <p key={i} className="text-white/70 text-sm leading-relaxed mb-2 last:mb-0">{line}</p>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <ScopeOfWorks items={config.scopeOfWorks} />
-            )}
+            <ScopeOfWorks
+              areas={config.scope}
+              items={config.scopeOfWorks}
+            />
           </div>
           {config.customerNotes && config.customerNotes.trim() && (
             <div className="max-w-2xl mx-auto">
@@ -802,18 +791,10 @@ export default function QuotePage({ slug }: QuotePageProps) {
 
 
         <div className="max-w-2xl mx-auto">
-          {config.customerDescription && config.customerDescription.trim() ? (
-            <div className="mt-6">
-              <h2 className="text-[10px] tracking-[0.25em] text-white/30 uppercase font-light text-center mb-5">SCOPE OF WORKS</h2>
-              <div className="rounded-xl border border-white/10 bg-white/[0.02] px-5 py-4">
-                {config.customerDescription.trim().split("\n").filter(Boolean).map((line, i) => (
-                  <p key={i} className="text-white/70 text-sm leading-relaxed mb-2 last:mb-0">{line}</p>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <ScopeOfWorks items={withUnderlayItem(config.scopeOfWorks, config.underlay || selectedTier?.underlay || tiers[0]?.underlay)} />
-          )}
+          <ScopeOfWorks
+            areas={config.scope}
+            items={withUnderlayItem(config.scopeOfWorks, config.underlay || selectedTier?.underlay || tiers[0]?.underlay)}
+          />
         </div>
         {config.customerNotes && config.customerNotes.trim() && (
           <div className="max-w-2xl mx-auto">
