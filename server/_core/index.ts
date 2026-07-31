@@ -73,15 +73,15 @@ async function startServer() {
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
     
-    // Start background crons
-    if (process.env.NODE_ENV === "production" || process.env.RUN_CRONS === "true") {
-      startReminderCron();
-      startExpiryReminderCron();
-      startFollowUpCron();
-      startOverdueInvoiceCron();
-      startXeroPaymentCron();
-      startInstallationReminderCron();
-    }
+    // All crons disabled per Leon's request 31 Jul 2026
+    // if (process.env.NODE_ENV === "production" || process.env.RUN_CRONS === "true") {
+    //   startReminderCron();
+    //   startExpiryReminderCron();
+    //   startFollowUpCron();
+    //   startOverdueInvoiceCron();
+    //   startXeroPaymentCron();
+    //   startInstallationReminderCron();
+    // }
   });
 }
 
